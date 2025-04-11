@@ -10,7 +10,6 @@ export default function ConnectWalletButton() {
   const { disconnect } = useDisconnect();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // business logic
@@ -58,130 +57,157 @@ export default function ConnectWalletButton() {
     };
   }, []);
 
+  // 创建一个共享的背景样式
+  const backgroundStyle = {
+    background:
+      "linear-gradient(-86.667deg, rgba(95, 121, 241, 30%) 18%, rgba(253, 164, 175, 30%) 100%)",
+  };
+
   return (
     <div
-      className={`relative flex items-center  w-[170px] justify-center text-center rounded-t-[10px]  ${
-        !isDropdownOpen && "rounded-b-[10px]"
-      } ${
-        buttonReady
-          ? "bg-gradient-to-r from-[#5F79F1] to-[#FDA4AF]"
-          : "bg-gray-300"
-      }`}
+      className={`relative flex items-center justify-center text-center ${
+        isDropdownOpen ? "rounded-t-[10px]" : "rounded-[10px]"
+      } py-3 px-4 w-[180px]`}
+      style={backgroundStyle}
       ref={dropdownRef}
     >
       <button
         disabled={!buttonReady}
         onClick={handleButtonOnClick}
-        className="cursor-pointer flex items-center gap-4 px-4 py-3"
+        className="cursor-pointer flex items-center justify-between w-full"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 w-full">
           {buttonReady ? (
             loggedIn ? (
-              <div className="flex items-center gap-4 font-[family-name:var(--font-manrope)] font-medium text-base">
-                {/* TODO: Add wallet icon */}
+              <div className="flex items-center justify-between w-full">
+                {/* User info with wallet */}
+                <div className="flex items-center gap-4">
+                  {/* Identicon */}
+                  <div className="relative">
+                    <Image
+                      src="/dropdown-icons/identicon.png"
+                      alt="User Identicon"
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
 
-                <div className="flex items-center gap-2 text-black">
-                  {/* TODO: Add username */}
-                  <span>
-                    {address?.slice(0, 6) + "..." + address?.slice(-4)}
-                  </span>
+                    {/* Wallet icon (positioned over the identicon) */}
+                    <div className="absolute top-0 left-0 w-[18px] h-[18px] rounded-full bg-[#FFE8D2] flex items-center justify-center border-[1.5px] border-white">
+                      <Image
+                        src="/dropdown-icons/metamask.png"
+                        alt="MetaMask"
+                        width={10}
+                        height={10}
+                      />
+                    </div>
+                  </div>
+
+                  {/* User info */}
+                  <div className="flex flex-col items-start">
+                    <span className="font-bold text-[14px] text-[#3B446A] tracking-wider">
+                      UserName
+                    </span>
+                    <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black opacity-60">
+                      {address?.slice(0, 6) + "..." + address?.slice(-4)}
+                    </span>
+                  </div>
                 </div>
 
+                {/* Arrow down icon */}
                 <Image
-                  src="/arrow-down.svg"
+                  src="/dropdown-icons/arrow-down.svg"
                   alt="Arrow Down"
                   width={16}
                   height={16}
-                  className={`text-white transition-transform ${
+                  className={`text-[#3B446A] transition-transform ml-2 ${
                     isDropdownOpen ? "rotate-180" : ""
                   }`}
                 />
               </div>
             ) : (
-              <span className="text-center text-white font-[family-name:var(--font-manrope)] font-medium text-base">
-                Connect Wallet
-              </span>
+              <div className="flex items-center justify-center w-full">
+                <span className="text-center text-white font-medium text-base">
+                  Connect Wallet
+                </span>
+              </div>
             )
           ) : (
-            <span className="text-center text-white font-[family-name:var(--font-manrope)] font-medium text-base">
-              Loading...
-            </span>
+            <div className="flex items-center justify-center w-full">
+              <span className="text-center text-white font-medium text-base">
+                Loading...
+              </span>
+            </div>
           )}
         </div>
       </button>
 
       {/* DROPDOWN */}
       {isDropdownOpen && (
-        <div className="absolute top-full rounded-b-[10px] right-0 w-full shadow-lg bg-gradient-to-r from-[#5F79F1] to-[#FDA4AF] p-[1px] z-10 transform origin-top-right transition-all duration-200 ease-out">
-          <div className="overflow-hidden">
-            <div className="">
-              {/* Copy Address Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (address) {
-                    navigator.clipboard.writeText(address);
-                    setIsCopied(true);
-                    setTimeout(() => setIsCopied(false), 2000);
-                  }
-                }}
-                className="w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:opacity-90 transition-colors duration-150"
-              >
-                <div className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span className="font-medium">Copy Address</span>
-                </div>
-                {isCopied && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-green-500 animate-[checkmark_0.4s_ease-in-out]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                )}
+        <div
+          className="absolute top-full right-0 w-full rounded-b-[12px] shadow-lg overflow-hidden z-10 transform origin-top-right transition-all duration-200 ease-out"
+          style={{
+            ...backgroundStyle,
+            boxShadow: "0px 4px 20px 0px rgba(96, 167, 255, 0.25)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="w-full">
+            {/* Menu items */}
+            <div className="w-full">
+              {/* History */}
+              <button className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                <Image
+                  src="/dropdown-icons/history-icon.svg"
+                  alt="History"
+                  width={20}
+                  height={20}
+                />
+                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
+                  History
+                </span>
               </button>
 
-              {/* Disconnect Button */}
+              {/* Profile */}
+              <button className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                <Image
+                  src="/dropdown-icons/profile-icon.svg"
+                  alt="Profile"
+                  width={20}
+                  height={20}
+                />
+                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
+                  Profile
+                </span>
+              </button>
+
+              {/* Settings */}
+              <button className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                <Image
+                  src="/dropdown-icons/settings-icon.svg"
+                  alt="Settings"
+                  width={20}
+                  height={20}
+                />
+                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
+                  Settings
+                </span>
+              </button>
+
+              {/* Disconnect */}
               <button
                 onClick={handleDisconnect}
-                className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:opacity-90 transition-colors duration-150"
+                className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-red-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                <span className="font-medium text-red-500">Disconnect</span>
+                <Image
+                  src="/dropdown-icons/logout-icon.svg"
+                  alt="Disconnect"
+                  width={20}
+                  height={20}
+                />
+                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-[#FF4560]">
+                  Disconnect
+                </span>
               </button>
             </div>
           </div>
