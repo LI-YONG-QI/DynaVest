@@ -1,12 +1,16 @@
 import { useWallets } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
+
+import { useSwitchChain as useSwitch } from "wagmi";
 
 export default function useSwitchChain(targetChainId: number) {
   const { wallets, ready } = useWallets();
   const chainId = useChainId();
   const [isSupportedChain, setIsSupportedChain] = useState<boolean>(false);
+
+  const { chains, error: switchNetworkError, switchChain } = useSwitch();
 
   const handleSwitchChain = async () => {
     try {
@@ -14,6 +18,8 @@ export default function useSwitchChain(targetChainId: number) {
         toast.error("No wallet found. Please connect a wallet first.");
         return;
       }
+
+      console.log(wallets);
 
       const wallet = wallets[0];
 

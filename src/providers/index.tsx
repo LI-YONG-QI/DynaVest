@@ -21,9 +21,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         appearance: {
           theme: "light",
           accentColor: "#676FFF",
-          //   walletList: ["metamask"],
           walletChainType: "ethereum-only",
         },
+        loginMethods: ["google"],
         // Create embedded wallets for users who don't have a wallet
         embeddedWallets: {
           createOnLogin: "users-without-wallets",

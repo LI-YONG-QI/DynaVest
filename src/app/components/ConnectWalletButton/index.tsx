@@ -1,14 +1,20 @@
 import Image from "next/image";
-import { useLogin, usePrivy } from "@privy-io/react-auth";
-import { useDisconnect, useAccount } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
+import { useAccount } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ConnectWalletButton() {
-  const { ready: privyReady, authenticated, logout, linkWallet } = usePrivy();
+  const {
+    ready: privyReady,
+    user,
+    login,
+    connectWallet,
+    authenticated,
+    logout,
+  } = usePrivy();
   const { address } = useAccount();
-  const { login } = useLogin();
-  const { disconnect } = useDisconnect();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -18,21 +24,21 @@ export default function ConnectWalletButton() {
   const buttonReady = privyReady && !isLoading;
   const loggedIn = privyReady && authenticated && address;
 
+  console.log("Authenticated", authenticated);
+  console.log("User", user);
+
   const handleButtonOnClick = () => {
     if (!buttonReady) return;
+
     if (!loggedIn) {
-      if (authenticated) {
-        // User is authenticated but wallet not connected, use linkWallet instead
-        linkWallet();
-      } else {
-        // User is not authenticated, use regular login
-        login({
-          loginMethods: ["wallet"],
-          walletChainType: "ethereum-only",
-          disableSignup: false,
-        });
-      }
-      return;
+      connectWallet({
+        walletChainType: "ethereum-only",
+      });
+      // login({
+      //   loginMethods: ["wallet", "google"],
+      //   walletChainType: "ethereum-only",
+      //   disableSignup: false,
+      // });
     }
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -42,7 +48,6 @@ export default function ConnectWalletButton() {
       setIsDropdownOpen(false);
       setIsLoading(true);
       await logout();
-      disconnect();
     } finally {
       setIsLoading(false);
     }

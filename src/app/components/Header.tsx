@@ -3,6 +3,8 @@
 import Link from "next/link";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { usePathname } from "next/navigation";
+import { usePrivy } from "@privy-io/react-auth";
+import { useAccount, useSwitchChain } from "wagmi";
 
 interface NavItem {
   label: string;

@@ -32,6 +32,7 @@ export default function InvestModalButton({
   const [isLoading, setIsLoading] = useState(false);
   const { address: user } = useAccount();
   const chainId = useChainId();
+  console.log("Chain ID", chainId);
   const {
     handleSwitchChain,
     isSupportedChain,
