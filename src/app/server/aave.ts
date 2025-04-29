@@ -71,6 +71,7 @@ export class AaveV3Strategy extends BaseStrategy<AaveSupportedChains> {
       functionName: "supply",
       args: [asset, amount, user, 0],
     });
+
     calls.push({
       target: this.pool,
       callData: data,

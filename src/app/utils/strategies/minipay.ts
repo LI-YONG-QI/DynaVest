@@ -2,13 +2,15 @@ import type { Address } from "viem";
 import { custom, http } from "@wagmi/core";
 
 import { BaseStrategy } from "./base";
-import { STAKED_CELO_ABI } from "@/app/abis/stakeCelo";
 import {
   StCeloSupportedChains,
   ST_CELO_CONTRACTS,
+  AAVE_CONTRACTS,
 } from "../constants/protocols";
 import { celo } from "viem/chains";
 import { createWalletClient, createPublicClient } from "viem";
+import { AAVE_V3_ABI, ERC20_ABI } from "@/app/abis";
+import { cUSD } from "@/app/utils/constants/coins";
 
 const publicClient = createPublicClient({
   chain: celo,
@@ -26,6 +28,9 @@ export class MiniPayStrategy extends BaseStrategy<StCeloSupportedChains> {
 
   /// @notice Staking CELO to stCelo
   async execute(user: Address, _asset: null, amount: bigint): Promise<string> {
+    const pool = AAVE_CONTRACTS[this.chainId].pool;
+    const asset = cUSD.chains![this.chainId];
+
     if (!window.ethereum) {
       throw new Error("No ethereum provider found. Please install a wallet.");
     }
@@ -38,19 +43,30 @@ export class MiniPayStrategy extends BaseStrategy<StCeloSupportedChains> {
     const [address] = await walletClient.getAddresses();
 
     const tx = await walletClient.writeContract({
-      address: this.manager,
-      abi: STAKED_CELO_ABI,
-      functionName: "deposit",
-      value: amount,
+      address: asset,
+      abi: ERC20_ABI,
+      functionName: "approve",
       account: address,
-      args: [],
+      args: [pool, amount],
     });
 
-    const receipt = await publicClient.waitForTransactionReceipt({
+    await publicClient.waitForTransactionReceipt({
       hash: tx,
     });
 
-    return receipt.transactionHash;
+    const supplyTx = await walletClient.writeContract({
+      address: pool,
+      abi: AAVE_V3_ABI,
+      functionName: "supply",
+      account: address,
+      args: [asset, amount, address, 0],
+    });
+
+    const supplyReceipt = await publicClient.waitForTransactionReceipt({
+      hash: supplyTx,
+    });
+
+    return supplyReceipt.transactionHash;
   }
 
   isSupported(chainId: number): boolean {
