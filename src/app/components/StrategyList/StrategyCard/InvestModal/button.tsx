@@ -18,6 +18,7 @@ interface InvestModalButtonProps {
   strategy: InvestStrategy;
   amount: string;
   handleClose?: () => void;
+  handlePortfolio?: (amount: string) => void;
 }
 
 export default function InvestModalButton({
@@ -25,11 +26,14 @@ export default function InvestModalButton({
   amount,
   strategy,
   handleClose,
+  handlePortfolio,
 }: InvestModalButtonProps) {
   const [buttonState, setButtonState] = useState<ButtonState>(
     ButtonState.Pending
   );
+  const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBot] = useState<boolean>(handlePortfolio ? true : false);
   const { address: user } = useAccount();
   const chainId = useChainId();
   const {
@@ -48,7 +52,8 @@ export default function InvestModalButton({
         ? ButtonState.Invest
         : ButtonState.SwitchChain
     );
-  }, [isWalletReady, isLoading, isSupportedChain]);
+    setIsDisabled(isLoading);
+  }, [isWalletReady, isLoading, isSupportedChain, isBot]);
 
   const invest = async () => {
     setIsLoading(true);
@@ -86,7 +91,11 @@ export default function InvestModalButton({
   const handler = () => {
     switch (buttonState) {
       case ButtonState.Invest:
-        invest();
+        if (isBot) {
+          handlePortfolio!(amount);
+        } else {
+          invest();
+        }
         break;
       case ButtonState.SwitchChain:
         handleSwitchChain();
@@ -101,7 +110,7 @@ export default function InvestModalButton({
       <button
         type="button"
         onClick={handler}
-        disabled={isLoading}
+        disabled={isDisabled}
         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-[#5F79F1] hover:bg-[#4A64DC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
       >
         {buttonState}

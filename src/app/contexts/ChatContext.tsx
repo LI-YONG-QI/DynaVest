@@ -24,6 +24,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       text: "Hello! How can I help you with your DeFi investments today?",
       sender: "bot",
       timestamp: new Date(),
+      type: "Text",
     },
   ]);
 
@@ -44,6 +45,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               text: firstMessage,
               sender: "bot",
               timestamp: new Date(),
+              type: "Text",
             }
           : firstMessage;
       setMessages([msgObj]);
@@ -54,6 +56,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           text: "Hello! How can I help you with your DeFi investments today?",
           sender: "bot",
           timestamp: new Date(),
+          type: "Text",
         },
       ]);
     }

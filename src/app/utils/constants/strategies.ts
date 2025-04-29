@@ -3,6 +3,24 @@ import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 import { USDC, CELO, FLOW, cEUR, ETH, BNB, cUSD } from "./coins";
 import type { StrategyMetadata } from "../types";
 
+export const BOT_STRATEGY: StrategyMetadata = {
+  title: "Bot Strategy",
+  apy: 0,
+  risk: {
+    level: "Low" as const,
+    color: "",
+    bgColor: "",
+  },
+  protocol: "Bot Strategy",
+  description:
+    "Staking CELO to operate network nodes helps to maintain security on the blockchain.",
+  image: "/crypto-icons/celo.svg",
+  externalLink: "https://stcelo.com",
+  learnMoreLink: "https://stcelo.com",
+  tokens: [USDC],
+  chainId: base.id,
+};
+
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
   {
     title: "GMX Strategy",

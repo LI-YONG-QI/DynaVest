@@ -15,14 +15,19 @@
     "@tanstack/react-query": "^5.71.5",
     "@uniswap/permit2-sdk": "^1.3.1",
     "@wagmi/core": "^2.16.7",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5",
+    "lucide-react": "^0.503.0",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
+    "recharts": "^2.15.3",
+    "tailwind-merge": "^3.2.0",
     "viem": "^2.25.0",
     "wagmi": "^2.14.16",
     "web3": "^4.16.0"
@@ -36,6 +41,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
+    "tw-animate-css": "^1.2.8",
     "typescript": "^5"
   }
 }

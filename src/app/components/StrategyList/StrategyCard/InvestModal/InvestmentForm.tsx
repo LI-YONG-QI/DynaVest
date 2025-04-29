@@ -10,9 +10,14 @@ import { MoonLoader } from "react-spinners";
 interface InvestmentFormProps {
   strategy: InvestStrategy;
   handleClose?: () => void;
+  handlePortfolio?: (amount: string) => void;
 }
 
-const InvestmentForm: FC<InvestmentFormProps> = ({ strategy, handleClose }) => {
+const InvestmentForm: FC<InvestmentFormProps> = ({
+  strategy,
+  handleClose,
+  handlePortfolio,
+}) => {
   const [amount, setAmount] = useState<string>("");
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
@@ -125,12 +130,14 @@ const InvestmentForm: FC<InvestmentFormProps> = ({ strategy, handleClose }) => {
           </div>
         </div>
       </div>
+
       {/* Invest button */}
       <InvestModalButton
         currency={currency}
         strategy={strategy}
         amount={amount}
         handleClose={handleClose}
+        handlePortfolio={handlePortfolio}
       />
     </div>
   );

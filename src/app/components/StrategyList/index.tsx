@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { ToastContainer } from "react-toastify";
 import { useState, useMemo, useRef } from "react";
 
 import StrategyCard from "./StrategyCard";
@@ -211,7 +210,6 @@ export default function StrategyList() {
           )}
         </>
       )}
-      <ToastContainer position="bottom-right" />
     </div>
   );
 }

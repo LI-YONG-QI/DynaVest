@@ -35,6 +35,7 @@ const Chatroom = () => {
       text: inputMessage,
       sender: "user",
       timestamp: new Date(),
+      type: "Text",
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -49,6 +50,7 @@ const Chatroom = () => {
         text: botResponse.result,
         sender: "bot",
         timestamp: new Date(),
+        type: "Text",
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch {
@@ -152,6 +154,7 @@ const Chatroom = () => {
                     text: "...",
                     sender: "bot",
                     timestamp: new Date(),
+                    type: "Text",
                   }}
                   isLoading={true}
                 />
