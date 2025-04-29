@@ -17,7 +17,7 @@ export const BOT_STRATEGY: StrategyMetadata = {
   image: "/crypto-icons/celo.svg",
   externalLink: "https://stcelo.com",
   learnMoreLink: "https://stcelo.com",
-  tokens: [CELO],
+  tokens: [cUSD],
   chainId: celo.id,
 };
 

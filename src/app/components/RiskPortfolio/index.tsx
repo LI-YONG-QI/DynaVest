@@ -44,12 +44,15 @@ const RiskPortfolio = ({ changePercentage, strategy }: RiskPortfolioProps) => {
   const { address } = useMiniPay();
   // State for selected risk preference
   const [selectedRisk, setSelectedRisk] = useState("Balanced Risk");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Mock data for portfolio strategies
 
   const invest = async () => {
+    setIsLoading(true);
+
     const minipayStrategy = new MiniPayStrategy(celo.id);
-    const parsedAmount = parseUnits("0", strategy.tokens[0].decimals);
+    const parsedAmount = parseUnits("0.01", strategy.tokens[0].decimals);
 
     try {
       if (!address) throw new Error("No address found");
@@ -63,6 +66,8 @@ const RiskPortfolio = ({ changePercentage, strategy }: RiskPortfolioProps) => {
     } catch (error) {
       console.error(error);
       toast.error(`Investment failed! ${error}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,31 +120,61 @@ const RiskPortfolio = ({ changePercentage, strategy }: RiskPortfolioProps) => {
       <div className="w-full flex flex-col gap-5 md:flex-row">
         <button
           onClick={invest}
-          className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5"
+          disabled={isLoading}
+          className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:bg-[#5F79F1]/50 disabled:cursor-not-allowed"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9 19L16 12L9 5"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span className="text-sm font-semibold">
-            Start Building Portfolio
-          </span>
+          {isLoading ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 mr-2 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <span className="text-sm font-semibold">Investing...</span>
+            </>
+          ) : (
+            <>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 19L16 12L9 5"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="text-sm font-semibold">
+                Start Building Portfolio
+              </span>
+            </>
+          )}
         </button>
 
         <button
-          className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5"
+          className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:bg-[#5F79F1]/50 disabled:cursor-not-allowed"
           onClick={changePercentage}
+          disabled={isLoading}
         >
           <svg
             width="24"
