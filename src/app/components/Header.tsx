@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import ConnectWalletButton from "./ConnectWalletButton";
+// import ConnectWalletButton from "./ConnectWalletButton";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -44,7 +44,8 @@ export default function Header() {
         ))}
       </nav>
 
-      <ConnectWalletButton />
+      {/* <ConnectWalletButton /> */}
+      {/* <button> {userAddress} </button> */}
     </header>
   );
 }

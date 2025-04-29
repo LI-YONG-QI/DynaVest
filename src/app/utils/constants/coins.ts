@@ -139,6 +139,16 @@ export const WBNB: Token = {
   },
 };
 
+export const cUSD: Token = {
+  name: "cUSD",
+  icon: "/crypto-icons/cUSD.svg",
+  decimals: 18,
+  isNativeToken: false,
+  chains: {
+    [celo.id]: "0x765DE816845861535d92234EB712B9B9B7B39525",
+  },
+};
+
 export function getWrappedToken(token: Token): Token {
   if (token.isNativeToken) {
     switch (token.name) {

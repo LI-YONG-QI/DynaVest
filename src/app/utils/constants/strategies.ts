@@ -1,6 +1,6 @@
 import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
-import { USDC, CELO, FLOW, cEUR, ETH, BNB } from "./coins";
+import { USDC, CELO, FLOW, cEUR, ETH, BNB, cUSD } from "./coins";
 import type { StrategyMetadata } from "../types";
 
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
@@ -366,5 +366,22 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
     tokens: [USDC],
     chainId: polygon.id,
+  },
+  {
+    title: "MiniPay Staking",
+    apy: 2.8,
+    risk: {
+      level: "Low" as const,
+      color: "#E83033",
+      bgColor: "rgba(232, 48, 51, 0.3)",
+    },
+    protocol: "MiniPay stCelo",
+    description:
+      "Staking CELO to operate network nodes helps to maintain security on the blockchain.",
+    image: "/crypto-icons/celo.svg",
+    externalLink: "https://stcelo.com",
+    learnMoreLink: "https://stcelo.com",
+    tokens: [cUSD],
+    chainId: celo.id,
   },
 ];

@@ -23,7 +23,8 @@ export type Protocol =
   | "LST"
   | "BSC LST"
   | "Camelot"
-  | "GMX";
+  | "GMX"
+  | "MiniPay stCelo";
 
 export type StrategyMetadata = InvestStrategy & {
   displayInsufficientBalance?: boolean;
