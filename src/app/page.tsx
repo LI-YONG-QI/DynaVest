@@ -339,7 +339,7 @@ export default function Home() {
                                 strategy={BOT_STRATEGY}
                                 handlePortfolio={(amount: string) =>
                                   handleMessage(
-                                    amount + " USDT",
+                                    amount + ` ${BOT_STRATEGY.tokens[0].name}`,
                                     sendMockPortfolioMessage
                                   )
                                 }
