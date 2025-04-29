@@ -8,7 +8,7 @@ export const sendMockInvestMessage = async (
 
   return {
     result:
-      "We will diversify your token into reputable and secured yield protocols based on your preference.\nWhat's your investment size (Base by default)? ",
+      "We will diversify your token into reputable and secured yield protocols based on your preference.\nWhat's your investment size (Celo by default)? ",
     type: "Invest",
   };
 };

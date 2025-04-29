@@ -141,7 +141,7 @@ export const WBNB: Token = {
 
 export const cUSD: Token = {
   name: "cUSD",
-  icon: "/crypto-icons/cUSD.svg",
+  icon: "/crypto-icons/cUSD.webp",
   decimals: 18,
   isNativeToken: false,
   chains: {

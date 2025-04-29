@@ -17,8 +17,8 @@ export const BOT_STRATEGY: StrategyMetadata = {
   image: "/crypto-icons/celo.svg",
   externalLink: "https://stcelo.com",
   learnMoreLink: "https://stcelo.com",
-  tokens: [USDC],
-  chainId: base.id,
+  tokens: [CELO],
+  chainId: celo.id,
 };
 
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
@@ -257,7 +257,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     chainId: celo.id,
   },
   {
-    title: "Uniswap Liquidity Stablecoin Pool",
+    title: "Uniswap Liquidity CELO/cEUR Pool",
     apy: 69.405,
     risk: {
       level: "High" as const,

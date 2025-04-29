@@ -24,11 +24,8 @@ export class MiniPayStrategy extends BaseStrategy<StCeloSupportedChains> {
     this.manager = ST_CELO_CONTRACTS[this.chainId].manager;
   }
 
-  async execute(
-    user: Address,
-    _asset: Address,
-    amount: bigint
-  ): Promise<string> {
+  /// @notice Staking CELO to stCelo
+  async execute(user: Address, _asset: null, amount: bigint): Promise<string> {
     if (!window.ethereum) {
       throw new Error("No ethereum provider found. Please install a wallet.");
     }

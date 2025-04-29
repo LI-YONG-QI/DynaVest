@@ -14,37 +14,23 @@ import {
 const strategies = [
   {
     id: 1,
-    color: "#7086FD",
-    name: "GMX Strategy",
-    apy: "APY 214.47%",
-    risk: "High Risk",
+    color: "#6FD195",
+    name: "AAVE Lending",
+    apy: "APY 5.7%",
+    risk: "Low Risk",
   },
   {
     id: 2,
-    color: "#6FD195",
-    name: "AAVE Lending",
-    apy: "APY 214.47%",
-    risk: "High Risk",
+    color: "#07DBFA",
+    name: "stCelo Stake",
+    apy: "APY 2.8%",
+    risk: "Low Risk",
   },
   {
     id: 3,
     color: "#FFAE4C",
     name: "Uniswap Liquidity",
-    apy: "APY 214.47%",
-    risk: "High Risk",
-  },
-  {
-    id: 4,
-    color: "#07DBFA",
-    name: "Liquid Staking",
-    apy: "APY 214.47%",
-    risk: "High Risk",
-  },
-  {
-    id: 5,
-    color: "#988AFC",
-    name: "Camelot Staking",
-    apy: "APY 214.47%",
+    apy: "APY 45.15%",
     risk: "High Risk",
   },
 ];
@@ -75,7 +61,13 @@ const LegendItem = ({
         <span className="text-[10px] md:text-xs text-[rgba(0,0,0,0.7)]">
           {apy}
         </span>
-        <span className="text-[10px] md:text-xs text-red-500">{risk}</span>
+        <span
+          className={`text-[10px] md:text-xs ${
+            risk === "Low Risk" ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {risk}
+        </span>
       </div>
     </div>
   );
@@ -85,45 +77,33 @@ const LegendItem = ({
 
 // TODO: chart data and config should be synced
 const chartData = [
-  { name: "GMX Staking", value: 20 },
-  { name: "AAVE Lending", value: 20 },
+  { name: "AAVE Lending", value: 36 },
+  { name: "stCelo Stake", value: 44 },
   { name: "Uniswap Liquidity", value: 20 },
-  { name: "Liquid Staking", value: 20 },
-  { name: "Camelot Staking", value: 20 },
 ];
 
 // Define colors to match the original design
 const COLORS = [
-  "#7086FD", // GMX Strategy
   "#6FD195", // AAVE Lending Strategy
+  "#07DBFA", // stCelo Stake
   "#FFAE4C", // Uniswap Liquidity
-  "#07DBFA", // Liquid Staking
-  "#988AFC", // Camelot Staking
 ];
 
 const chartConfig = {
   value: {
     label: "Allocation",
   },
-  "GMX Staking": {
-    label: "GMX Staking",
-    color: "#7086FD",
-  },
   "AAVE Lending": {
     label: "AAVE Lending",
     color: "#6FD195",
   },
+  "stCelo Stake": {
+    label: "stCelo Stake",
+    color: "#07DBFA",
+  },
   "Uniswap Liquidity": {
     label: "Uniswap Liquidity",
     color: "#FFAE4C",
-  },
-  "Liquid Staking": {
-    label: "Liquid Staking",
-    color: "#07DBFA",
-  },
-  "Camelot Staking": {
-    label: "Camelot Staking",
-    color: "#988AFC",
   },
 } satisfies ChartConfig;
 

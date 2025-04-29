@@ -352,6 +352,7 @@ export default function Home() {
                             <div className="overflow-x-auto max-w-full w-full">
                               <div className="min-w-[330px] w-full">
                                 <RiskPortfolio
+                                  strategy={BOT_STRATEGY}
                                   changePercentage={() =>
                                     handleMessage(
                                       "Change percentage",

@@ -2,9 +2,16 @@
 
 import React, { useState } from "react";
 import { PortfolioPieChart } from "./pie";
+import { StrategyMetadata } from "@/app/utils/types";
+import { parseUnits } from "viem";
+import { MiniPayStrategy } from "@/app/utils/strategies/minipay";
+import { celo } from "viem/chains";
+import { useMiniPay } from "@/app/hooks/useMiniPay";
+import { toast } from "react-toastify";
 
 interface RiskPortfolioProps {
   changePercentage: () => void;
+  strategy: StrategyMetadata;
 }
 
 // Component for risk preference badges
@@ -33,11 +40,31 @@ const RiskBadge = ({
 
 // Portfolio legend item component
 
-const RiskPortfolio = ({ changePercentage }: RiskPortfolioProps) => {
+const RiskPortfolio = ({ changePercentage, strategy }: RiskPortfolioProps) => {
+  const { address } = useMiniPay();
   // State for selected risk preference
   const [selectedRisk, setSelectedRisk] = useState("Balanced Risk");
 
   // Mock data for portfolio strategies
+
+  const invest = async () => {
+    const minipayStrategy = new MiniPayStrategy(celo.id);
+    const parsedAmount = parseUnits("0", strategy.tokens[0].decimals);
+
+    try {
+      if (!address) throw new Error("No address found");
+      const result = await minipayStrategy.execute(
+        address as `0x${string}`,
+        null,
+        parsedAmount
+      );
+
+      toast.success(`Investment successful! ${result}`);
+    } catch (error) {
+      console.error(error);
+      toast.error(`Investment failed! ${error}`);
+    }
+  };
 
   // Risk preference options
   const riskOptions = [
@@ -86,7 +113,10 @@ const RiskPortfolio = ({ changePercentage }: RiskPortfolioProps) => {
 
       {/* Action buttons */}
       <div className="w-full flex flex-col gap-5 md:flex-row">
-        <button className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5">
+        <button
+          onClick={invest}
+          className="flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5"
+        >
           <svg
             width="24"
             height="24"
