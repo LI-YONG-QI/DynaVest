@@ -145,7 +145,7 @@ export const cUSD: Token = {
   decimals: 18,
   isNativeToken: false,
   chains: {
-    [celo.id]: "0x765DE816845861535d92234EB712B9B9B7B39525",
+    [celo.id]: "0x765de816845861e75a25fca122bb6898b8b1282a",
   },
 };
 

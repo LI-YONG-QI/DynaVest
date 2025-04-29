@@ -13,6 +13,7 @@ import { LSTStrategy } from "./lst";
 import { BscLstStrategy } from "./bscLst";
 import { CamelotStrategy } from "./camelot";
 import { GMXStrategy } from "./gmx";
+import { MiniPayStrategy } from "./minipay";
 
 export function getDeadline(): bigint {
   const timestampInSeconds = Math.floor(Date.now() / 1000);
@@ -50,6 +51,8 @@ export function getStrategy(
       return new CamelotStrategy(chainId);
     case "GMX":
       return new GMXStrategy(chainId);
+    case "MiniPay stCelo":
+      return new MiniPayStrategy(chainId);
     default:
       throw new Error("Unsupported protocol");
   }
