@@ -98,7 +98,7 @@ const RiskPortfolio = ({ changePercentage, strategy }: RiskPortfolioProps) => {
           </div>
 
           <div className="flex items-center">
-            <p className="text-gray text-sm font-normal">
+            <p className="text-gray text-xs md:text-sm font-normal px-1">
               This portfolio will diversify equally in yield protocols of three
               risk levels.
             </p>

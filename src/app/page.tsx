@@ -9,7 +9,6 @@ import { BOT_STRATEGY } from "./utils/constants/strategies";
 import RiskPortfolio from "@/app/components/RiskPortfolio";
 import EditList from "@/app/components/EditList";
 import {
-  sendMockInvestMessage,
   sendMockPortfolioMessage,
   sendMockChangePercentageMessage,
   sendMockReviewMessage,
@@ -25,7 +24,6 @@ export default function Home() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
     useChatbot();
 
@@ -53,7 +51,7 @@ export default function Home() {
   };
 
   // TODO: Handle Ask AI
-  // TODO: sendFn should be `sendMessage` (sendFn for dev)
+  // TODO: sendFn should be  `sendMessage` always (sendFn for dev)
   const handleAskAI = async (
     e: FormEvent,
     userMessage: string,
@@ -67,32 +65,57 @@ export default function Home() {
   };
 
   const handleMessage = async (
-    userMessage: string,
+    userInput: string,
     sendFn: (message: string) => Promise<{
       result: string;
-      type: MessageType;
     }>
   ) => {
-    addUserMessage(userMessage);
+    addUserMessage(userInput);
 
     // Handle Bot response
     try {
-      const botResponse = await sendFn(userMessage);
+      let type: MessageType = "Text";
+      let text = "";
+
+      const botResponse = await sendFn(userInput);
+
       if (!botResponse || !botResponse.result) return;
+
+      // TODO: Extract it
+      switch (botResponse.result) {
+        case "build_portfolio":
+          text =
+            "We will diversify your token into reputable and secured yield protocols based on your preference.\nWhat's your investment size (Base by default)? ";
+          type = "Invest";
+          break;
+        case "pie_chart":
+          text = "What's your Risk/Yield and Airdrop portfolio preference?";
+          type = "Portfolio";
+          break;
+        case "edit_portfolio":
+          type = "Edit";
+          break;
+        case "review_portfolio":
+          type = "Portfolio";
+          break;
+        default:
+          text = botResponse.result;
+          break;
+      }
 
       // Add bot response to conversation
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: botResponse.result,
+        text,
         sender: "bot",
         timestamp: new Date(),
-        type: botResponse.type,
+        type,
       };
 
       // Start typewriter effect
       setIsTyping(true);
       let currentText = "";
-      const textToType = botResponse.result;
+      const textToType = text;
 
       for (let i = 0; i < textToType.length; i++) {
         currentText += textToType[i];
@@ -122,7 +145,7 @@ export default function Home() {
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && command.trim() !== "") {
       e.preventDefault();
-      handleAskAI(e as unknown as FormEvent, command, sendMockInvestMessage);
+      handleAskAI(e as unknown as FormEvent, command, sendMessage);
     }
   };
 
@@ -130,22 +153,6 @@ export default function Home() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation, isTyping]);
-
-  // Functions for built-in buttons
-  const handleBuildPortfolio = () => {
-    handleMessage("Build a diversified DeFi Portfolio", sendMockInvestMessage);
-  };
-
-  const handleAnalyzePortfolio = () => {
-    handleMessage(
-      "Analyze and adjust my DeFi Portfolio",
-      sendMockInvestMessage
-    );
-  };
-
-  const handleDeposit = () => {
-    handleMessage("Deposit into my wallet", sendMockInvestMessage);
-  };
 
   return (
     <div className="h-[80vh]">
@@ -180,7 +187,12 @@ export default function Home() {
                 <div className="flex flex-col md:flex-row justify-stretch gap-4 w-full">
                   <button
                     className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={handleBuildPortfolio}
+                    onClick={() =>
+                      handleMessage(
+                        "Build a diversified DeFi Portfolio",
+                        sendMessage
+                      )
+                    }
                   >
                     <span className="font-[Manrope] font-semibold text-base text-center">
                       Build a diversified DeFi Portfolio
@@ -188,7 +200,12 @@ export default function Home() {
                   </button>
                   <button
                     className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={handleAnalyzePortfolio}
+                    onClick={() =>
+                      handleMessage(
+                        "Analyze and adjust my DeFi Portfolio",
+                        sendMessage
+                      )
+                    }
                   >
                     <span className="font-[Manrope] font-semibold text-base text-center">
                       Analyze and adjust my DeFi Portfolio
@@ -196,7 +213,9 @@ export default function Home() {
                   </button>
                   <button
                     className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={handleDeposit}
+                    onClick={() =>
+                      handleMessage("Deposit into my wallet", sendMessage)
+                    }
                   >
                     <span className="font-[Manrope] font-semibold text-base text-center">
                       Deposit into my wallet
@@ -268,11 +287,7 @@ export default function Home() {
               </div>
               <button
                 onClick={(e) =>
-                  handleAskAI(
-                    e as unknown as FormEvent,
-                    command,
-                    sendMockInvestMessage
-                  )
+                  handleAskAI(e as unknown as FormEvent, command, sendMessage)
                 }
                 disabled={command.trim() === ""}
                 className="flex justify-center items-center min-w-[50px] h-[50px] bg-gradient-to-r from-[#AF95E3] to-[#7BA9E9] p-2 rounded-lg disabled:opacity-50 shrink-0"
@@ -331,7 +346,7 @@ export default function Home() {
                           {message.text}
                         </div>
 
-                        {/* Investment UI - integrated into bot message */}
+                        {/* TODO: Wrapped it to function */}
                         {message.sender === "bot" &&
                           message.type === "Invest" && (
                             <div className="mt-3 pt-3 border-t border-gray-300 w-[80%]">
@@ -349,8 +364,8 @@ export default function Home() {
 
                         {message.sender === "bot" &&
                           message.type === "Portfolio" && (
-                            <div className="overflow-x-auto max-w-full w-full">
-                              <div className="min-w-[330px] w-full">
+                            <div className="overflow-x-auto max-w-full w-full flex justify-center">
+                              <div className="w-full max-w-[320px] md:max-w-none">
                                 <RiskPortfolio
                                   strategy={BOT_STRATEGY}
                                   changePercentage={() =>
@@ -423,8 +438,14 @@ export default function Home() {
             {/* Command Form Input */}
             <div className="flex flex-col fixed w-[95%] md:w-[70%] bottom-[70px] md:bottom-5 left-1/2 -translate-x-1/2 gap-4 z-10">
               <div className="flex justify-center">
+                {/* Start new chat button  */}
                 <button
-                  className="flex items-center gap-2.5 py-3 px-6 md:py-4 md:px-8 text-[16px] bg-[#9EACEB] text-[rgba(0,0,0,0.6)] rounded-[11px] self-end"
+                  className={`flex items-center gap-2.5 py-3 px-6 md:py-4 md:px-8 text-[16px] rounded-[11px] self-end ${
+                    loadingBotResponse || isTyping
+                      ? "bg-[#D3D8F3]"
+                      : "bg-[#9EACEB]"
+                  } text-[rgba(0,0,0,0.6)]`}
+                  disabled={loadingBotResponse || isTyping}
                   onClick={() => {
                     setConversation([]);
                     window.scrollTo(0, 0);

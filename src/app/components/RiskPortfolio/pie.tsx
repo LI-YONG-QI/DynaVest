@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Pie, PieChart as RechartsPieChart } from "recharts";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent } from "@/app/components/ui/card";
 import {
@@ -108,13 +109,26 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function PortfolioPieChart() {
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <Card className="flex flex-col">
       <div className="flex flex-col md:flex-row">
-        <CardContent className="flex-1 pb-0">
+        <CardContent className="flex-1 pb-0 flex justify-center px-0 ">
           <ChartContainer
             config={chartConfig}
-            className="mx-auto aspect-square max-h-[200px] md:max-h-[250px]"
+            className="mx-auto aspect-square w-full max-w-[240px] max-h-[240px] md:max-h-[300px]"
           >
             <RechartsPieChart>
               <ChartTooltip
@@ -127,9 +141,42 @@ export function PortfolioPieChart() {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={70}
+                outerRadius={60}
                 fill="#8884d8"
-                label={(entry) => `${entry.value}%`}
+                labelLine={windowWidth > 375 ? true : false}
+                label={({ cx, cy, midAngle, outerRadius, index, value }) => {
+                  const RADIAN = Math.PI / 180;
+                  // Increase distance from pie chart to avoid overlap
+                  const radius =
+                    windowWidth <= 375
+                      ? outerRadius * 1.25 // Even more space on small screens
+                      : outerRadius * 1.45; // More space on larger screens
+
+                  // Calculate label position
+                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                  // Determine text anchor based on position
+                  const textAnchor =
+                    windowWidth <= 375
+                      ? "middle" // Center-aligned on small screens
+                      : x > cx
+                      ? "start"
+                      : "end"; // Based on position on larger screens
+
+                  return (
+                    <text
+                      x={x}
+                      y={y}
+                      fill={COLORS[index % COLORS.length]}
+                      textAnchor={textAnchor}
+                      dominantBaseline="central"
+                      className="text-[10px] md:text-xs font-medium"
+                    >
+                      {`${value}%`}
+                    </text>
+                  );
+                }}
               >
                 {chartData.map((entry, index) => (
                   <Cell
@@ -142,7 +189,7 @@ export function PortfolioPieChart() {
           </ChartContainer>
         </CardContent>
 
-        <div className="flex-1 flex flex-col justify-center space-y-1 md:space-y-2 px-2 md:px-0">
+        <div className="flex-1 flex flex-col justify-center space-y-1 md:space-y-2 px-2 md:px-0 mt-10">
           {strategies.map((strategy) => (
             <LegendItem
               key={strategy.id}

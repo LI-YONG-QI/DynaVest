@@ -1,44 +1,37 @@
-import { MessageType } from "../app/types";
-
 export const sendMockInvestMessage = async (
   message: string
-): Promise<{ result: string; type: MessageType }> => {
+): Promise<{ result: string }> => {
   // For demo purposes, we're including our mock strategy in the response
   console.log("message", message);
-
   return {
-    result:
-      "We will diversify your token into reputable and secured yield protocols based on your preference.\nWhat's your investment size (Celo by default)? ",
-    type: "Invest",
+    result: "build_portfolio",
   };
 };
 
 export const sendMockPortfolioMessage = async (
   message: string
-): Promise<{ result: string; type: MessageType }> => {
+): Promise<{ result: string }> => {
   // For demo purposes, we're including our mock strategy in the response
+  console.log("send mock portfolio message", message);
   return {
-    result: `${message} it is! Final question, what's your Risk/Yield and Airdrop portfolio preference?`,
-    type: "Portfolio",
+    result: `pie_chart`,
   };
 };
 
 export const sendMockChangePercentageMessage = async (
   message: string
-): Promise<{ result: string; type: MessageType }> => {
+): Promise<{ result: string }> => {
   console.log("message", message);
   return {
-    result: " ",
-    type: "Edit",
+    result: "edit_portfolio",
   };
 };
 
 export const sendMockReviewMessage = async (
   message: string
-): Promise<{ result: string; type: MessageType }> => {
+): Promise<{ result: string }> => {
   console.log("message", message);
   return {
-    result: " ",
-    type: "Portfolio",
+    result: "review_portfolio",
   };
 };
