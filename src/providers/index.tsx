@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "@privy-io/wagmi";
 
 import { wagmiConfig } from "./config";
+import PrivyAccountProvider from "@/contexts/PrivyAccountProvider";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <WagmiProvider config={wagmiConfig}>{children}</WagmiProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <PrivyAccountProvider>{children}</PrivyAccountProvider>
+        </WagmiProvider>
       </QueryClientProvider>
     </PrivyProvider>
   );
