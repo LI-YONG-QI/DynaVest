@@ -9,3 +9,4 @@ export * from "./stCelo";
 export * from "./uniswap";
 export * from "./camelot";
 export * from "./gmx";
+export * from "./morphoAA";

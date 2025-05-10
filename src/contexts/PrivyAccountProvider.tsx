@@ -14,7 +14,7 @@ import {
 import { createZeroDevPaymasterClient } from "@zerodev/sdk";
 import React, { useEffect, useMemo } from "react";
 import { createWalletClient, custom, Hex, http } from "viem";
-import { baseSepolia, sepolia } from "viem/chains";
+import { base } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { AccountProviderContext, EmbeddedWallet } from "./AccountContext";
 import { KERNEL_V3_3, getEntryPoint } from "@zerodev/sdk/constants";
@@ -23,16 +23,16 @@ import { KERNEL_V3_3, getEntryPoint } from "@zerodev/sdk/constants";
  */
 
 const PROVIDER = "privy";
-export const PROJECT_ID = "a8b0fc1d-8ad6-43e1-aa6f-d0dd8359cc69";
+export const PROJECT_ID = process.env.NEXT_PUBLIC_ZERODEV_PROJECT_ID;
 import { KernelVersionToAddressesMap } from "@zerodev/sdk/constants";
 export const kernelVersion = KERNEL_V3_3;
 export const kernelAddresses = KernelVersionToAddressesMap[kernelVersion];
-export const sepoliaBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/11155111`;
-export const sepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/11155111`;
-export const baseSepoliaBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
-export const baseSepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
+// export const sepoliaBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/11155111`;
+// export const sepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/11155111`;
+export const baseBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/8453`;
+export const basePaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/8453 `;
 export const entryPoint = getEntryPoint("0.7");
-export const EXPLORER_URL = baseSepolia.blockExplorers.default.url;
+export const EXPLORER_URL = base.blockExplorers.default.url;
 
 /**
  * PrivyAccountProvider is a React component that manages authentication and wallet functionality
@@ -67,7 +67,7 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
       }
       const walletClient = createWalletClient({
         account: privyEmbeddedWallet.address as Hex,
-        chain: baseSepolia,
+        chain: base,
         transport: custom(await privyEmbeddedWallet.getEthereumProvider()),
       });
       return walletClient;
@@ -79,24 +79,21 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
    * Creates a public client for blockchain interactions
    * The configured public client or null if wallet client is not available
    */
-  const sepoliaPublicClient = usePublicClient({
-    chainId: sepolia.id,
-  });
-  const baseSepoliaPublicClient = usePublicClient({
-    chainId: baseSepolia.id,
+  const basePublicClient = usePublicClient({
+    chainId: base.id,
   });
 
   /**
    * Creates a paymaster client for handling gas payments
    * The configured paymaster client or null if public client is not available
    */
-  const baseSepoliaPaymasterClient = useMemo(() => {
-    if (!baseSepoliaPublicClient) return null;
+  const basePaymasterClient = useMemo(() => {
+    if (!basePublicClient) return null;
     return createZeroDevPaymasterClient({
-      chain: baseSepolia,
-      transport: http(baseSepoliaPaymasterRpc),
+      chain: base,
+      transport: http(basePaymasterRpc),
     });
-  }, [baseSepoliaPublicClient]);
+  }, [basePublicClient]);
 
   /**
    * Creates an ECDSA validator for the kernel account
@@ -107,59 +104,43 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
       PROVIDER,
       "kernelClient",
       privyAccount?.account.address,
-      baseSepoliaPaymasterClient?.name,
-      sepoliaPublicClient?.name,
+      basePaymasterClient?.name,
+      basePublicClient?.name,
     ],
     queryFn: async () => {
-      console.log("Creating kernel clients");
-      if (
-        !privyAccount ||
-        !baseSepoliaPublicClient ||
-        !baseSepoliaPaymasterClient
-      )
+      if (!privyAccount || !basePublicClient || !basePaymasterClient)
         return null;
 
-      const ecdsaValidator = await signerToEcdsaValidator(
-        baseSepoliaPublicClient,
-        {
-          signer: privyAccount,
-          entryPoint,
-          kernelVersion,
-        }
-      );
+      const ecdsaValidator = await signerToEcdsaValidator(basePublicClient, {
+        signer: privyAccount,
+        entryPoint,
+        kernelVersion,
+      });
 
       const authorization = await signAuthorization({
         contractAddress: kernelAddresses.accountImplementationAddress,
-        chainId: baseSepolia.id,
+        chainId: base.id,
       });
 
-      const kernelAccount = await create7702KernelAccount(
-        baseSepoliaPublicClient,
-        {
-          signer: privyAccount,
-          entryPoint,
-          kernelVersion,
-          eip7702Auth: authorization,
-        }
-      );
+      const kernelAccount = await create7702KernelAccount(basePublicClient, {
+        signer: privyAccount,
+        entryPoint,
+        kernelVersion,
+        eip7702Auth: authorization,
+      });
 
       const kernelAccountClient = create7702KernelAccountClient({
         account: kernelAccount,
-        chain: baseSepolia,
-        bundlerTransport: http(baseSepoliaBundlerRpc),
-        paymaster: baseSepoliaPaymasterClient,
-        client: baseSepoliaPublicClient,
+        chain: base,
+        bundlerTransport: http(baseBundlerRpc),
+        paymaster: basePaymasterClient,
+        client: basePublicClient,
       });
 
       return { kernelAccountClient, kernelAccount, ecdsaValidator };
     },
-    enabled:
-      !!baseSepoliaPublicClient &&
-      !!privyAccount &&
-      !!baseSepoliaPaymasterClient,
+    enabled: !!basePublicClient && !!privyAccount && !!basePaymasterClient,
   });
-
-  console.log(kernelClients);
 
   /**
    * Handles the sign-in process by opening the Privy sign-in modal
