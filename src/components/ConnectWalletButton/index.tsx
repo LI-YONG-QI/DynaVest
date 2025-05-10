@@ -1,18 +1,21 @@
 import Image from "next/image";
 import { useLogin, usePrivy } from "@privy-io/react-auth";
-import { useDisconnect, useAccount } from "wagmi";
+import { useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAccountProviderContext } from "@/contexts/AccountContext";
 
 export default function ConnectWalletButton() {
   const { ready: privyReady, authenticated, logout, linkWallet } = usePrivy();
-  const { address } = useAccount();
+  const { embeddedWallet } = useAccountProviderContext();
   const { login } = useLogin();
   const { disconnect } = useDisconnect();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const address = embeddedWallet?.address;
 
   // business logic
   const buttonReady = privyReady && !isLoading;

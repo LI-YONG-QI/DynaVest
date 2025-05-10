@@ -1,4 +1,4 @@
-import { base, bsc, celo, arbitrum, polygon } from "viem/chains";
+import { base, bsc, celo, arbitrum, polygon, baseSepolia } from "viem/chains";
 import type { Token } from "@/types";
 
 export const USDT: Token = {
@@ -23,6 +23,7 @@ export const USDC: Token = {
     [base.id]: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     [bsc.id]: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
     [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    [baseSepolia.id]: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
   },
 };
 

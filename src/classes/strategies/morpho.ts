@@ -4,7 +4,7 @@ import { readContract } from "@wagmi/core";
 
 import { ERC20_PERMIT_ABI } from "@/constants/abis";
 import { PERMIT_TYPES } from "@/types/blockchain";
-import { BaseStrategy } from ".//base";
+import { BaseStrategy } from "./base";
 import { PERMIT_EXPIRY } from "@/constants";
 import {
   MORPHO_CONTRACTS,

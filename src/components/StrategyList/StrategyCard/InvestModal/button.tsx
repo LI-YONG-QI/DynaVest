@@ -4,8 +4,10 @@ import { useAccount, useChainId } from "wagmi";
 import { parseUnits } from "viem";
 
 import { Token, InvestStrategy } from "@/types";
-import { getStrategy } from "@/classes/strategies/utils";
+// import { getStrategy } from "@/classes/strategies/utils";
 import useSwitchChain from "@/hooks/useSwitchChain";
+import { useAccountProviderContext } from "@/contexts/AccountContext";
+import { MorphoAA } from "@/classes/strategies/morphoAA";
 
 enum ButtonState {
   Pending = "Processing...",
@@ -31,6 +33,7 @@ export default function InvestModalButton({
   const [buttonState, setButtonState] = useState<ButtonState>(
     ButtonState.Pending
   );
+  const { kernelAccountClient } = useAccountProviderContext();
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,24 +78,52 @@ export default function InvestModalButton({
     setIsLoading(true);
 
     if (user) {
-      const strategyHandler = getStrategy(strategy.protocol, chainId);
+      const strategyHandler = new MorphoAA(chainId, kernelAccountClient!);
       const parsedAmount = parseUnits(amount, currency.decimals);
 
       try {
-        let result;
-        if (currency.isNativeToken) {
-          console.log("native token");
-          result = await strategyHandler.execute(user, null, parsedAmount);
-        } else {
-          console.log("token");
-          result = await strategyHandler.execute(
-            user,
-            currency.chains![chainId],
+        const asset = currency.chains![chainId];
+
+        if (kernelAccountClient?.account?.address) {
+          console.log("asset", asset);
+          console.log(
+            "kernelAccountClient.account.address",
+            kernelAccountClient.account.address
+          );
+
+          console.log("amount", parsedAmount);
+
+          const result = await strategyHandler.execute(
+            kernelAccountClient.account.address,
+            asset,
             parsedAmount
           );
+
+          const receipt =
+            await kernelAccountClient?.waitForUserOperationReceipt({
+              hash: result as `0x${string}`,
+            });
+
+          console.log("receipt", receipt);
+          console.log("result", receipt.receipt.transactionHash);
+
+          console.log("Execution result:", result);
+          toast.success(`Investment successful! ${result}`);
         }
 
-        toast.success(`Investment successful! ${result}`);
+        // let result;
+
+        // if (currency.isNativeToken) {
+        //   console.log("native token");
+        //   result = await strategyHandler.execute(user, null, parsedAmount);
+        // } else {
+        //   console.log("token");
+        //   result = await strategyHandler.execute(
+        //     user,
+        //     currency.chains![chainId],
+        //     parsedAmount
+        //   );
+        // }
 
         if (handleClose) handleClose();
       } catch (error) {

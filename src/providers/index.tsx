@@ -22,13 +22,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         appearance: {
           theme: "light",
           accentColor: "#676FFF",
-          //   walletList: ["metamask"],
           walletChainType: "ethereum-only",
         },
-        // Create embedded wallets for users who don't have a wallet
         embeddedWallets: {
-          showWalletUIs: false,
-          createOnLogin: "users-without-wallets",
+          createOnLogin: "all-users",
         },
         supportedChains: [...wagmiConfig.chains],
       }}

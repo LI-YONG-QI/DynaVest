@@ -13,3 +13,7 @@ export const CHAINS = wagmiConfig.chains.map((chain) => {
 export const getChainName = (chainId: number) => {
   return CHAINS.find((chain) => chain.id === chainId)?.name;
 };
+
+export const getChainById = (chainId: number) => {
+  return CHAINS.find((chain) => chain.id === chainId);
+};

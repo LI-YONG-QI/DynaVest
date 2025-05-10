@@ -21,7 +21,7 @@ export abstract class BaseStrategy<T extends number> {
     user: Address,
     asset: Address | null,
     amount: bigint
-  ): Promise<string>;
+  ): Promise<string | object>;
 
   abstract isSupported(chainId: number): boolean;
 

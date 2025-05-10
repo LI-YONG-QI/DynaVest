@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import ConnectWalletButton from "./ConnectWalletButton";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { UserPill } from "@privy-io/react-auth/ui";
+
+import ConnectWalletButton from "./ConnectWalletButton";
 interface NavItem {
   label: string;
   href: string;

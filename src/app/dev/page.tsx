@@ -74,6 +74,8 @@ const DevPage = () => {
       if (!kernelAccountClient?.account)
         throw new Error("No kernel client found");
 
+      console.log(kernelAccountClient.account.address);
+
       return kernelAccountClient.sendTransaction({
         account: kernelAccountClient.account,
         to: ZERODEV_TOKEN_ADDRESS,
@@ -95,7 +97,7 @@ const DevPage = () => {
             parseUnits("1", ZERODEV_DECIMALS),
           ],
         }),
-        chain: baseSepolia,
+        chain: baseSepolia.id,
       });
     },
     onSuccess: (data) => {

@@ -1,7 +1,7 @@
 import { Address } from "viem";
-import { base } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
 
-export type MorphoSupportedChains = typeof base.id;
+export type MorphoSupportedChains = typeof base.id | typeof baseSepolia.id;
 
 export const MORPHO_CONTRACTS: Record<
   MorphoSupportedChains,
@@ -10,6 +10,9 @@ export const MORPHO_CONTRACTS: Record<
   }
 > = {
   [base.id]: {
+    morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+  },
+  [baseSepolia.id]: {
     morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
   },
 };
