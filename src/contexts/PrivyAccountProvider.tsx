@@ -23,7 +23,7 @@ import { KERNEL_V3_3, getEntryPoint } from "@zerodev/sdk/constants";
  */
 
 const PROVIDER = "privy";
-export const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID;
+export const PROJECT_ID = "a8b0fc1d-8ad6-43e1-aa6f-d0dd8359cc69";
 import { KernelVersionToAddressesMap } from "@zerodev/sdk/constants";
 export const kernelVersion = KERNEL_V3_3;
 export const kernelAddresses = KernelVersionToAddressesMap[kernelVersion];
@@ -32,7 +32,6 @@ export const sepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}
 export const baseSepoliaBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
 export const baseSepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
 export const entryPoint = getEntryPoint("0.7");
-export const TURNKEY_ORG_ID = process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!;
 export const EXPLORER_URL = baseSepolia.blockExplorers.default.url;
 
 /**
@@ -86,6 +85,7 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
   const baseSepoliaPublicClient = usePublicClient({
     chainId: baseSepolia.id,
   });
+
   /**
    * Creates a paymaster client for handling gas payments
    * The configured paymaster client or null if public client is not available
@@ -111,6 +111,7 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
       sepoliaPublicClient?.name,
     ],
     queryFn: async () => {
+      console.log("Creating kernel clients");
       if (
         !privyAccount ||
         !baseSepoliaPublicClient ||
@@ -157,6 +158,8 @@ const PrivyAccountProvider = ({ children }: { children: React.ReactNode }) => {
       !!privyAccount &&
       !!baseSepoliaPaymasterClient,
   });
+
+  console.log(kernelClients);
 
   /**
    * Handles the sign-in process by opening the Privy sign-in modal

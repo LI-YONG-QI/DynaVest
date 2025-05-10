@@ -27,7 +27,7 @@ export default function ConnectWalletButton() {
       } else {
         // User is not authenticated, use regular login
         login({
-          loginMethods: ["wallet"],
+          loginMethods: ["wallet", "google"],
           walletChainType: "ethereum-only",
           disableSignup: false,
         });
