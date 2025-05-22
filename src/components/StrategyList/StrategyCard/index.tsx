@@ -1,11 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Tooltip } from "@/components/ui/tooltip";
 
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { StrategyMetadata } from "@/types";
+import type { RiskLevel, StrategyMetadata } from "@/types";
+
+function getRiskLevelLabel(risk: RiskLevel) {
+  switch (risk) {
+    case "low":
+      return "Low Risk";
+    case "medium":
+      return "Medium Risk";
+    case "high":
+      return "High Risk";
+    default:
+      return "Unknown";
+  }
+}
 
 export default function StrategyCard({
   title,
@@ -58,7 +72,7 @@ export default function StrategyCard({
                   className="font-[family-name:var(--font-inter)] text-xs font-medium"
                   style={{ color: getRiskColor(risk)?.text || "#6B7280" }}
                 >
-                  {risk.level}
+                  {getRiskLevelLabel(risk.level)}
                 </span>
               </div>
             </div>
@@ -68,50 +82,61 @@ export default function StrategyCard({
         <div className="flex flex-col items-start self-stretch flex-grow">
           <div className="flex flex-col items-start gap-4 self-stretch my-4">
             <div className="flex items-center gap-2 self-stretch">
-              <span className="font-[family-name:var(--font-inter)] text-[#17181C] text-sm font-medium">
-                Protocol:
-              </span>
-              {externalLink ? (
-                <Link
-                  href={externalLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 font-[family-name:var(--font-inter)] text-[#3568E8] text-sm font-medium hover:underline"
-                >
-                  {protocol}
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9.33333 9.33333H2.66667V2.66667H6V1.33333H2.66667C1.93333 1.33333 1.33333 1.93333 1.33333 2.66667V9.33333C1.33333 10.0667 1.93333 10.6667 2.66667 10.6667H9.33333C10.0667 10.6667 10.6667 10.0667 10.6667 9.33333V6H9.33333V9.33333ZM7.33333 1.33333V2.66667H9.02L4.12 7.56667L5.06667 8.51333L10 3.58V5.33333H11.3333V1.33333H7.33333Z"
-                      fill="#3568E8"
-                    />
-                  </svg>
-                </Link>
-              ) : (
-                <span className="font-[family-name:var(--font-inter)] text-[#17181C] text-sm font-medium">
-                  {protocol}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col items-start self-stretch flex-grow">
-              <p className="font-[family-name:var(--font-inter)] text-[#17181C] text-sm font-normal text-left">
-                {baseDescription}
-                {learnMoreLink && (
-                  <Link
-                    href={learnMoreLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#3568E8] hover:underline ml-1"
-                  >
-                    Learn More
-                  </Link>
-                )}
-              </p>
+              <div className="grid grid-cols-12 gap-2 w-full">
+                <div className="col-span-4 space-y-1">
+                  <div className="text-sm">Protocol</div>
+                  <div className="text-sm">TVL</div>
+                  <div className="text-sm">Token(s)</div>
+                </div>
+                <div className="col-span-7 space-y-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-gray-900 truncate">
+                      {protocol}
+                    </span>
+                    {externalLink && (
+                      <Link
+                        href={externalLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 text-[#3568E8] hover:underline"
+                        aria-label="Open protocol in new tab"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M9.33333 9.33333H2.66667V2.66667H6V1.33333H2.66667C1.93333 1.33333 1.33333 1.93333 1.33333 2.66667V9.33333C1.33333 10.0667 1.93333 10.6667 2.66667 10.6667H9.33333C10.0667 10.6667 10.6667 10.0667 10.6667 9.33333V6H9.33333V9.33333ZM7.33333 1.33333V2.66667H9.02L4.12 7.56667L5.06667 8.51333L10 3.58V5.33333H11.3333V1.33333H7.33333Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                  {/* TODO: Use real TVL */}
+                  <p className="text-sm text-gray-900">
+                    ${Math.round(Math.random() * 100)}M
+                  </p>
+                  <div className="text-sm text-gray-900 flex items-center">
+                    {tokens.map((token) => (
+                      <div key={token.name} className="w-5 h-5 relative">
+                        <Image
+                          src={token.icon}
+                          alt={token.name}
+                          className="object-contain"
+                          fill
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="col-span-1 flex items-start justify-end">
+                  <Tooltip description={baseDescription} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
