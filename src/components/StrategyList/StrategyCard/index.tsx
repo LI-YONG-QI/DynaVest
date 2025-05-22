@@ -118,7 +118,7 @@ export default function StrategyCard({
                   </div>
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
-                    ${Math.round(Math.random() * 100)}M
+                    ${Math.abs(title.split('').reduce((hash, char) => ((hash << 5) - hash) + char.charCodeAt(0), 0) % 100)}M
                   </p>
                   <div className="text-sm text-gray-900 flex items-center">
                     {tokens.map((token) => (
