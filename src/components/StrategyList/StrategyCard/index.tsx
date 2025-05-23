@@ -9,6 +9,7 @@ import type { StrategyMetadata } from "@/types";
 
 export default function StrategyCard({
   title,
+  id,
   apy,
   risk,
   protocol,
@@ -138,6 +139,7 @@ export default function StrategyCard({
         onClose={() => setIsModalOpen(false)}
         strategy={{
           title,
+          id,
           apy,
           risk,
           protocol,

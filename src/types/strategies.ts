@@ -17,6 +17,7 @@ export type StrategyMetadata = InvestStrategy & {
 
 export type InvestStrategy = {
   title: string;
+  id: string;
   apy: number;
   risk: {
     level: RiskLevel;
