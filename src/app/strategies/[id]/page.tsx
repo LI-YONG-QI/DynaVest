@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, notFound } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { StrategyDetailsChart } from "@/components/StrategyList/StrategyDetailsChart";
+import { StrategyDetailsChartToggleOption } from "@/types/strategies";
 
 function getRiskLevelLabel(level: string) {
   switch (level) {
@@ -24,6 +25,8 @@ function getRiskLevelLabel(level: string) {
 function StrategyDetailContent() {
   const { openChat } = useChat();
   const params = useParams();
+  const [activeToggle, setActiveToggle] =
+    useState<StrategyDetailsChartToggleOption>("APY");
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id || "";
 
   // Find the strategy that matches the normalized title
@@ -177,8 +180,31 @@ function StrategyDetailContent() {
 
           <div className="mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
-              <div className="p-4">
+              <div className="p-4 flex items-center">
                 <h2 className="text-2xl font-bold">Charts</h2>
+                <div className="flex ml-auto">
+                  <div className="inline-flex bg-[#5F79F1]/10 rounded-lg p-1">
+                    {(
+                      [
+                        "APY",
+                        "TVL",
+                        "PRICE",
+                      ] as StrategyDetailsChartToggleOption[]
+                    ).map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => setActiveToggle(option)}
+                        className={`px-4 py-2 text-sm font-medium rounded-md ${
+                          activeToggle === option
+                            ? "bg-[#5F79F1] text-white"
+                            : "text-black hover:bg-[#5F79F1]/20"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="py-4">
                 <StrategyDetailsChart />

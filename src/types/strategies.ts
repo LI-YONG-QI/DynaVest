@@ -50,3 +50,5 @@ export type PieStrategy = {
   risk: string;
   allocation: number;
 };
+
+export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";

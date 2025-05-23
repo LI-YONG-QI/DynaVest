@@ -58,16 +58,10 @@ export function StrategyDetailsChart() {
             />
             <YAxis tickLine={false} axisLine={false} tickMargin={8} />
             <ReferenceLine
-              y={100}
+              y={60}
               stroke="#10B981"
               strokeDasharray="3 3"
               strokeWidth={1.5}
-              label={{
-                value: "100",
-                position: "right",
-                fill: "#10B981",
-                fontSize: 12,
-              }}
             />
             <ChartTooltip
               cursor={false}
