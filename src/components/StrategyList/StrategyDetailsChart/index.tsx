@@ -39,7 +39,7 @@ const chartConfig = {
 export function StrategyDetailsChart() {
   return (
     <Card>
-      <CardContent className="p-2">
+      <CardContent className="p-0">
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer

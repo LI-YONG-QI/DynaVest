@@ -8,6 +8,7 @@ import { useChat } from "@/contexts/ChatContext";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { StrategyDetailsChart } from "@/components/StrategyList/StrategyDetailsChart";
 import { StrategyDetailsChartToggleOption } from "@/types/strategies";
+import { StrategyDetailsTradeTable } from "@/components/StrategyDetailsTradeTable";
 
 function getRiskLevelLabel(level: string) {
   switch (level) {
@@ -180,7 +181,7 @@ function StrategyDetailContent() {
 
           <div className="mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
-              <div className="p-4 flex items-center">
+              <div className="p-5 flex items-center">
                 <h2 className="text-2xl font-bold">Charts</h2>
                 <div className="flex ml-auto">
                   <div className="inline-flex bg-[#5F79F1]/10 rounded-lg p-1">
@@ -206,12 +207,24 @@ function StrategyDetailContent() {
                   </div>
                 </div>
               </div>
-              <div className="py-4">
+              <div className="py-5 px-2">
                 <StrategyDetailsChart />
               </div>
             </div>
           </div>
+
+          <div className="mt-5">
+            <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
+              <div className="p-5 flex items-center">
+                <h2 className="text-2xl font-bold">Trades</h2>
+              </div>
+              <div className="p-5">
+                <StrategyDetailsTradeTable />
+              </div>
+            </div>
+          </div>
         </div>
+
         {/* Right - Actions */}
         <div className="md:col-span-3">{/* TODO */}</div>
       </div>
