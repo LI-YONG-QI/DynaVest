@@ -43,7 +43,7 @@ function StrategyDetailContent() {
 
         <button
           onClick={() => openChat()}
-          className="bg-[#5F79F1] flex items-center gap-x-2 text-white px-5 py-3 rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] font-[family-name:var(--font-manrope)] font-medium hover:bg-[#4A64DC] transition-colors z-10"
+          className="bg-[#5F79F1] text-xs md:text-sm flex items-center gap-x-2 text-white px-5 py-3 rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] font-[family-name:var(--font-manrope)] font-medium hover:bg-[#4A64DC] transition-colors z-10"
         >
           <span>
             <Image
@@ -82,7 +82,7 @@ function StrategyDetailContent() {
                 {getRiskLevelLabel(strategy.risk?.level)}
               </span>
             </div>
-            <div className="flex flex-col items-start self-stretch flex-grow pr-10">
+            <div className="flex flex-col items-start self-stretch flex-grow md:pr-20">
               <p className="font-[family-name:var(--font-inter)] text-[#17181C] text-sm font-normal text-left ">
                 {strategy.description}
                 {strategy.learnMoreLink && (
@@ -96,6 +96,80 @@ function StrategyDetailContent() {
                   </Link>
                 )}
               </p>
+            </div>
+            <div className="mt-5">
+              <div className="bg-white rounded-lg p-1 md:p-2">
+                <div className="grid grid-cols-1 md:grid-cols-5 max-md:divide-y md:divide-x divide-gray-200">
+                  <div className="md:px-4 py-2">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">
+                      Protocol
+                    </div>
+                    <div className="font-medium mt-1 flex gap-1 items-center">
+                      <span>{strategy.protocol}</span>
+                      {strategy.externalLink && (
+                        <Link
+                          href={strategy.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#3568E8] hover:underline"
+                        >
+                          <Image
+                            src="/external-link.svg"
+                            alt="External Link"
+                            width={20}
+                            height={20}
+                          />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                  <div className="md:px-4 py-2">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">
+                      Token
+                    </div>
+                    <div className="max-sm:text-xs font-medium mt-1">
+                      {strategy.tokens.map((token) => (
+                        <div
+                          key={token.name}
+                          className="flex items-center gap-1"
+                        >
+                          <span className="relative size-5">
+                            <Image
+                              src={`/crypto-icons/${token.name.toLowerCase()}.svg`}
+                              alt={token.name}
+                              fill
+                              className="object-contain"
+                            />
+                          </span>
+                          <span>{token.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="md:px-4 py-2">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">
+                      TVL
+                    </div>
+                    <div className="font-medium mt-1">$130,478</div>
+                  </div>
+                  <div className="md:px-4 py-2">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">
+                      APY
+                    </div>
+                    <div className="max-sm:text-xs font-medium mt-1">
+                      {strategy.apy}%
+                    </div>
+                  </div>
+                  <div className="md:px-4 py-2">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">
+                      Daily
+                    </div>
+                    <div className="max-sm:text-xs font-medium mt-1">
+                      0.0555%
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
