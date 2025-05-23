@@ -81,6 +81,7 @@ export function StrategyDetailsTradeTable() {
             <th className="py-3 font-medium">TXID</th>
           </tr>
         </thead>
+
         <tbody className="divide-y divide-gray-100">
           {trades.map((trade, index) => (
             <tr
@@ -133,13 +134,40 @@ export function StrategyDetailsTradeTable() {
               </td>
             </tr>
           ))}
+
           {loading && (
             <tr>
               <td
                 colSpan={4}
                 className="py-3 text-center text-sm text-gray-500"
               >
-                Loading more trades...
+                <div className="flex justify-center items-center h-8">
+                  <div className="relative w-16 h-4 flex items-center justify-center">
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-[2px] h-2 bg-black rounded-lg"
+                        style={{
+                          transform: `rotate(${i * 45}deg) translateY(-10px)`,
+                          opacity: 0,
+                          animation: "fade 1.5s infinite",
+                          animationDelay: `${i * 0.2}s`,
+                        }}
+                      />
+                    ))}
+                    <style jsx>{`
+                      @keyframes fade {
+                        0%,
+                        100% {
+                          opacity: 0.1;
+                        }
+                        50% {
+                          opacity: 1;
+                        }
+                      }
+                    `}</style>
+                  </div>
+                </div>
               </td>
             </tr>
           )}
