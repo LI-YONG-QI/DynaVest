@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/Tooltip";
 
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
