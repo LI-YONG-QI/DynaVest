@@ -7,8 +7,12 @@ import { useParams, notFound } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { StrategyDetailsChart } from "@/components/StrategyList/StrategyDetailsChart";
-import { StrategyDetailsChartToggleOption } from "@/types/strategies";
+import {
+  InvestmentFormMode,
+  StrategyDetailsChartToggleOption,
+} from "@/types/strategies";
 import { StrategyDetailsTradeTable } from "@/components/StrategyDetailsTradeTable";
+import InvestmentForm from "@/components/StrategyList/StrategyCard/InvestModal/InvestmentForm";
 
 function getRiskLevelLabel(level: string) {
   switch (level) {
@@ -28,6 +32,7 @@ function StrategyDetailContent() {
   const params = useParams();
   const [activeToggle, setActiveToggle] =
     useState<StrategyDetailsChartToggleOption>("APY");
+  const [mode, setMode] = useState<InvestmentFormMode>("invest");
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id || "";
 
   // Find the strategy that matches the normalized title
@@ -42,7 +47,7 @@ function StrategyDetailContent() {
       {/* Top Nav */}
       <div className="flex items-center justify-between">
         <Link href="/strategies" className="flex items-center gap-2">
-          <span className="text-md">&lt;</span>
+          <span className="text-xs">&lt;</span>
           Back to strategies
         </Link>
 
@@ -66,7 +71,7 @@ function StrategyDetailContent() {
       {/* Content */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-10">
         {/* Left - Strategy Details and Statistics */}
-        <div className="md:col-span-9">
+        <div className="md:col-span-8">
           {/* Strategy Name and Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -225,8 +230,38 @@ function StrategyDetailContent() {
           </div>
         </div>
 
-        {/* Right - Actions */}
-        <div className="md:col-span-3">{/* TODO */}</div>
+        {/* Right - Invest/Withdraw Modal */}
+        <div className="md:col-span-4">
+          <div className="bg-white shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] rounded-lg">
+            <div className="divide-y-2 divide-gray-200">
+              <div className="flex items-stretch gap-0.5 mb-5">
+                <button
+                  onClick={() => setMode("invest")}
+                  className={`flex-1 py-3.5 px-5 rounded-tl-lg text-sm font-medium transition-colors ${
+                    mode === "invest"
+                      ? "bg-[#5F79F1] text-white shadow-sm"
+                      : "text-[#5F79F1] hover:bg-[#5F79F1]/20"
+                  }`}
+                >
+                  Invest
+                </button>
+                <button
+                  onClick={() => setMode("withdraw")}
+                  className={`flex-1 py-3.5 px-5 rounded-tr-lg text-sm font-medium transition-colors ${
+                    mode === "withdraw"
+                      ? "bg-[#5F79F1] text-white shadow-sm"
+                      : "text-[#5F79F1] hover:bg-[#5F79F1]/20"
+                  }`}
+                >
+                  Withdraw
+                </button>
+              </div>
+              <div className="p-5">
+                <InvestmentForm strategy={strategy} mode={mode} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
