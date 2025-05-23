@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
@@ -28,19 +29,37 @@ export default function StrategyCard({
 
   const { openChat } = useChat();
 
+  const router = useRouter();
+
+  const handleCardClick = (e: MouseEvent) => {
+    // Don't navigate if clicking on a link or button
+    const target = e.target as HTMLElement;
+    if (target.closest('a, button, [role="button"]')) {
+      e.stopPropagation();
+      return;
+    }
+    router.push(`/strategies/${id}`);
+  };
+
   return (
     <>
-      <div className="flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full">
+      <div 
+        onClick={handleCardClick}
+        className="flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-50 transition-colors"
+      >
         {/* Header Section */}
         <div className="flex justify-between md:justify-around items-center w-full">
-          <Image
-            src={`/crypto-icons/chains/${chainId}.svg`}
-            alt={title}
-            width={60}
-            height={60}
-            className="rounded-lg object-cover cursor-pointer"
-            onClick={() => setIsModalOpen(true)}
-          />
+            <Image
+              src={`/crypto-icons/chains/${chainId}.svg`}
+              alt={title}
+              width={60}
+              height={60}
+              className="rounded-lg object-cover"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
+            />
           <div className="ml-4 flex flex-col justify-center gap-2.5 w-[224px]">
             <div className="flex gap-[3px] self-stretch">
               <h3 className="font-[family-name:var(--font-manrope)] text-[18px] font-bold text-lg text-[#17181C]">
@@ -120,7 +139,10 @@ export default function StrategyCard({
         <div className="w-full mt-auto flex items-center gap-5">
           <button
             className="flex justify-center items-center py-2 px-4 bg-[#5F79F1] rounded-lg text-white font-medium hover:bg-[#4A64DC] transition-colors w-full"
-            onClick={() => setIsModalOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsModalOpen(true);
+            }}
           >
             Invest
           </button>
