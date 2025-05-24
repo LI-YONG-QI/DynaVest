@@ -13,6 +13,7 @@ import {
 } from "@/types/strategies";
 import { StrategyDetailsTradeTable } from "@/components/StrategyDetailsTradeTable";
 import InvestmentForm from "@/components/StrategyList/StrategyCard/InvestModal/InvestmentForm";
+import { Home, ChartLine, FileChartColumn } from "lucide-react";
 
 function getRiskLevelLabel(level: string) {
   switch (level) {
@@ -43,7 +44,41 @@ function StrategyDetailContent() {
   }
 
   return (
-    <div>
+    <div className="relative">
+      {/* List */}
+      <div className="hidden lg:block fixed left-12 top-1/2 -translate-y-1/2 z-10 group/nav">
+        <div className="bg-white rounded-xl shadow-lg p-2 space-y-2">
+          {[
+            { id: "overview", label: "Overview", icon: Home },
+            { id: "chart", label: "Chart", icon: ChartLine },
+            { id: "trades", label: "Trades", icon: FileChartColumn },
+          ].map((item) => (
+            <div key={item.id} className="relative">
+              <button
+                onClick={() => {
+                  const element = document.getElementById(item.id);
+                  if (element) {
+                    element.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
+                className="relative flex items-center h-10 w-10 group-hover/nav:w-32 px-2 rounded-xl hover:bg-[#5F79F1]/10 hover:text-[#5F79F1] transition-all duration-200 overflow-hidden group/item"
+                aria-label={item.label}
+              >
+                <div className="flex items-center min-w-0">
+                  <item.icon className="size-5 flex-shrink-0 text-gray-500 transition-colors duration-200 group-hover/item:text-[#5F79F1]" />
+                  <span className="ml-2 group-hover/item:text-[#5F79F1] text-sm text-gray-700 whitespace-nowrap transition-all duration-200 transform -translate-x-4 opacity-0 group-hover/nav:translate-x-0 group-hover/nav:opacity-100 w-0 group-hover/nav:w-auto">
+                    {item.label}
+                  </span>
+                </div>
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Top Nav */}
       <div className="flex items-center justify-between">
         <Link href="/strategies" className="flex items-center gap-2">
@@ -73,7 +108,7 @@ function StrategyDetailContent() {
         {/* Left - Strategy Details and Statistics */}
         <div className="xl:col-span-8">
           {/* Strategy Name and Details */}
-          <div className="space-y-4">
+          <div id="overview" className="space-y-4">
             <div className="flex items-center gap-3">
               <Image
                 src={`/crypto-icons/chains/${strategy.chainId}.svg`}
@@ -184,7 +219,7 @@ function StrategyDetailContent() {
             </div>
           </div>
 
-          <div className="mt-5">
+          <div id="chart" className="mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
               <div className="p-5 flex items-center">
                 <h2 className="text-2xl font-bold">Charts</h2>
@@ -218,7 +253,7 @@ function StrategyDetailContent() {
             </div>
           </div>
 
-          <div className="mt-5">
+          <div id="trades" className="mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
               <div className="p-5 flex items-center">
                 <h2 className="text-2xl font-bold">Trades</h2>
