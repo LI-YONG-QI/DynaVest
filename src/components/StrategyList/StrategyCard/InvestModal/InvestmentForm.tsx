@@ -69,6 +69,11 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const chainId = useChainId();
   const { execute } = useStrategyExecutor();
 
+  // Advanced settings state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [slippage, setSlippage] = useState<number | "auto">("auto");
+  const [customSlippage, setCustomSlippage] = useState("");
+
   const AMOUNT_LIMIT = 0.01;
 
   // Handle setting max amount
@@ -220,6 +225,96 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           handleSetMax={handleSetMax}
         />
       )}
+
+      {/* Advanced Settings */}
+      <div className="my-4">
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          <span>Advanced Settings</span>
+          <svg
+            className={`size-4 transition-transform ${
+              showAdvanced ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {showAdvanced && (
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Max Slippage</span>
+              <button
+                type="button"
+                onClick={() => setSlippage("auto")}
+                className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+              >
+                Auto
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
+              {["auto", "0.1", "0.5", "1.0"].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => {
+                    setSlippage(value === "auto" ? "auto" : Number(value));
+                    if (value !== "custom") setCustomSlippage("");
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md ${
+                    (value === "auto" && slippage === "auto") ||
+                    (value !== "auto" && slippage === Number(value))
+                      ? "bg-[#5F79F1] text-white"
+                      : "text-black hover:bg-[#5F79F1]/20"
+                  }`}
+                >
+                  {value === "auto" ? "Auto" : `${value}%`}
+                </button>
+              ))}
+              <div className="relative flex-1 xl:max-w-[80px]">
+                <input
+                  type="text"
+                  value={customSlippage}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setCustomSlippage(val);
+                      const num = parseFloat(val);
+                      if (!isNaN(num)) {
+                        setSlippage(num);
+                      } else if (val === "") {
+                        setSlippage("auto");
+                      }
+                    }
+                  }}
+                  onFocus={() =>
+                    setSlippage(
+                      customSlippage
+                        ? parseFloat(customSlippage) || "auto"
+                        : "auto"
+                    )
+                  }
+                  placeholder="1.5%"
+                  className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Invest button */}
       <button
