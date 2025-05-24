@@ -5,6 +5,7 @@ import { USDC, CELO, FLOW, cEUR, ETH, BNB } from "@/constants/coins";
 
 export const BOT_STRATEGY: StrategyMetadata = {
   title: "Bot Strategy",
+  id: "bot-strategy",
   apy: 0,
   risk: {
     level: "low" as const,
@@ -23,6 +24,7 @@ export const BOT_STRATEGY: StrategyMetadata = {
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
   {
     title: "GMX Strategy",
+    id: "gmx-strategy",
     apy: 214.47,
     risk: {
       level: "high" as const,
@@ -40,6 +42,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending",
+    id: "aave-lending",
     apy: 4.5,
     risk: {
       level: "medium" as const,
@@ -59,6 +62,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity",
+    id: "uniswap-liquidity",
     apy: 35.4,
     risk: {
       level: "high" as const,
@@ -78,6 +82,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Liquid Staking",
+    id: "liquid-staking",
     apy: 2.8,
     risk: {
       level: "low" as const,
@@ -95,6 +100,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Camelot Staking",
+    id: "camelot-staking",
     apy: 17.54,
     risk: {
       level: "medium" as const,
@@ -111,6 +117,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Morpho Supplying",
+    id: "morpho-supplying",
     apy: 6.7,
     risk: {
       level: "medium" as const,
@@ -130,6 +137,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
+    id: "aave-lending-strategy",
     apy: 6.1,
     risk: {
       level: "medium" as const,
@@ -149,6 +157,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Narrow Range",
+    id: "uniswap-liquidity-narrow-range",
     apy: 32.5,
     risk: {
       level: "high" as const,
@@ -168,6 +177,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Liquid Staking",
+    id: "liquid-staking",
     apy: 2.8,
     risk: {
       level: "low" as const,
@@ -185,6 +195,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
+    id: "aave-lending-strategy",
     apy: 4.3,
     risk: {
       level: "medium" as const,
@@ -204,6 +215,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity",
+    id: "uniswap-liquidity",
     apy: 39.1,
     risk: {
       level: "high" as const,
@@ -223,6 +235,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Binance Liquid Staking",
+    id: "binance-liquid-staking",
     apy: 2.8,
     risk: {
       level: "low" as const,
@@ -240,6 +253,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "stCelo Staking",
+    id: "stcelo-staking",
     apy: 2.8,
     risk: {
       level: "low" as const,
@@ -257,6 +271,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Stablecoin Pool",
+    id: "uniswap-liquidity-stablecoin-pool",
     apy: 69.405,
     risk: {
       level: "high",
@@ -276,6 +291,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity + Liquid Staking",
+    id: "uniswap-liquidity-liquid-staking",
     apy: 45.15,
     risk: {
       level: "high" as const,
@@ -295,6 +311,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Supplying",
+    id: "aave-supplying",
     apy: 5.7,
     risk: {
       level: "medium" as const,
@@ -314,6 +331,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Looping",
+    id: "aave-looping",
     apy: 32.15,
     risk: {
       level: "high" as const,
@@ -333,6 +351,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Kitty",
+    id: "kitty",
     apy: 4.3,
     risk: {
       level: "low" as const,
@@ -350,6 +369,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Flow Yield",
+    id: "flow-yield",
     apy: 34.0,
     risk: {
       level: "high" as const,
@@ -367,6 +387,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
+    id: "aave-lending-strategy",
     apy: 5.1,
     risk: {
       level: "medium" as const,
@@ -387,6 +408,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   // TODO: mock for demo
   {
     title: "Aave Lending Leverage",
+    id: "aave-lending-leverage",
     apy: 10.1,
     risk: {
       level: "low" as const,
@@ -406,6 +428,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Full Range",
+    id: "uniswap-liquidity-full-range",
     apy: 10.1,
     risk: {
       level: "low" as const,

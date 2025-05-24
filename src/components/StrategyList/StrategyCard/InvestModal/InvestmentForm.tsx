@@ -1,3 +1,4 @@
+// Shared component for invest, withdraw and LP
 import Image from "next/image";
 import { FC, useState, useEffect, FormEvent } from "react";
 import { toast } from "react-toastify";
@@ -6,7 +7,7 @@ import { parseUnits } from "viem";
 
 import useCurrency from "@/hooks/useCurrency";
 import useSwitchChain from "@/hooks/useSwitchChain";
-import { InvestStrategy } from "@/types";
+import { InvestmentFormMode, InvestStrategy } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { getStrategy } from "@/utils/strategies";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
@@ -14,6 +15,7 @@ import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 // Props interface
 interface InvestmentFormProps {
   strategy: InvestStrategy;
+  mode?: InvestmentFormMode;
   handleClose?: () => void;
   handlePortfolio?: (amount: string) => void;
 }
@@ -21,11 +23,13 @@ interface InvestmentFormProps {
 enum ButtonState {
   Pending = "Processing...",
   Invest = "Invest",
+  Withdraw = "Withdraw",
   SwitchChain = "Switch Chain",
 }
 
 const InvestmentForm: FC<InvestmentFormProps> = ({
   strategy,
+  mode = "invest",
   handleClose,
   handlePortfolio,
 }) => {
@@ -70,6 +74,11 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     } else {
       executeStrategy();
     }
+  };
+
+  // TODO: Support withdrawal
+  const withdraw = () => {
+    console.log("Withdraw");
   };
 
   const handleSwitchChain = async (chainId: number) => {
@@ -118,6 +127,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
       case ButtonState.Invest:
         invest();
         break;
+      case ButtonState.Withdraw:
+        withdraw();
+        break;
       case ButtonState.SwitchChain:
         handleSwitchChain(strategy.chainId);
         break;
@@ -127,17 +139,28 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   };
 
   useEffect(() => {
-    setButtonState(
-      isLoading
-        ? ButtonState.Pending
-        : !isWalletReady
-        ? ButtonState.Pending
-        : isSupportedChain
-        ? ButtonState.Invest
-        : ButtonState.SwitchChain
-    );
+    const getButtonState = () => {
+      if (isLoading || !isWalletReady) {
+        return ButtonState.Pending;
+      }
+
+      if (!isSupportedChain) {
+        return ButtonState.SwitchChain;
+      }
+
+      switch (mode) {
+        case "invest":
+          return ButtonState.Invest;
+        case "withdraw":
+          return ButtonState.Withdraw;
+        default:
+          return ButtonState.Pending;
+      }
+    };
+
+    setButtonState(getButtonState());
     setIsDisabled(isLoading);
-  }, [isWalletReady, isLoading, isSupportedChain]);
+  }, [isLoading, isSupportedChain, isWalletReady, mode]);
 
   return (
     <form onSubmit={handleSubmit}>

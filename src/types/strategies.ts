@@ -17,6 +17,7 @@ export type StrategyMetadata = InvestStrategy & {
 
 export type InvestStrategy = {
   title: string;
+  id: string;
   apy: number;
   risk: {
     level: RiskLevel;
@@ -49,3 +50,7 @@ export type PieStrategy = {
   risk: string;
   allocation: number;
 };
+
+export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";
+
+export type InvestmentFormMode = "invest" | "withdraw";
