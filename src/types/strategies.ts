@@ -53,4 +53,4 @@ export type PieStrategy = {
 
 export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";
 
-export type InvestmentFormMode = "invest" | "withdraw";
+export type InvestmentFormMode = "invest" | "withdraw" | "lp";
