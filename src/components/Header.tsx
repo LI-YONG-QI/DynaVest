@@ -5,6 +5,7 @@ import ConnectWalletButton from "./ConnectWalletButton";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import ChainSelector from "./ChainSelector";
+import { usePrivy } from "@privy-io/react-auth";
 
 interface NavItem {
   label: string;
@@ -20,6 +21,9 @@ const navItems: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
+
+  const { user } = usePrivy();
+  console.log(user);
 
   return (
     <header className="flex justify-between items-center px-5 md:px-20 py-6">

@@ -7,12 +7,19 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { Address } from "viem";
 
+// TODO: remove catch logic
+
 async function createUser(smartWallet: Address) {
-  const response = await fetch("/api/user", {
-    method: "POST",
-    body: JSON.stringify({ address: smartWallet }),
-  });
-  return response.json();
+  try {
+    const response = await fetch("/api/user", {
+      method: "POST",
+      body: JSON.stringify({ address: smartWallet }),
+    });
+    console.log("Create user success", response);
+    return response.json();
+  } catch (error) {
+    console.error("Create user failed", error);
+  }
 }
 
 export default function ConnectWalletButton() {
@@ -30,6 +37,8 @@ export default function ConnectWalletButton() {
     onComplete: async (loginResponse) => {
       const smartWallet = loginResponse.user.smartWallet;
 
+      await createUser(smartWallet!.address as Address);
+
       if (client?.account.isDeployed()) {
         //! Trigger CA deployment
         const tx = await client.sendTransaction(
@@ -44,7 +53,7 @@ export default function ConnectWalletButton() {
             },
           }
         );
-        await createUser(smartWallet!.address as Address);
+
         toast.success(`Wallet created successfully: ${tx}`);
       }
       // Navigate to dashboard, show welcome message, etc.

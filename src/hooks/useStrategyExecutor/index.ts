@@ -69,7 +69,10 @@ export function useStrategyExecutor() {
           chainId,
           strategy: strategy.strategy.metadata.protocol,
           type: strategy.strategy.metadata.type,
-          amount: amount.toString(),
+          amount: (
+            (amount * BigInt(strategy.allocation)) /
+            BigInt(100)
+          ).toString(),
           icon: strategy.strategy.metadata.icon,
           tokenName: "USDC",
         };
