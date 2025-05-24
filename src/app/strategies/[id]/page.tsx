@@ -69,9 +69,9 @@ function StrategyDetailContent() {
       </div>
 
       {/* Content */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-10">
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 mt-10">
         {/* Left - Strategy Details and Statistics */}
-        <div className="md:col-span-8">
+        <div className="xl:col-span-8">
           {/* Strategy Name and Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ function StrategyDetailContent() {
         </div>
 
         {/* Right - Invest/Withdraw Modal */}
-        <div className="md:col-span-4">
+        <div className="xl:col-span-4 mb-6 xl:mb-0">
           <div className="bg-white shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] rounded-lg">
             <div className="divide-y-2 divide-gray-200">
               <div className="flex items-stretch gap-0.5 mb-5">
