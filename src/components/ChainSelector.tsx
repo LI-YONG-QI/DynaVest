@@ -1,7 +1,7 @@
 import { useChainId, useSwitchChain } from "wagmi";
 import Image from "next/image";
 import { ChevronDown, Search, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { CHAINS } from "@/constants/chains";
@@ -29,6 +29,25 @@ export default function ChainSelector() {
   const chainId = useChainId();
   const { switchChainAsync } = useSwitchChain();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Keep input focused during search
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, isOpen]);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setSearchQuery("");
+    }
+  };
 
   const currentChain =
     CHAINS.find((chain) => chain.id === chainId) || CHAINS[0];
@@ -70,7 +89,7 @@ export default function ChainSelector() {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-1 md:px-2 py-1.5 hover:bg-gray-50">
         <Image
           src={currentChain.icon}
@@ -89,16 +108,27 @@ export default function ChainSelector() {
           background:
             "linear-gradient(-86.667deg, rgba(95, 121, 241, 0.15) 18%, rgba(253, 164, 175, 0.15) 100%)",
         }}
+        onPointerDownOutside={(e) => {
+          // Prevent closing when clicking on the input or clear button
+          if (
+            e.target === inputRef.current ||
+            (e.target as HTMLElement).closest('button[type="button"]')
+          ) {
+            e.preventDefault();
+          }
+        }}
       >
         <div className="p-2 sticky top-0 z-10">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={inputRef}
               placeholder="Search chains..."
-              className="pl-8 h-9 pr-8 text-sm"
+              className="pl-8 h-9 pr-8 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
               value={searchQuery}
               onChange={handleSearchChange}
               onClick={(e) => e.stopPropagation()}
+              autoFocus
             />
             {searchQuery && (
               <button
