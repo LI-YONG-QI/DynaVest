@@ -149,27 +149,6 @@ export default function ConnectWalletButton() {
               <div className="flex items-center justify-between w-full">
                 {/* User info with wallet */}
                 <div className="flex items-center gap-4">
-                  {/* Identicon */}
-                  <div className="relative">
-                    <Image
-                      src="/dropdown-icons/identicon.png"
-                      alt="User Identicon"
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-
-                    {/* Wallet icon (positioned over the identicon) */}
-                    <div className="absolute top-0 left-0 w-[18px] h-[18px] rounded-full bg-[#FFE8D2] flex items-center justify-center border-[1.5px] border-white">
-                      <Image
-                        src="/dropdown-icons/metamask.png"
-                        alt="MetaMask"
-                        width={10}
-                        height={10}
-                      />
-                    </div>
-                  </div>
-
                   {/* User info */}
                   <div className="flex flex-col items-start">
                     <span className="font-bold text-[14px] text-[#3B446A] tracking-wider">
