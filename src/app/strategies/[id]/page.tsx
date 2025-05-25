@@ -43,7 +43,7 @@ function StrategyDetailContent() {
   }
 
   return (
-    <div>
+    <div className="">
       {/* Top Nav */}
       <div className="flex items-center justify-between">
         <Link href="/strategies" className="flex items-center gap-2">
@@ -81,7 +81,7 @@ function StrategyDetailContent() {
                 width={40}
                 height={40}
               />
-              <h2 className="text-4xl">{strategy.title}</h2>
+              <h2 className="text-4xl font-semibold">{strategy.title}</h2>
               <span
                 className="px-2 py-1 rounded-lg text-xs font-medium"
                 style={{
@@ -93,7 +93,7 @@ function StrategyDetailContent() {
               </span>
             </div>
             <div className="flex flex-col items-start self-stretch flex-grow md:pr-20">
-              <p className="font-[family-name:var(--font-inter)] text-[#17181C] text-sm font-normal text-left ">
+              <p className="text-[#17181C] text-sm font-normal text-left">
                 {strategy.description}
                 {strategy.learnMoreLink && (
                   <Link

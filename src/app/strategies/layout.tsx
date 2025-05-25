@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* DeFAI Strategies Header - only show for /strategies page */}
       {pathname === "/strategies" && (
         <div className="relative flex justify-center mb-6 items-center">
-          <h2 className="text-4xl md:text-[48px] font-extrabold font-[family-name:var(--font-manrope)] text-[#141A21] text-center">
+          <h2 className="text-4xl md:text-[48px] font-extrabold text-[#141A21] text-center">
             DeFAI Strategies
           </h2>
 

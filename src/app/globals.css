@@ -4,8 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-manrope), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-manrope: 'Manrope', sans-serif;
 
   --color-primary: #3d84ff;
 
