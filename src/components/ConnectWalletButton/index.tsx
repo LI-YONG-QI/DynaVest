@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { Address } from "viem";
+import ChainSelector from "../ChainSelector";
 
 // TODO: remove catch logic
 
@@ -132,16 +133,24 @@ export default function ConnectWalletButton() {
 
   return (
     <div
-      className={`relative flex items-center justify-center text-center ${
+      className={`relative flex items-center justify-center text-center gap-x-1 ${
         isDropdownOpen ? "rounded-t-[10px]" : "rounded-[10px]"
-      } py-3 px-4 w-[180px] h-[54px]`}
+      } py-3 px-4 w-[175px] md:w-[200px] h-[54px]`}
       style={backgroundStyle}
       ref={dropdownRef}
     >
+      <div className="flex items-center max-w-[35%]">
+        {/* Chain Selector */}
+        <ChainSelector />
+      </div>
+
+      {/* Vertical divider */}
+      <div className="w-[2px] h-6 bg-white mx-1"></div>
+
       <button
         disabled={!buttonReady}
         onClick={handleButtonOnClick}
-        className="cursor-pointer flex items-center justify-between w-full h-full"
+        className="pl-1 cursor-pointer flex items-center justify-between w-full h-full"
       >
         <div className="flex items-center gap-4 w-full">
           {buttonReady ? (

@@ -45,12 +45,12 @@ export default function ChainSelector() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+      <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-1 md:px-2 py-1.5 hover:bg-gray-50">
         <Image
           src={currentChain.icon}
           alt={currentChain.name}
-          width={20}
-          height={20}
+          width={24}
+          height={24}
           className="rounded-full"
         />
         <ChevronDown size={14} />
