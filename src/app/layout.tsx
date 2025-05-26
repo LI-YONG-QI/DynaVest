@@ -67,7 +67,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lilyScript.variable} ${dmSans.variable} ${inter.variable} ${manrope.variable} ${plusJakarta.variable} ${poppins.variable} ${bricolageGrotesque.variable} antialiased`}
+        className={`${lilyScript.variable} ${dmSans.variable} ${inter.variable} ${manrope.variable} ${plusJakarta.variable} ${poppins.variable} ${bricolageGrotesque.variable} antialiased font-manrope`}
         style={{
           background:
             "linear-gradient(-59.08deg, #E6F2FB 0%, #EBE7FB 55%, #E6F2FB 100%) fixed",

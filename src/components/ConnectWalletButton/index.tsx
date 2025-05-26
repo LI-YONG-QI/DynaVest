@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { Address } from "viem";
+import ChainSelector from "../ChainSelector";
 
 // TODO: remove catch logic
 
@@ -132,16 +133,24 @@ export default function ConnectWalletButton() {
 
   return (
     <div
-      className={`relative flex items-center justify-center text-center ${
+      className={`relative flex items-center justify-center text-center gap-x-1 ${
         isDropdownOpen ? "rounded-t-[10px]" : "rounded-[10px]"
-      } py-3 px-4 w-[180px] h-[54px]`}
+      } py-3 px-4 w-[175px] md:w-[200px] h-[54px]`}
       style={backgroundStyle}
       ref={dropdownRef}
     >
+      <div className="flex items-center max-w-[35%]">
+        {/* Chain Selector */}
+        <ChainSelector />
+      </div>
+
+      {/* Vertical divider */}
+      <div className="w-[2px] h-6 bg-white mx-1"></div>
+
       <button
         disabled={!buttonReady}
         onClick={handleButtonOnClick}
-        className="cursor-pointer flex items-center justify-between w-full h-full"
+        className="pl-1 cursor-pointer flex items-center justify-between w-full h-full"
       >
         <div className="flex items-center gap-4 w-full">
           {buttonReady ? (
@@ -149,27 +158,6 @@ export default function ConnectWalletButton() {
               <div className="flex items-center justify-between w-full">
                 {/* User info with wallet */}
                 <div className="flex items-center gap-4">
-                  {/* Identicon */}
-                  <div className="relative">
-                    <Image
-                      src="/dropdown-icons/identicon.png"
-                      alt="User Identicon"
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-
-                    {/* Wallet icon (positioned over the identicon) */}
-                    <div className="absolute top-0 left-0 w-[18px] h-[18px] rounded-full bg-[#FFE8D2] flex items-center justify-center border-[1.5px] border-white">
-                      <Image
-                        src="/dropdown-icons/metamask.png"
-                        alt="MetaMask"
-                        width={10}
-                        height={10}
-                      />
-                    </div>
-                  </div>
-
                   {/* User info */}
                   <div className="flex flex-col items-start">
                     <span className="font-bold text-[14px] text-[#3B446A] tracking-wider">

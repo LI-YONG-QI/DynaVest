@@ -4,7 +4,6 @@ import Link from "next/link";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import ChainSelector from "./ChainSelector";
 import { usePrivy } from "@privy-io/react-auth";
 
 interface NavItem {
@@ -32,7 +31,7 @@ export default function Header() {
           href="/"
           className="text-[#5F79F1] text-[22px] font-[family-name:var(--font-lily-script)]"
         >
-          <Image src="/logo.svg" alt="DynaVest" width={150} height={120} />
+          <Image src="/logo.svg" alt="DynaVest" width={145} height={120} />
         </Link>
       </div>
 
@@ -51,7 +50,6 @@ export default function Header() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <ChainSelector />
         <ConnectWalletButton />
       </div>
     </header>
