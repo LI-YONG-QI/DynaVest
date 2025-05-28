@@ -1,10 +1,8 @@
 import { AnalyzePortfolioMessage, Message } from "@/classes/message";
 import { PortfolioPieChart } from "@/components/RiskPortfolio/PieChart";
-import { createPieChartStrategies } from "@/utils/pie";
 import Button from "@/components/Button";
 import { Percent, Sparkles } from "lucide-react";
 import { useState } from "react";
-import { Protocol, RiskLevel } from "@/types";
 
 interface AnalyzePortfolioChatWrapperProps {
   message: AnalyzePortfolioMessage;
@@ -12,38 +10,62 @@ interface AnalyzePortfolioChatWrapperProps {
 }
 
 // TODO: use real data
-const dummyStrategies = [
+const mockPositions = [
   {
-    title: "Strategy 1",
+    id: 1,
+    color: "#10B981",
+    name: "Strategy 1",
+    apy: `APY ${10}%`,
+    risk: `Low Risk`,
     allocation: 50,
-    apy: 10,
-    risk: {
-      level: "low" as RiskLevel,
-      color: "#10B981",
-      bgColor: "#E2F9F3",
-    },
-    protocol: "UniswapV3AddLiquidity" as Protocol,
-    chainId: 1,
-    id: "",
-    description: "",
-    image: "",
-    tokens: [],
   },
   {
-    title: "Strategy 2",
+    id: 2,
+    color: "#10B981",
+    name: "Strategy 2",
+    apy: `APY ${10}%`,
+    risk: `Low Risk`,
     allocation: 50,
-    apy: 10,
-    risk: {
-      level: "low" as RiskLevel,
-      color: "#10B981",
-      bgColor: "#E2F9F3",
-    },
-    protocol: "UniswapV3AddLiquidity" as Protocol,
-    chainId: 1,
-    id: "",
-    description: "",
-    image: "",
-    tokens: [],
+  },
+];
+
+const mockAssets = [
+  {
+    id: 1,
+    color: "#10B981",
+    name: "USDC",
+    apy: `APY ${10}%`,
+    risk: `Low Risk`,
+    allocation: 50,
+  },
+  {
+    id: 2,
+    color: "#10B981",
+    name: "ETH",
+    apy: `APY ${10}%`,
+    risk: `Low Risk`,
+    allocation: 50,
+  },
+];
+
+const mockRisks = [
+  {
+    id: 1,
+    color: "#10B981",
+    name: "Low Risk",
+    allocation: 20,
+  },
+  {
+    id: 2,
+    color: "#B9AB15",
+    name: "Medium Risk",
+    allocation: 60,
+  },
+  {
+    id: 3,
+    color: "#E83033",
+    name: "High Risk",
+    allocation: 20,
   },
 ];
 
@@ -67,19 +89,13 @@ const AnalyzePortfolioChatWrapper: React.FC<
       </p>
       {/* Pie charts */}
       <p className="text-xs">Positions</p>
-      <PortfolioPieChart
-        pieStrategies={createPieChartStrategies(dummyStrategies)}
-      />
+      <PortfolioPieChart pieStrategies={mockPositions} />
 
       <p className="text-xs">Assets</p>
-      <PortfolioPieChart
-        pieStrategies={createPieChartStrategies(dummyStrategies)}
-      />
+      <PortfolioPieChart pieStrategies={mockAssets} />
 
       <p className="text-xs">Risk</p>
-      <PortfolioPieChart
-        pieStrategies={createPieChartStrategies(dummyStrategies)}
-      />
+      <PortfolioPieChart pieStrategies={mockRisks} />
 
       {/* Action buttons */}
       <div className="flex flex-row items-center gap-2 text-xs whitespace-nowrap">

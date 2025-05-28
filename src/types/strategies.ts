@@ -51,6 +51,20 @@ export type PieStrategy = {
   allocation: number;
 };
 
+export type PieAssets = {
+  id: number;
+  color: string;
+  name: string;
+  allocation: number;
+};
+
+export type PieRisks = {
+  id: number;
+  color: string;
+  name: string;
+  allocation: number;
+};
+
 export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";
 
 export type InvestmentFormMode = "invest" | "withdraw" | "lp";
