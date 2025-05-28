@@ -5,13 +5,12 @@ import { STAKED_CELO_ABI } from "@/constants/abis";
 import { ST_CELO_CONTRACTS } from "@/constants/protocols";
 
 export class StCeloStaking extends BaseStrategy<typeof ST_CELO_CONTRACTS> {
-  // TODO: mock metadata
   constructor(chainId: number) {
     super(chainId, ST_CELO_CONTRACTS, {
-      protocol: "Morpho",
-      icon: "/crypto-icons/morpho.svg",
-      type: "Lending",
-      description: "Lend assets to Morpho",
+      name: "StakedCelo Staking",
+      type: "Staking",
+      protocol: "StakedCelo",
+      description: "Stake CELO tokens",
     });
   }
 

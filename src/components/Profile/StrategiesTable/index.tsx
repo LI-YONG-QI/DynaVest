@@ -6,6 +6,10 @@ import { formatUnits } from "viem";
 import { formatCoin, formatCurrency } from "@/utils";
 import { useProfilePosition } from "./useProfilePosition";
 import { getTokenByName } from "@/constants/coins";
+import {
+  getProtocolMetadata,
+  STRATEGIES_PROTOCOLS_MAPPING,
+} from "@/constants/protocols/metadata";
 
 export default function StrategiesTableComponent() {
   const [sortKey, setSortKey] = useState<"amount" | null>("amount");
@@ -71,7 +75,11 @@ export default function StrategiesTableComponent() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
                     <Image
-                      src={`${getTokenByName(position.tokenName).icon}`}
+                      src={`${
+                        getProtocolMetadata(
+                          position.strategy as keyof typeof STRATEGIES_PROTOCOLS_MAPPING
+                        ).icon
+                      }`}
                       alt={position.strategy}
                       width={24}
                       height={24}

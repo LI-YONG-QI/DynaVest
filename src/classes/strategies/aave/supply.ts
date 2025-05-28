@@ -5,6 +5,7 @@ import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
 
+
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
     super(chainId, AAVE_CONTRACTS, {

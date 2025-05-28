@@ -1,0 +1,51 @@
+export const PROTOCOLS_METADATA: Record<
+  string,
+  { icon: string; description: string }
+> = {
+  Aave: {
+    icon: "/crypto-icons/aave.svg",
+    description: "Most popular lending protocol on EVM",
+  },
+  Morpho: {
+    icon: "/crypto-icons/morpho.svg",
+    description: "Lending protocol for lending and borrowing assets",
+  },
+  Camelot: {
+    icon: "/crypto-icons/camelot.svg",
+    description: "DEX and yield farming protocol on Arbitrum",
+  },
+  StakedCelo: {
+    icon: "/crypto-icons/celo.svg",
+    description: "Liquid staking protocol for CELO tokens",
+  },
+  GMX: {
+    icon: "/crypto-icons/gmx.svg",
+    description: "Decentralized perpetual exchange",
+  },
+  UniswapV3: {
+    icon: "/crypto-icons/uniswap.svg",
+    description: "Leading decentralized exchange with concentrated liquidity",
+  },
+};
+
+export const STRATEGIES_PROTOCOLS_MAPPING: Record<
+  string,
+  { icon: string; description: string }
+> = {
+  "Aave V3 Supply": PROTOCOLS_METADATA.Aave,
+  "Morpho Supply": PROTOCOLS_METADATA.Morpho,
+  "Camelot Staking": PROTOCOLS_METADATA.Camelot,
+  "StakedCelo Staking": PROTOCOLS_METADATA.StakedCelo,
+  "GMX Deposit": PROTOCOLS_METADATA.GMX,
+  "Uniswap V3 Swap LST": PROTOCOLS_METADATA.UniswapV3,
+  "Uniswap V3 Add Liquidity": PROTOCOLS_METADATA.UniswapV3,
+};
+
+export function getProtocolMetadata(strategy: string) {
+  const protocol = STRATEGIES_PROTOCOLS_MAPPING[strategy];
+  if (!protocol) {
+    throw new Error(`Protocol ${strategy} not found`);
+  }
+
+  return protocol;
+}

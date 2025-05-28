@@ -7,13 +7,12 @@ import { wagmiConfig } from "@/providers/config";
 import { GMX_STRATEGY_ABI, ERC20_ABI } from "@/constants/abis";
 
 export class GMXDeposit extends BaseStrategy<typeof GMX_CONTRACTS> {
-  // TODO: mock metadata 
   constructor(chainId: number) {
     super(chainId, GMX_CONTRACTS, {
-      protocol: "Morpho",
-      icon: "/crypto-icons/morpho.svg",
-      type: "Lending",
-      description: "Lend assets to Morpho",
+      name: "GMX Deposit",
+      type: "Yield",
+      protocol: "GMX",
+      description: "Deposit assets to GMX vault",
     });
   }
 

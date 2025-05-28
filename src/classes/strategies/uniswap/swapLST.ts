@@ -19,12 +19,11 @@ export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
     public readonly nativeToken: Token,
     public readonly lstToken: Token
   ) {
-    // TODO: mock metadata
     super(chainId, UNISWAP_CONTRACTS, {
+      name: "Uniswap V3 Swap LST",
+      type: "Trading",
       protocol: "Uniswap V3",
-      icon: "/crypto-icons/uniswap.svg",
-      type: "Lending",
-      description: "Lend assets to Uniswap V3",
+      description: "Swap native tokens to LST on Uniswap V3",
     });
   }
 
