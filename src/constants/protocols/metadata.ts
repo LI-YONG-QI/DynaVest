@@ -26,6 +26,10 @@ export const PROTOCOLS_METADATA: Record<
     icon: "/crypto-icons/uniswap.svg",
     description: "Leading decentralized exchange with concentrated liquidity",
   },
+  Lido: {
+    icon: "/crypto-icons/lido.png",
+    description: "Liquid staking protocol for ETH",
+  },
 };
 
 export const STRATEGIES_PROTOCOLS_MAPPING: Record<
@@ -37,7 +41,7 @@ export const STRATEGIES_PROTOCOLS_MAPPING: Record<
   "Camelot Staking": PROTOCOLS_METADATA.Camelot,
   "StakedCelo Staking": PROTOCOLS_METADATA.StakedCelo,
   "GMX Deposit": PROTOCOLS_METADATA.GMX,
-  "Uniswap V3 Swap LST": PROTOCOLS_METADATA.UniswapV3,
+  "Uniswap V3 Swap LST": PROTOCOLS_METADATA.Lido,
   "Uniswap V3 Add Liquidity": PROTOCOLS_METADATA.UniswapV3,
 };
 

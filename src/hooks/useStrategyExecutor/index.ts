@@ -5,11 +5,11 @@ import { useMemo } from "react";
 import { useChainId, useClient } from "wagmi";
 import axios from "axios";
 import { waitForTransactionReceipt } from "viem/actions";
+import { useMutation } from "@tanstack/react-query";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { Protocols } from "@/types/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
-import { useMutation } from "@tanstack/react-query";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 

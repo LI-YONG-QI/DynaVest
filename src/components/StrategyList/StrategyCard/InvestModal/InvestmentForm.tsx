@@ -76,7 +76,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [slippage, setSlippage] = useState<number | "auto">("auto");
   const [customSlippage, setCustomSlippage] = useState("");
 
-  const AMOUNT_LIMIT = 0.01;
+  const AMOUNT_LIMIT = 0;
 
   // Handle setting max amount
   const handleSetMax = () => {
