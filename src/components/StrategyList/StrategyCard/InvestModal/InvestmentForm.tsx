@@ -13,6 +13,8 @@ import { getStrategy } from "@/utils/strategies";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 
 // Props interface
+
+// TODO: refactor
 interface InvestmentFormProps {
   strategy: InvestStrategy;
   mode?: InvestmentFormMode;
@@ -67,7 +69,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const { switchChainAsync } = useWagmiSwitchChain();
 
   const chainId = useChainId();
-  const { execute } = useStrategyExecutor();
+  const { mutate: execute } = useStrategyExecutor();
 
   // Advanced settings state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -121,27 +123,26 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     const strategyHandler = getStrategy(strategy.protocol, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
 
-    try {
-      let result;
-      if (currency.isNativeToken) {
-        result = await execute(strategyHandler, parsedAmount);
-      } else {
-        result = await execute(
-          strategyHandler,
-          parsedAmount,
-          currency.chains![chainId]
-        );
+    execute(
+      {
+        strategy: strategyHandler,
+        amount: parsedAmount,
+        token: currency,
+      },
+      {
+        onSuccess: (tx) => {
+          toast.success(`Investment successful! ${tx}`);
+          if (handleClose) handleClose();
+        },
+        onError: (error) => {
+          console.error(error);
+          toast.error(`Investment failed! ${error}`);
+        },
+        onSettled: () => {
+          setIsLoading(false);
+        },
       }
-
-      toast.success(`Investment successful! ${result}`);
-
-      if (handleClose) handleClose();
-    } catch (error) {
-      console.error(error);
-      toast.error(`Investment failed! ${error}`);
-    }
-
-    setIsLoading(false);
+    );
   };
 
   const handleSubmit = (e: FormEvent) => {

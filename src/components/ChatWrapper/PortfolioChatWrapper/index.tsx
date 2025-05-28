@@ -16,6 +16,7 @@ import { getStrategy } from "@/utils/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 interface PortfolioChatWrapperProps {
   message: PortfolioMessage;
@@ -32,7 +33,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   );
   const [isEdit, setIsEdit] = useState(true);
   const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { execute } = useStrategyExecutor();
+  const { mutate: execute } = useStrategyExecutor();
 
   const nextMessage = async (action: "build" | "edit") => {
     if (isLoadingBalance) return;
@@ -58,23 +59,33 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   };
 
   async function executeMultiStrategy() {
-    try {
-      const strategiesHandler = strategies.map((strategy) => ({
-        strategy: getStrategy(strategy.protocol, strategy.chainId),
-        allocation: strategy.allocation,
-      }));
+    const strategiesHandlers = strategies.map((strategy) => ({
+      strategy: getStrategy(strategy.protocol, strategy.chainId),
+      allocation: strategy.allocation,
+    }));
+    const multiStrategy = new MultiStrategy(strategiesHandlers);
 
-      const multiStrategy = new MultiStrategy(strategiesHandler);
-      const tx = await execute(
-        multiStrategy,
-        parseUnits(message.amount, USDC.decimals),
-        USDC.chains![message.chain]
-      );
-
-      toast.success(`Portfolio built successfully, ${tx}`);
-    } catch (error) {
-      toast.error(`Error building portfolio, ${error}`);
-    }
+    execute(
+      {
+        strategy: multiStrategy,
+        amount: parseUnits(message.amount, USDC.decimals),
+        token: USDC,
+      },
+      {
+        onSuccess: (tx) => {
+          toast.success(`Portfolio built successfully, ${tx}`);
+        },
+        onError: (error) => {
+          if (axios.isAxiosError(error) && error.response) {
+            const errorData = JSON.parse(error.response.data);
+            console.error("Error response data:", errorData);
+            toast.error(`Error building portfolio, ${errorData.message}`);
+          } else {
+            toast.error(`Error building portfolio, ${error}`);
+          }
+        },
+      }
+    );
   }
 
   useEffect(() => {

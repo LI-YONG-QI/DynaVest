@@ -72,6 +72,7 @@ const addUser = async (params: AddUserParams) => {
   });
 };
 
+// TODO: zod to parse?
 export const useAddUser = () => {
   const { mutateAsync: deploySmartWallet } = useDeploySmartWallet();
 

@@ -13,8 +13,8 @@ export type StrategyCall = {
 };
 
 export type BaseStrategyMetadata = {
+  name: string;
   protocol: string;
-  icon: string;
   type: "Lending" | "Trading" | "Staking" | "Yield" | "Other";
   description: string;
 };
