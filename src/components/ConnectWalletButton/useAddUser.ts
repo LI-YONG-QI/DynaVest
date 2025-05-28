@@ -6,6 +6,8 @@ import {
 } from "@privy-io/react-auth";
 import { useMutation } from "@tanstack/react-query";
 
+import { useDeploySmartWallet } from "./useDeploySmartWallet";
+
 type LoginMethod =
   | "email"
   | "sms"
@@ -43,7 +45,8 @@ const getLoginId = (loginResponse: LoginResponse) => {
       loginId = user.google?.email;
       break;
     case "siwe":
-      const account = loginAccount as WalletWithMetadata; //! infer login account with siwe
+      //! infer login account with siwe
+      const account = loginAccount as WalletWithMetadata;
       loginId = account.address;
       break;
   }
@@ -52,22 +55,37 @@ const getLoginId = (loginResponse: LoginResponse) => {
   return loginId;
 };
 
-const getAddress = (user: User) => {
+const getSmartWalletAddress = (user: User) => {
   if (!user.smartWallet?.address)
     throw new Error("Add user: address not found");
 
   return user.smartWallet.address;
 };
 
+const addUser = async (params: AddUserParams) => {
+  return await fetch(process.env.NEXT_PUBLIC_CHATBOT_URL + "/addUser", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+};
+
 export const useAddUser = () => {
-  const { mutate, mutateAsync, isError, isSuccess, error } = useMutation({
+  const { mutateAsync: deploySmartWallet } = useDeploySmartWallet();
+
+  return useMutation({
     mutationFn: async (loginResponse: LoginResponse) => {
-      const { user, loginMethod } = loginResponse;
-      if (!loginMethod) throw new Error("Add user: login method not found");
+      const { user, loginMethod, wasAlreadyAuthenticated } = loginResponse;
+
+      if (wasAlreadyAuthenticated) return;
+      if (!user.smartWallet)
+        throw new Error("AddUserError: smart wallet not found");
+      if (!loginMethod) throw new Error("AddUserError: login method not found");
 
       const loginId = getLoginId(loginResponse);
-      const address = getAddress(user);
-
+      const address = getSmartWalletAddress(user);
       const params: AddUserParams = {
         privy_id: user.id,
         address,
@@ -76,26 +94,15 @@ export const useAddUser = () => {
         login_id: loginId,
       };
 
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_CHATBOT_URL + "/addUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params),
-        }
-      );
+      const response = await addUser(params);
+      if (!response.ok) {
+        const error = await response.json();
+        console.warn("AddUserError", error);
+        return;
+      }
 
-      return response.json();
+      const tx = await deploySmartWallet(user.smartWallet);
+      return tx;
     },
   });
-
-  return {
-    mutateAsync,
-    mutate,
-    isError,
-    isSuccess,
-    error,
-  };
 };

@@ -1,13 +1,9 @@
 import Image from "next/image";
-import {
-  LoginMethodOrderOption,
-  useLogin,
-  usePrivy,
-} from "@privy-io/react-auth";
-import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
+import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 import ChainSelector from "../ChainSelector";
 import { useAddUser } from "./useAddUser";
@@ -22,40 +18,25 @@ export default function ConnectWalletButton() {
   } = usePrivy();
 
   const [address, setAddress] = useState<string | null>(null);
-  const { client } = useSmartWallets();
-  const { mutateAsync: addUser, isError, isSuccess, error } = useAddUser();
+  const { mutate: addUser } = useAddUser();
 
   const { login } = useLogin({
     onComplete: async (loginResponse) => {
-      console.log("Login", loginResponse);
-      await addUser(loginResponse);
-
-      // const smartWallet = loginResponse.user.smartWallet;
-      // await createUser(smartWallet!.address as Address);
-
-      // if (client?.account.isDeployed()) {
-      //   //! Trigger CA deployment
-      //   const tx = await client.sendTransaction(
-      //     {
-      //       to: smartWallet!.address as Address, // 自身地址即可
-      //       value: BigInt(0), // 零 ETH
-      //       data: "0x",
-      //     },
-      //     {
-      //       uiOptions: {
-      //         showWalletUIs: false,
-      //       },
-      //     }
-      //   );
-
-      //   toast.success(`Wallet created successfully: ${tx}`);
-      // }
-      // Navigate to dashboard, show welcome message, etc.
+      addUser(loginResponse, {
+        onSuccess: (tx) => {
+          if (tx) toast.success(`Wallet created successfully: ${tx}`);
+        },
+        onError: (error) => {
+          console.error(error);
+          toast.error(`Wallet creation failed: ${error}`);
+        },
+      });
     },
     onError: (error) => {
-      console.error("Login failed", error);
+      toast.error(`Login failed: ${error}`);
     },
   });
+
   const { disconnect } = useDisconnect();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
