@@ -30,10 +30,10 @@ export const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const formatCoin = (value: number, symbol: string) => {
+export const formatCoin = (value: number) => {
   return `${value.toLocaleString("en-US", {
     maximumFractionDigits: 6,
-  })} ${symbol}`;
+  })}`;
 };
 
 export function cn(...inputs: ClassValue[]) {

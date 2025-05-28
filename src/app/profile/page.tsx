@@ -7,16 +7,17 @@ import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
 // import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
+import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 
 const PROFILE_TABS = [
   {
     label: "Assets",
     value: "assets",
   },
-  // {
-  //   label: "Strategies",
-  //   value: "strategies",
-  // },
+  {
+    label: "Strategies",
+    value: "strategies",
+  },
   {
     label: "Transactions",
     value: "transactions",
@@ -27,8 +28,8 @@ function getTabComponent(tab: string) {
   switch (tab) {
     case "assets":
       return <AssetsTableComponent />;
-    // case "strategies":
-    //   return <StrategiesTableComponent />;
+    case "strategies":
+      return <StrategiesTableComponent />;
     case "transactions":
       return <TransactionsTableComponent />;
     default:
