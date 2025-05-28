@@ -194,7 +194,13 @@ export default function Home() {
     }
     // Analyze Portfolio Flow
     else if (message instanceof AnalyzePortfolioMessage) {
-      return <AnalyzePortfolioChatWrapper message={message} />;
+      return (
+        <AnalyzePortfolioChatWrapper
+          message={message}
+          addBotMessage={addBotMessage}
+          canBuildPortfolio={message.canBuildPortfolio}
+        />
+      );
     }
   };
 

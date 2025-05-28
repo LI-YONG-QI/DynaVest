@@ -1,12 +1,13 @@
 import { AnalyzePortfolioMessage, Message } from "@/classes/message";
 import { PortfolioPieChart } from "@/components/RiskPortfolio/PieChart";
 import Button from "@/components/Button";
-import { Percent, Sparkles } from "lucide-react";
+import { Percent, Sparkles, MoveUpRight } from "lucide-react";
 import { useState } from "react";
 
 interface AnalyzePortfolioChatWrapperProps {
   message: AnalyzePortfolioMessage;
   addBotMessage: (message: Message) => Promise<void>;
+  canBuildPortfolio?: boolean;
 }
 
 // TODO: use real data
@@ -71,11 +72,11 @@ const mockRisks = [
 
 const AnalyzePortfolioChatWrapper: React.FC<
   AnalyzePortfolioChatWrapperProps
-> = ({ message, addBotMessage }) => {
+> = ({ message, addBotMessage, canBuildPortfolio = false }) => {
   const [isEdit, setIsEdit] = useState(true);
 
   const nextMessage = async (
-    action: "positions" | "assets" | "risk" | "rebalance"
+    action: "positions" | "assets" | "risk" | "rebalance" | "build"
   ) => {
     setIsEdit(false);
 
@@ -119,12 +120,21 @@ const AnalyzePortfolioChatWrapper: React.FC<
         />
       </div>
       <div className="w-full my-3">
-        <Button
-          onClick={() => nextMessage("rebalance")}
-          text="Smart Relancing"
-          disabled={!isEdit}
-          icon={<Sparkles />}
-        />
+        {canBuildPortfolio ? (
+          <Button
+            onClick={() => nextMessage("build")}
+            text="Start Building Portfolio"
+            disabled={!isEdit}
+            icon={<MoveUpRight />}
+          />
+        ) : (
+          <Button
+            onClick={() => nextMessage("rebalance")}
+            text="Smart Relancing"
+            disabled={!isEdit}
+            icon={<Sparkles />}
+          />
+        )}
       </div>
     </div>
   );

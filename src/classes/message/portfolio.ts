@@ -34,7 +34,8 @@ export class PortfolioMessage extends Message {
           this.createDefaultMetadata("Edit"),
           this.amount,
           this.chain,
-          this.strategies
+          this.strategies,
+          "portfolio"
         );
       case "deposit":
         return new DepositMessage(

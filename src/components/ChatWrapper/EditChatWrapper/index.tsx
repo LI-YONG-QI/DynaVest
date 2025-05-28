@@ -15,6 +15,7 @@ const EditChatWrapper: React.FC<EditChatWrapperProps> = ({
   message,
   addBotMessage,
 }) => {
+  // TODO: Support more data types
   const [strategies, setStrategies] = useState<RiskPortfolioStrategies[]>(
     message.strategies
   );

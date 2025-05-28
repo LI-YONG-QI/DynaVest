@@ -1,21 +1,61 @@
+import { RiskLevel, RiskPortfolioStrategies } from "@/types";
 import { Message, MessageMetadata } from "./base";
-import { TextMessage } from "./text";
+import { EditMessage } from "./edit";
+import { BuildPortfolioMessage } from "./build-portfolio";
 
 export class AnalyzePortfolioMessage extends Message {
-  constructor(metadata: MessageMetadata) {
+  public strategies: RiskPortfolioStrategies[] = [];
+  public risk: RiskLevel = "low";
+
+  constructor(
+    metadata: MessageMetadata,
+    public readonly canBuildPortfolio: boolean = false
+  ) {
     super(metadata);
   }
 
-  next(action: "positions" | "assets" | "risk" | "rebalance"): Message {
+  next(
+    action: "positions" | "assets" | "risk" | "rebalance" | "build"
+  ): Message {
     switch (action) {
       case "positions":
-        return new TextMessage(this.metadata);
+        return new EditMessage(
+          this.createDefaultMetadata("Edit"),
+          "",
+          0,
+          this.strategies,
+          "analyze"
+        );
       case "assets":
-        return new TextMessage(this.metadata);
+        return new EditMessage(
+          this.createDefaultMetadata("Edit"),
+          "",
+          0,
+          this.strategies,
+          "analyze"
+        );
       case "risk":
-        return new TextMessage(this.metadata);
+        return new EditMessage(
+          this.createDefaultMetadata("Edit"),
+          "",
+          0,
+          this.strategies,
+          "analyze"
+        );
       case "rebalance":
-        return new TextMessage(this.metadata);
+        return new EditMessage(
+          this.createDefaultMetadata("Edit"),
+          "",
+          0,
+          this.strategies,
+          "analyze"
+        );
+      case "build":
+        return new BuildPortfolioMessage(
+          this.createDefaultMetadata("Build"),
+          "",
+          this.strategies
+        );
     }
   }
 
