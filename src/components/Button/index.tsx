@@ -11,7 +11,7 @@ const Button = ({ onClick, text, icon, disabled }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
-      className="w-full cursor-pointer max-w-[250px] flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:opacity-50"
+      className="w-full cursor-pointer flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:opacity-50"
       disabled={disabled}
     >
       {icon}
