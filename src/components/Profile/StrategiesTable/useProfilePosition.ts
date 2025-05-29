@@ -14,7 +14,7 @@ type PositionResponse = {
   status: string;
 };
 
-type Position = {
+export type Position = {
   positionId: string;
   strategy: string;
   tokenName: string;

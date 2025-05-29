@@ -158,17 +158,7 @@ export function useStrategyExecutor() {
       );
       const txHash = await waitForUserOp(userOp);
 
-      if (strategy instanceof BaseStrategy) {
-        await addPosition({
-          address: user,
-          amount: Number(amount),
-          token_name: token.name,
-          chain_id: chainId,
-          strategy: strategy.metadata.name,
-        });
-      } else if (strategy instanceof MultiStrategy) {
-        await executeStrategy(strategy, amount, chainId, user);
-      }
+      // TODO: update position status in db
 
       return txHash;
     },

@@ -19,7 +19,7 @@ export default function AssetsTableComponent() {
       ? a[sortKey] - b[sortKey]
       : b[sortKey] - a[sortKey];
   });
-
+ 
   const handleSort = () => {
     if (sortKey === "balance") {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");

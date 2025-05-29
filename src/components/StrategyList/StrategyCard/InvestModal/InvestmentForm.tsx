@@ -340,7 +340,7 @@ interface AmountInputProps {
   strategy: InvestStrategy;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
-  maxBalance: number;
+  maxBalance: { amount: bigint; price: number };
   handleSetMax: () => void;
 }
 
@@ -434,7 +434,7 @@ const AmountInput = ({
               {isLoadingBalance ? (
                 <MoonLoader size={10} />
               ) : isSupportedChain ? (
-                maxBalance.toFixed(4)
+                maxBalance.amount.toString()
               ) : (
                 "NaN"
               )}

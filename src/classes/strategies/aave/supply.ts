@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import type { Address, PublicClient } from "viem";
 import { encodeFunctionData } from "viem";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
@@ -65,5 +65,9 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
         }),
       },
     ];
+  }
+
+  async getProfit(publicClient: PublicClient) {
+    console.log("getProfit", publicClient);
   }
 }
