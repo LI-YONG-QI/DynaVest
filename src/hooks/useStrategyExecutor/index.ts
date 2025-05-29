@@ -55,7 +55,7 @@ async function executeStrategy(
   }
 }
 
-async function getCalls(
+async function getInvestCalls(
   strategy: BaseStrategy<Protocols> | MultiStrategy,
   amount: bigint,
   user: Address,
@@ -65,15 +65,37 @@ async function getCalls(
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.buildCalls(amount, user);
+    calls = await strategy.investCalls(amount, user);
   } else {
-    calls = await strategy.buildCalls(amount, user, token.chains?.[chainId]);
+    calls = await strategy.investCalls(amount, user, token.chains?.[chainId]);
   }
 
   if (calls.length === 0) throw new Error("No calls found");
   return calls;
 }
 
+async function getRedeemCalls(
+  strategy: BaseStrategy<Protocols> | MultiStrategy,
+  amount: bigint,
+  user: Address,
+  token: Token,
+  chainId: number
+) {
+  let calls: StrategyCall[];
+
+  if (token.isNativeToken) {
+    calls = await strategy.redeemCalls(amount, user);
+  } else {
+    calls = await strategy.redeemCalls(amount, user, token.chains?.[chainId]);
+  }
+
+  if (calls.length === 0) throw new Error("No calls found");
+  return calls;
+}
+
+// TODO: rename, and encapsulate logic of strategy
+// TODO: useStrategy(strategyName: Protocol)
+// TODO: duplicate logic of strategy
 export function useStrategyExecutor() {
   const { client } = useSmartWallets();
   const chainId = useChainId();
@@ -102,7 +124,7 @@ export function useStrategyExecutor() {
     }
   }
 
-  return useMutation({
+  const redeem = useMutation({
     mutationFn: async ({
       strategy,
       amount,
@@ -117,7 +139,13 @@ export function useStrategyExecutor() {
 
       await client.switchChain({ id: chainId });
 
-      const calls = await getCalls(strategy, amount, user, token, chainId);
+      const calls = await getRedeemCalls(
+        strategy,
+        amount,
+        user,
+        token,
+        chainId
+      );
       const userOp = await client.sendTransaction(
         {
           calls,
@@ -145,4 +173,59 @@ export function useStrategyExecutor() {
       return txHash;
     },
   });
+
+  const invest = useMutation({
+    mutationFn: async ({
+      strategy,
+      amount,
+      token,
+    }: {
+      strategy: BaseStrategy<Protocols> | MultiStrategy;
+      amount: bigint;
+      token: Token;
+    }) => {
+      if (!client || !publicClient) throw new Error("Client not available");
+      if (!user) throw new Error("Smart wallet account not found");
+
+      await client.switchChain({ id: chainId });
+
+      const calls = await getInvestCalls(
+        strategy,
+        amount,
+        user,
+        token,
+        chainId
+      );
+      const userOp = await client.sendTransaction(
+        {
+          calls,
+        },
+        {
+          uiOptions: {
+            showWalletUIs: false,
+          },
+        }
+      );
+      const txHash = await waitForUserOp(userOp);
+
+      if (strategy instanceof BaseStrategy) {
+        await addPosition({
+          address: user,
+          amount: Number(amount),
+          token_name: token.name,
+          chain_id: chainId,
+          strategy: strategy.metadata.name,
+        });
+      } else if (strategy instanceof MultiStrategy) {
+        await executeStrategy(strategy, amount, chainId, user);
+      }
+
+      return txHash;
+    },
+  });
+
+  return {
+    invest,
+    redeem,
+  };
 }

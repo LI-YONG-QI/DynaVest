@@ -33,7 +33,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   );
   const [isEdit, setIsEdit] = useState(true);
   const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { mutate: execute } = useStrategyExecutor();
+  const { invest } = useStrategyExecutor();
 
   const nextMessage = async (action: "build" | "edit") => {
     if (isLoadingBalance) return;
@@ -65,7 +65,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
     }));
     const multiStrategy = new MultiStrategy(strategiesHandlers);
 
-    execute(
+    invest.mutate(
       {
         strategy: multiStrategy,
         amount: parseUnits(message.amount, USDC.decimals),

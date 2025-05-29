@@ -69,7 +69,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const { switchChainAsync } = useWagmiSwitchChain();
 
   const chainId = useChainId();
-  const { mutate: execute } = useStrategyExecutor();
+  const { invest: investStrategy } = useStrategyExecutor();
 
   // Advanced settings state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -123,7 +123,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     const strategyHandler = getStrategy(strategy.protocol, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
 
-    execute(
+    investStrategy.mutate(
       {
         strategy: strategyHandler,
         amount: parsedAmount,
