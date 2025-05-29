@@ -1,9 +1,11 @@
-import type { Address, PublicClient } from "viem";
-import { encodeFunctionData } from "viem";
+import type { Address } from "viem";
+import { encodeFunctionData, formatUnits } from "viem";
+import { readContract } from "@wagmi/core";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
+import { wagmiConfig } from "@/providers/config";
 
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
@@ -67,7 +69,29 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
     ];
   }
 
-  async getProfit(publicClient: PublicClient) {
-    console.log("getProfit", publicClient);
+  async getProfit(data: {
+    user: Address;
+    amount: bigint;
+    underlyingAsset: Address;
+  }) {
+    const { user, amount, underlyingAsset } = data;
+    const pool = this.getAddress("pool");
+
+    const aTokenAddress = await readContract(wagmiConfig, {
+      abi: AAVE_V3_ABI,
+      address: pool,
+      functionName: "getReserveAToken",
+      args: [underlyingAsset],
+    });
+
+    const aTokenBalance = await readContract(wagmiConfig, {
+      abi: ERC20_ABI,
+      address: aTokenAddress as Address,
+      functionName: "balanceOf",
+      args: [user],
+    });
+
+    const profit = aTokenBalance - amount;
+    return formatUnits(profit, 6);
   }
 }

@@ -1,6 +1,6 @@
-import type { Address, PublicClient } from "viem";
+import type { Address } from "viem";
 
-import type {
+import {
   Protocols,
   ProtocolChains,
   ProtocolContracts,
@@ -53,7 +53,7 @@ export abstract class BaseStrategy<T extends Protocols> {
     asset?: Address
   ): Promise<StrategyCall[]>;
 
-  abstract getProfit(publicClient: PublicClient): Promise<bigint>;
+  abstract getProfit(data: unknown): Promise<string>;
 
   isSupported(chainId: number): boolean {
     return Object.keys(this.protocolAddresses).map(Number).includes(chainId);

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { formatUnits } from "viem";
-import { useChainId, usePublicClient } from "wagmi";
-
+import { useChainId } from "wagmi";
 import { formatCoin, formatCurrency } from "@/utils";
 import { getTokenByName } from "@/constants/coins";
 import {
@@ -13,6 +12,8 @@ import { convertStrategyName } from "./utils";
 import { getStrategy } from "@/utils/strategies";
 import { type Position } from "./useProfilePosition";
 import { useCurrencyPrice } from "@/hooks/useCurrency";
+import { toast } from "react-toastify";
+import { useProfit } from "./useProfit";
 
 interface PositionTableRowProps {
   position: Position;
@@ -28,7 +29,7 @@ export default function PositionTableRow({
   const { data: price = 0, isLoading } = useCurrencyPrice(token);
   const { redeem } = useStrategyExecutor();
   const chainId = useChainId();
-  const publicClient = usePublicClient();
+  const { data: profit = "0" } = useProfit(position);
 
   const handleRedeem = () => {
     const strategy = getStrategy(
@@ -36,26 +37,22 @@ export default function PositionTableRow({
       chainId
     );
 
-    if (publicClient) {
-      strategy.getProfit(publicClient);
-    }
-
-    // redeem.mutate(
-    //   {
-    //     strategy,
-    //     amount: BigInt(position.amount),
-    //     token,
-    //   },
-    //   {
-    //     onSuccess: (txHash) => {
-    //       toast.success(`Redeem successful: ${txHash}`);
-    //     },
-    //     onError: (error) => {
-    //       console.error(error);
-    //       toast.error(`Redeem failed`);
-    //     },
-    //   }
-    // );
+    redeem.mutate(
+      {
+        strategy,
+        amount: BigInt(position.amount),
+        token,
+      },
+      {
+        onSuccess: (txHash) => {
+          toast.success(`Redeem successful: ${txHash}`);
+        },
+        onError: (error) => {
+          console.error(error);
+          toast.error(`Redeem failed`);
+        },
+      }
+    );
   };
 
   return (
@@ -123,8 +120,10 @@ export default function PositionTableRow({
 
       {/* Profit */}
       <td className="p-4 text-right">
-        <div className="font-medium text-md">{formatCoin(1234567)}</div>
-        <div className="text-sm text-gray-500">{formatCurrency(1234567)}</div>
+        <div className="font-medium text-md">{formatCoin(Number(profit))}</div>
+        <div className="text-sm text-gray-500">
+          {formatCurrency(Number(profit))}
+        </div>
       </td>
 
       {/* Actions */}
