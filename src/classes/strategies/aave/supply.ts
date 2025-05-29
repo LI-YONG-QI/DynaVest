@@ -5,7 +5,6 @@ import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
 
-
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
     super(chainId, AAVE_CONTRACTS, {
@@ -16,7 +15,7 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
     });
   }
 
-  async buildCalls(
+  async investCalls(
     amount: bigint,
     user: Address,
     asset?: Address
@@ -42,6 +41,27 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
           abi: AAVE_V3_ABI,
           functionName: "supply",
           args: [asset, amount, user, 0],
+        }),
+      },
+    ];
+  }
+
+  async redeemCalls(
+    amount: bigint,
+    user: Address,
+    underlyingAsset?: Address
+  ): Promise<StrategyCall[]> {
+    if (!underlyingAsset) throw new Error("AaveV3Supply: asset is required");
+
+    const pool = this.getAddress("pool");
+
+    return [
+      {
+        to: pool,
+        data: encodeFunctionData({
+          abi: AAVE_V3_ABI,
+          functionName: "withdraw",
+          args: [underlyingAsset, amount, user],
         }),
       },
     ];

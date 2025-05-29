@@ -35,13 +35,19 @@ export abstract class BaseStrategy<T extends Protocols> {
   }
 
   /**
-   * Builds transaction calls for the strategy
+   * Builds invest transaction calls for the strategy
    * @param amount - The amount to use in the strategy
    * @param user - The user address that will execute the strategy
    * @param asset - (optional) The asset to invest in. If asset is undefined, the strategy is for native tokens.
    * @returns Array of calls to be executed
    */
-  abstract buildCalls(
+  abstract investCalls(
+    amount: bigint,
+    user: Address,
+    asset?: Address
+  ): Promise<StrategyCall[]>;
+
+  abstract redeemCalls(
     amount: bigint,
     user: Address,
     asset?: Address
