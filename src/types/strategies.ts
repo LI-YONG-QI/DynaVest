@@ -42,27 +42,16 @@ export type RiskPortfolioStrategies = StrategyMetadata & {
 
 export type StrategiesSet = Record<RiskLevel, RiskPortfolioStrategies[]>;
 
-export type PieStrategy = {
+export type PieData = {
   id: number;
   color: string;
   name: string;
+  allocation: number;
+};
+
+export type PieStrategy = PieData & {
   apy: string;
   risk: string;
-  allocation: number;
-};
-
-export type PieAssets = {
-  id: number;
-  color: string;
-  name: string;
-  allocation: number;
-};
-
-export type PieRisks = {
-  id: number;
-  color: string;
-  name: string;
-  allocation: number;
 };
 
 export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";

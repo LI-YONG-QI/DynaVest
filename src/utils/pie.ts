@@ -1,19 +1,12 @@
 import type { ChartConfig } from "@/components/ui/chart";
-import type {
-  PieAssets,
-  PieRisks,
-  PieStrategy,
-  RiskPortfolioStrategies,
-} from "@/types";
+import type { PieData, PieStrategy, RiskPortfolioStrategies } from "@/types";
 
 export const COLORS = ["#7086FD", "#6FD195", "#FFAE4C", "#07DBFA", "#988AFC"];
 
 /**
  * Generates chart data from strategy information
  */
-export const createChartData = (
-  strategyData: PieStrategy[] | PieAssets[] | PieRisks[]
-) => {
+export const createChartData = (strategyData: PieData[] | PieStrategy[]) => {
   return strategyData.map((s) => ({
     name: s.name,
     value: s.allocation,
@@ -24,7 +17,7 @@ export const createChartData = (
  * Creates chart configuration based on strategy data
  */
 export const createChartConfig = (
-  strategyData: PieStrategy[] | PieAssets[] | PieRisks[]
+  strategyData: PieStrategy[] | PieData[]
 ): ChartConfig => {
   return {
     value: { label: "Allocation" },
