@@ -88,6 +88,7 @@ export default function Home() {
         );
         break;
       case "analyze_portfolio":
+        // TODO: load strategies, assets, risks from user portfolio
         nextMessage = new AnalyzePortfolioMessage({
           id: (Date.now() + 1).toString(),
           text: "Analyze portfolio",

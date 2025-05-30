@@ -2,13 +2,24 @@ import { RiskLevel, RiskPortfolioStrategies } from "@/types";
 import { Message, MessageMetadata } from "./base";
 import { EditMessage } from "./edit";
 import { BuildPortfolioMessage } from "./build-portfolio";
+import { generateMockAssets, generateMockRisks } from "@/types/portfolio";
+import { STRATEGIES_METADATA } from "@/constants";
+import { AssetPortfolioItem, RiskPortfolioItem } from "@/types/portfolio";
 
 export class AnalyzePortfolioMessage extends Message {
-  public strategies: RiskPortfolioStrategies[] = [];
   public risk: RiskLevel = "low";
 
   constructor(
     metadata: MessageMetadata,
+    public readonly strategies: RiskPortfolioStrategies[] = STRATEGIES_METADATA.slice(
+      0,
+      5
+    ).map((strategy) => ({
+      ...strategy,
+      allocation: 20,
+    })),
+    public readonly assets: AssetPortfolioItem[] = generateMockAssets(),
+    public readonly risks: RiskPortfolioItem[] = generateMockRisks(),
     public readonly canBuildPortfolio: boolean = false
   ) {
     super(metadata);
@@ -24,7 +35,10 @@ export class AnalyzePortfolioMessage extends Message {
           "",
           0,
           this.strategies,
-          "analyze"
+          "analyze",
+          "strategies",
+          this.assets,
+          this.risks
         );
       case "assets":
         return new EditMessage(
@@ -32,7 +46,10 @@ export class AnalyzePortfolioMessage extends Message {
           "",
           0,
           this.strategies,
-          "analyze"
+          "analyze",
+          "assets",
+          this.assets,
+          this.risks
         );
       case "risk":
         return new EditMessage(
@@ -40,7 +57,10 @@ export class AnalyzePortfolioMessage extends Message {
           "",
           0,
           this.strategies,
-          "analyze"
+          "analyze",
+          "risks",
+          this.assets,
+          this.risks
         );
       case "rebalance":
         return new EditMessage(
@@ -48,7 +68,10 @@ export class AnalyzePortfolioMessage extends Message {
           "",
           0,
           this.strategies,
-          "analyze"
+          "analyze",
+          "strategies",
+          this.assets,
+          this.risks
         );
       case "build":
         return new BuildPortfolioMessage(

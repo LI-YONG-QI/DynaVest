@@ -1,43 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Percent } from "lucide-react";
-
-import type { RiskPortfolioStrategies } from "@/types";
 import { toast } from "react-toastify";
+import type { PortfolioItem } from "@/types/portfolio";
 import Button from "../Button";
 
-export type ChangePercentStrategy = {
-  name: string;
-  percentage: number;
-};
-
 type ChangePercentListProps = {
-  riskPortfolioStrategies: RiskPortfolioStrategies[];
-  setRiskPortfolioStrategies: (strategies: RiskPortfolioStrategies[]) => void;
+  items: PortfolioItem[];
+  onItemsChange: (items: PortfolioItem[]) => void;
   nextStep: () => void;
   isEditable: boolean;
 };
 
-const createChangePercentStrategy = (
-  strategies: RiskPortfolioStrategies[]
-): ChangePercentStrategy[] => {
-  return strategies.map((strategy) => ({
-    name: strategy.title,
-    percentage: strategy.allocation,
-  }));
+type DisplayItem = {
+  id: string;
+  name: string;
+  allocation: number;
+  color?: string;
 };
 
 const ChangePercentList = ({
-  riskPortfolioStrategies,
-  setRiskPortfolioStrategies,
+  items,
+  onItemsChange,
   nextStep,
   isEditable,
 }: ChangePercentListProps) => {
-  const [strategies, setStrategies] = useState(
-    createChangePercentStrategy(riskPortfolioStrategies)
-  );
+  const [displayItems, setDisplayItems] = useState<DisplayItem[]>([]);
 
-  const handleInputChange = (index: number, value: string) => {
-    // Only allow edits when in editing mode
+  // Convert items to display format
+  useEffect(() => {
+    const formatted = items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      allocation: item.allocation,
+      color: item.color,
+    }));
+    setDisplayItems(formatted);
+  }, [items]);
+
+  const handleAllocationChange = (id: string, value: string) => {
     if (!isEditable) return;
 
     if (!/^\d*$/.test(value)) return;
@@ -45,28 +45,25 @@ const ChangePercentList = ({
     // Convert to number and limit to 0-100
     const numValue = value === "" ? 0 : Math.min(100, parseInt(value));
 
-    // Update the specific strategy's percentage
-    const updatedStrategies = [...strategies];
-    updatedStrategies[index] = {
-      ...updatedStrategies[index],
-      percentage: numValue,
-    };
+    const updatedDisplayItems = displayItems.map((item) =>
+      item.id === id ? { ...item, allocation: numValue } : item
+    );
+    setDisplayItems(updatedDisplayItems);
 
-    setStrategies(updatedStrategies);
+    // Update the original items with new allocations
+    const updatedItems = items.map((item) => {
+      if (item.id === id) {
+        return { ...item, allocation: numValue };
+      }
+      return item;
+    });
 
-    // Update parent component's strategy state
-    const updatedRiskStrategies = [...riskPortfolioStrategies];
-    updatedRiskStrategies[index] = {
-      ...updatedRiskStrategies[index],
-      allocation: numValue,
-    };
-
-    setRiskPortfolioStrategies(updatedRiskStrategies);
+    onItemsChange(updatedItems);
   };
 
   const reviewChange = () => {
-    const totalPercentage = strategies.reduce(
-      (sum, strategy) => sum + strategy.percentage,
+    const totalPercentage = displayItems.reduce(
+      (sum, item) => sum + item.allocation,
       0
     );
     if (totalPercentage !== 100) {
@@ -80,22 +77,24 @@ const ChangePercentList = ({
   return (
     <div className="w-full flex flex-col items-start gap-7">
       <div className="flex flex-col w-full gap-2">
-        {strategies.map((strategy, index) => (
+        {displayItems.map((item, index) => (
           <React.Fragment key={index}>
             <div className="flex justify-between items-center w-full p-1 gap-5">
               <span className="text-[rgba(0,0,0,0.7)] font-[Manrope] font-medium text-sm">
-                {strategy.name}
+                {item.name}
               </span>
 
               <input
                 className="bg-white text-center border border-[#CBD5E1] rounded-md py-1.5 px-4.5 w-[72px] text-[#17181C] font-[Inter] text-sm"
-                value={strategy.percentage}
-                onChange={(e) => handleInputChange(index, e.target.value)}
+                value={item.allocation}
+                onChange={(e) =>
+                  handleAllocationChange(item.id, e.target.value)
+                }
                 type="text"
                 inputMode="numeric"
               />
             </div>
-            {index < strategies.length - 1 && (
+            {index < displayItems.length - 1 && (
               <div className="w-full h-[1px] bg-[#CAC4D0]"></div>
             )}
           </React.Fragment>
