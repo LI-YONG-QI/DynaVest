@@ -30,37 +30,43 @@ const AnalyzePortfolioChatWrapper: React.FC<
         Here’s an analysis of your assets and positions:
       </p>
       {/* Pie charts */}
-      <p className="text-xs">Positions</p>
-      <PortfolioPieChart
-        pieStrategies={message.strategies.map((strategy, index) => ({
-          id: index,
-          color: COLORS[index],
-          name: strategy.title,
-          apy: strategy.apy,
-          risk: strategy.risk.level, // Only pass the risk level string
-          allocation: strategy.allocation,
-        }))}
-      />
+      <div className="my-3">
+        <p className="">Positions</p>
+        <PortfolioPieChart
+          pieStrategies={message.strategies.map((strategy, index) => ({
+            id: index,
+            color: COLORS[index],
+            name: strategy.title,
+            apy: strategy.apy,
+            risk: strategy.risk.level, // Only pass the risk level string
+            allocation: strategy.allocation,
+          }))}
+        />
+      </div>
 
-      <p className="text-xs">Assets</p>
-      <PortfolioPieChart
-        pieStrategies={message.assets.map((asset, index) => ({
-          id: index,
-          color: asset.color,
-          name: asset.name,
-          allocation: asset.allocation,
-        }))}
-      />
+      <div className="my-3">
+        <p className="">Assets</p>
+        <PortfolioPieChart
+          pieStrategies={message.assets.map((asset, index) => ({
+            id: index,
+            color: asset.color,
+            name: asset.name,
+            allocation: asset.allocation,
+          }))}
+        />
+      </div>
 
-      <p className="text-xs">Risk</p>
-      <PortfolioPieChart
-        pieStrategies={message.risks.map((risk, index) => ({
-          id: index,
-          color: risk.color,
-          name: risk.name,
-          allocation: risk.allocation,
-        }))}
-      />
+      <div className="my-3">
+        <p className="">Risk</p>
+        <PortfolioPieChart
+          pieStrategies={message.risks.map((risk, index) => ({
+            id: index,
+            color: risk.color,
+            name: risk.name,
+            allocation: risk.allocation,
+          }))}
+        />
+      </div>
 
       {/* Action buttons */}
       <div className="flex flex-row items-center gap-2 text-xs whitespace-nowrap">
