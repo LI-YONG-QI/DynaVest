@@ -62,7 +62,7 @@ async function updatePosition(positionParams: PositionParams) {
   if (!position) {
     await axios.post(
       `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
-      position
+      positionParams
     );
   } else {
     const newAmount = Number(position.amount) + positionParams.amount;

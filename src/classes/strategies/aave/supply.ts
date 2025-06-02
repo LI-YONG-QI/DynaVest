@@ -54,8 +54,21 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
     underlyingAsset?: Address
   ): Promise<StrategyCall[]> {
     if (!underlyingAsset) throw new Error("AaveV3Supply: asset is required");
-
     const pool = this.getAddress("pool");
+
+    const aTokenAddress = await readContract(wagmiConfig, {
+      abi: AAVE_V3_ABI,
+      address: pool,
+      functionName: "getReserveAToken",
+      args: [underlyingAsset],
+    });
+
+    const aTokenBalance = await readContract(wagmiConfig, {
+      abi: ERC20_ABI,
+      address: aTokenAddress as Address,
+      functionName: "balanceOf",
+      args: [user],
+    });
 
     return [
       {
@@ -63,7 +76,7 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
         data: encodeFunctionData({
           abi: AAVE_V3_ABI,
           functionName: "withdraw",
-          args: [underlyingAsset, amount, user],
+          args: [underlyingAsset, aTokenBalance, user],
         }),
       },
     ];
