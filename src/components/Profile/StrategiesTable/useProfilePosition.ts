@@ -15,33 +15,26 @@ type PositionResponse = {
 };
 
 export type Position = {
-  positionId: string;
+  id: string;
   strategy: string;
   tokenName: string;
   amount: number;
   chainId: number;
+  status: string;
 };
 
-async function getUser(address: string) {
-  const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/user/${address}`
-  );
-  return res.data;
-}
-
 const getPositions = async (address: string): Promise<Position[]> => {
-  const user = await getUser(address);
-
   const response = await axios.get<PositionResponse[]>(
-    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${user.user_id}`
+    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${address}`
   );
 
   return response.data.map((position) => ({
-    positionId: position.position_id,
+    id: position.position_id,
     strategy: position.strategy,
     tokenName: position.token_name,
     amount: position.amount,
     chainId: position.chain_id,
+    status: position.status,
   }));
 };
 

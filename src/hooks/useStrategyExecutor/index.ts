@@ -12,6 +12,7 @@ import { Protocols } from "@/types/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
+import { queryClient } from "@/providers";
 
 type PositionParams = {
   address: Address;
@@ -19,6 +20,20 @@ type PositionParams = {
   token_name: string;
   chain_id: number;
   strategy: string;
+};
+
+type RedeemParams = {
+  strategy: BaseStrategy<Protocols> | MultiStrategy;
+  amount: bigint;
+  token: Token;
+  positionId: string;
+};
+
+type InvestParams = {
+  strategy: BaseStrategy<Protocols> | MultiStrategy;
+  amount: bigint;
+  token: Token;
+  positionId?: string;
 };
 
 async function addPosition(position: PositionParams) {
@@ -129,11 +144,8 @@ export function useStrategyExecutor() {
       strategy,
       amount,
       token,
-    }: {
-      strategy: BaseStrategy<Protocols> | MultiStrategy;
-      amount: bigint;
-      token: Token;
-    }) => {
+      positionId,
+    }: RedeemParams) => {
       if (!client || !publicClient) throw new Error("Client not available");
       if (!user) throw new Error("Smart wallet account not found");
 
@@ -158,22 +170,22 @@ export function useStrategyExecutor() {
       );
       const txHash = await waitForUserOp(userOp);
 
-      // TODO: update position status in db
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${positionId}`,
+        {
+          status: "false",
+        }
+      );
 
       return txHash;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user] });
     },
   });
 
   const invest = useMutation({
-    mutationFn: async ({
-      strategy,
-      amount,
-      token,
-    }: {
-      strategy: BaseStrategy<Protocols> | MultiStrategy;
-      amount: bigint;
-      token: Token;
-    }) => {
+    mutationFn: async ({ strategy, amount, token }: InvestParams) => {
       if (!client || !publicClient) throw new Error("Client not available");
       if (!user) throw new Error("Smart wallet account not found");
 

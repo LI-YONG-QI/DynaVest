@@ -10,12 +10,14 @@ export default function StrategiesTableComponent() {
   const { data: positions, isError, error } = useProfilePosition();
 
   const sortedData = positions
-    ? [...positions].sort((a, b) => {
-        if (!sortKey) return 0;
-        return sortDirection === "asc"
-          ? a[sortKey] - b[sortKey]
-          : b[sortKey] - a[sortKey];
-      })
+    ? [...positions]
+        .filter((position) => position.status === "true")
+        .sort((a, b) => {
+          if (!sortKey) return 0;
+          return sortDirection === "asc"
+            ? a[sortKey] - b[sortKey]
+            : b[sortKey] - a[sortKey];
+        })
     : [];
 
   const handleSort = () => {

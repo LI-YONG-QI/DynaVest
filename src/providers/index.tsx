@@ -7,7 +7,7 @@ import { SmartWalletsProvider } from "@privy-io/react-auth/smart-wallets";
 import { wagmiConfig } from "./config";
 import PrivyAccountProvider from "@/contexts/PrivyAccountProvider";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   if (!process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
