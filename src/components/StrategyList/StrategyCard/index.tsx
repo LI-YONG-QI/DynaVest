@@ -23,20 +23,20 @@ function getRiskLevelLabel(risk: RiskLevel) {
   }
 }
 
-export default function StrategyCard({
-  title,
-  id,
-  apy,
-  risk,
-  protocol,
-  description,
-  image,
-  externalLink,
-  learnMoreLink,
-  tokens,
-  chainId,
-  displayInsufficientBalance = false,
-}: StrategyMetadata) {
+export default function StrategyCard(strategy: StrategyMetadata) {
+  const {
+    title,
+    id,
+    apy,
+    risk,
+    protocol,
+    description,
+    externalLink,
+    tokens,
+    chainId,
+    displayInsufficientBalance = false,
+  } = strategy;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Extract the base description without "Learn More" text
@@ -195,19 +195,7 @@ export default function StrategyCard({
       <InvestModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        strategy={{
-          title,
-          id,
-          apy,
-          risk,
-          protocol,
-          description,
-          image,
-          externalLink,
-          learnMoreLink,
-          tokens,
-          chainId,
-        }}
+        strategy={strategy}
         displayInsufficientBalance={displayInsufficientBalance}
       />
     </>

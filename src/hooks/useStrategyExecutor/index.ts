@@ -14,6 +14,13 @@ import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { queryClient } from "@/providers";
 
+type PositionResponse = {
+  id: string;
+  amount: number;
+  strategy: string;
+  status: string;
+};
+
 type PositionParams = {
   address: Address;
   amount: number;
@@ -30,20 +37,45 @@ type RedeemParams = {
 };
 
 type InvestParams = {
-  strategy: BaseStrategy<Protocols> | MultiStrategy;
+  strategy: BaseStrategy<Protocols>;
+  amount: bigint;
+  token: Token;
+};
+
+type MultiInvestParams = {
+  strategy: MultiStrategy;
   amount: bigint;
   token: Token;
   positionId?: string;
 };
 
-async function addPosition(position: PositionParams) {
-  await axios.post(
-    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
-    position
+async function updatePosition(positionParams: PositionParams) {
+  // TODO: refactor with backend
+  const positions = await axios.get(
+    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${positionParams.address}`
   );
+  const position = positions.data.find(
+    (pos: PositionResponse) =>
+      pos.strategy === positionParams.strategy && pos.status === "true"
+  );
+
+  if (!position) {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
+      position
+    );
+  } else {
+    const newAmount = Number(position.amount) + positionParams.amount;
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${position.position_id}`,
+      {
+        amount: newAmount,
+      }
+    );
+  }
 }
 
-async function executeStrategy(
+async function updatePositions(
   strategy: MultiStrategy,
   amount: bigint,
   chainId: number,
@@ -62,7 +94,7 @@ async function executeStrategy(
     };
 
     try {
-      await addPosition(position);
+      await updatePosition(position);
     } catch (error) {
       console.error("Error adding position:", error);
       toast.error("Failed to add position. Please try again.");
@@ -198,6 +230,7 @@ export function useStrategyExecutor() {
         token,
         chainId
       );
+
       const userOp = await client.sendTransaction(
         {
           calls,
@@ -210,24 +243,52 @@ export function useStrategyExecutor() {
       );
       const txHash = await waitForUserOp(userOp);
 
-      if (strategy instanceof BaseStrategy) {
-        await addPosition({
-          address: user,
-          amount: Number(amount),
-          token_name: token.name,
-          chain_id: chainId,
-          strategy: strategy.metadata.name,
-        });
-      } else if (strategy instanceof MultiStrategy) {
-        await executeStrategy(strategy, amount, chainId, user);
-      }
+      await updatePosition({
+        address: user,
+        amount: Number(amount),
+        token_name: token.name,
+        chain_id: chainId,
+        strategy: strategy.metadata.name,
+      });
 
+      return txHash;
+    },
+  });
+
+  const multiInvest = useMutation({
+    mutationFn: async ({ strategy, amount, token }: MultiInvestParams) => {
+      if (!client || !publicClient) throw new Error("Client not available");
+      if (!user) throw new Error("Smart wallet account not found");
+
+      await client.switchChain({ id: chainId });
+
+      const calls = await getInvestCalls(
+        strategy,
+        amount,
+        user,
+        token,
+        chainId
+      );
+      const userOp = await client.sendTransaction(
+        {
+          calls,
+        },
+        {
+          uiOptions: {
+            showWalletUIs: false,
+          },
+        }
+      );
+      const txHash = await waitForUserOp(userOp);
+
+      await updatePositions(strategy, amount, chainId, user, token.name);
       return txHash;
     },
   });
 
   return {
     invest,
+    multiInvest,
     redeem,
   };
 }

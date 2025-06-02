@@ -10,7 +10,7 @@ import { wagmiConfig } from "@/providers/config";
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
     super(chainId, AAVE_CONTRACTS, {
-      name: "Aave V3 Supply",
+      name: "AaveV3Supply",
       type: "Lending",
       protocol: "Aave",
       description: "Lend assets to Aave V3",

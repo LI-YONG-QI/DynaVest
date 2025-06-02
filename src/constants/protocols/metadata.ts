@@ -36,13 +36,13 @@ export const STRATEGIES_PROTOCOLS_MAPPING: Record<
   string,
   { icon: string; description: string }
 > = {
-  "Aave V3 Supply": PROTOCOLS_METADATA.Aave,
-  "Morpho Supply": PROTOCOLS_METADATA.Morpho,
-  "Camelot Staking": PROTOCOLS_METADATA.Camelot,
-  "StakedCelo Staking": PROTOCOLS_METADATA.StakedCelo,
-  "GMX Deposit": PROTOCOLS_METADATA.GMX,
-  "Uniswap V3 Swap LST": PROTOCOLS_METADATA.Lido,
-  "Uniswap V3 Add Liquidity": PROTOCOLS_METADATA.UniswapV3,
+  AaveV3Supply: PROTOCOLS_METADATA.Aave,
+  MorphoSupply: PROTOCOLS_METADATA.Morpho,
+  CamelotStaking: PROTOCOLS_METADATA.Camelot,
+  StCeloStaking: PROTOCOLS_METADATA.StakedCelo,
+  GMXDeposit: PROTOCOLS_METADATA.GMX,
+  UniswapV3SwapLST: PROTOCOLS_METADATA.Lido,
+  UniswapV3AddLiquidity: PROTOCOLS_METADATA.UniswapV3,
 };
 
 export function getProtocolMetadata(strategy: string) {
