@@ -1,42 +1,13 @@
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { formatUnits } from "viem";
-import { useChainId } from "wagmi";
-type Transaction = {
-  id: string;
-  createdAt: string;
-  strategy: string;
-  hash: string;
-  type: string;
-  amount: number;
-  chainId: number;
-  icon: string;
-  tokenName: string;
-};
+import { useTransaction, type GetTransactionResponse } from "./useTransaction";
 
-const initialTransactions: Transaction[] = [];
+const initialTransactions: GetTransactionResponse[] = [];
 
 export default function TransactionsTableComponent() {
-  const { client } = useSmartWallets();
-  const chainId = useChainId();
-
-  const { data: transactions = initialTransactions } = useQuery({
-    queryKey: ["transactions", client?.account.address, chainId],
-    queryFn: async () => {
-      const response = await axios.get<{ txs: Transaction[] }>(
-        `/api/user?address=${client?.account.address}`
-      );
-
-      const txs = response.data.txs;
-      const filteredTxs = txs.filter((tx) => tx.chainId === chainId);
-
-      return filteredTxs;
-    },
-    enabled: !!client?.account.address,
-    staleTime: 1000 * 60 * 5,
-  });
+  const { transactions: txs } = useTransaction();
+  const { data: transactions = initialTransactions } = txs;
+  console.log("txs", transactions);
 
   return (
     <div className="mx-4 w-[calc(100%-2rem)]">
@@ -59,13 +30,13 @@ export default function TransactionsTableComponent() {
                   "_blank"
                 )
               }
-              key={`${transaction.id}`}
+              key={`${transaction.transaction_id}`}
               className="bg-white rounded-xl shadow-[0_0_0_0.2px_#3d84ff,_0px_4px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_0_0_1.5px_#3d84ff,_0px_4px_12px_rgba(0,0,0,0.15)] transition-all"
             >
               {/* Date */}
               <td className="p-4 rounded-l-xl">
                 <div className="font-medium text-md">
-                  {transaction.createdAt}
+                  {transaction.created_at}
                 </div>
               </td>
 
@@ -76,7 +47,7 @@ export default function TransactionsTableComponent() {
                     <Image
                       src={
                         // TODO: hardcoded for now
-                        transaction.icon
+                        "crypto-icons/aave.svg"
                       }
                       alt={"crypto-icons/aave.svg"}
                       width={24}
@@ -92,7 +63,7 @@ export default function TransactionsTableComponent() {
 
               {/* Type */}
               <td className="p-4">
-                <div className="font-medium text-md">{transaction.type}</div>
+                <div className="font-medium text-md">Lending</div>
               </td>
 
               {/* Amount */}

@@ -13,6 +13,7 @@ import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { queryClient } from "@/providers";
+import { useTransaction } from "@/components/Profile/TransactionsTable/useTransaction";
 
 type PositionResponse = {
   id: string;
@@ -147,6 +148,7 @@ export function useStrategyExecutor() {
   const { client } = useSmartWallets();
   const chainId = useChainId();
   const publicClient = useClient();
+  const { addTx } = useTransaction();
 
   const user = useMemo(() => {
     return client?.account?.address || null;
@@ -249,6 +251,15 @@ export function useStrategyExecutor() {
         token_name: token.name,
         chain_id: chainId,
         strategy: strategy.metadata.name,
+      });
+
+      await addTx.mutateAsync({
+        address: user,
+        chain_id: chainId,
+        strategy: strategy.metadata.name,
+        hash: txHash,
+        amount: Number(amount),
+        token_name: token.name,
       });
 
       return txHash;

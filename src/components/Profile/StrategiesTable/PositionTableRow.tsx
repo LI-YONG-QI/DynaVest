@@ -133,7 +133,7 @@ export default function PositionTableRow({
         {/* Profit */}
         <td className="p-4 text-right">
           <div className="font-medium text-md">
-            {formatCoin(Number(profit))}
+            {Number(profit) > 0.01 ? formatCoin(Number(profit)) : "<0.01"}
           </div>
           <div className="text-sm text-gray-500">
             {formatCurrency(Number(profit))}
