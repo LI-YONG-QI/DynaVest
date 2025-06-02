@@ -91,7 +91,7 @@ async function updatePositions(
       ),
       token_name: tokenName,
       chain_id: chainId,
-      strategy: singleStrategy.strategy.metadata.name,
+      strategy: singleStrategy.strategy.name,
     };
 
     try {
@@ -250,19 +250,22 @@ export function useStrategyExecutor() {
         amount: Number(amount),
         token_name: token.name,
         chain_id: chainId,
-        strategy: strategy.metadata.name,
+        strategy: strategy.name,
       });
 
       await addTx.mutateAsync({
         address: user,
         chain_id: chainId,
-        strategy: strategy.metadata.name,
+        strategy: strategy.name,
         hash: txHash,
         amount: Number(amount),
         token_name: token.name,
       });
 
       return txHash;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user] });
     },
   });
 

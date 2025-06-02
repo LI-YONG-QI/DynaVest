@@ -9,12 +9,7 @@ import { wagmiConfig } from "@/providers/config";
 
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
-    super(chainId, AAVE_CONTRACTS, {
-      name: "AaveV3Supply",
-      type: "Lending",
-      protocol: "Aave",
-      description: "Lend assets to Aave V3",
-    });
+    super(chainId, AAVE_CONTRACTS, "AaveV3Supply");
   }
 
   async investCalls(
@@ -84,7 +79,7 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
 
   async getProfit(data: {
     user: Address;
-    amount: bigint;
+    amount: number;
     underlyingAsset: Address;
   }) {
     const { user, amount, underlyingAsset } = data;
@@ -104,7 +99,6 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
       args: [user],
     });
 
-    const profit = aTokenBalance - amount;
-    return formatUnits(profit, 6);
+    return Number(formatUnits(aTokenBalance, 6)) - amount;
   }
 }

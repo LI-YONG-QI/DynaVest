@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { formatUnits } from "viem";
 import { useTransaction, type GetTransactionResponse } from "./useTransaction";
+import { getProtocolMetadata } from "@/constants/protocols/metadata";
 
 const initialTransactions: GetTransactionResponse[] = [];
 
 export default function TransactionsTableComponent() {
   const { transactions: txs } = useTransaction();
   const { data: transactions = initialTransactions } = txs;
-  console.log("txs", transactions);
 
   return (
     <div className="mx-4 w-[calc(100%-2rem)]">
@@ -24,7 +24,6 @@ export default function TransactionsTableComponent() {
           {transactions.map((transaction) => (
             <tr
               onClick={() =>
-                // TODO: hardcode chain
                 window.open(
                   `https://basescan.org/tx/${transaction.hash}`,
                   "_blank"
@@ -45,10 +44,7 @@ export default function TransactionsTableComponent() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
                     <Image
-                      src={
-                        // TODO: hardcoded for now
-                        "crypto-icons/aave.svg"
-                      }
+                      src={getProtocolMetadata(transaction.strategy).icon}
                       alt={"crypto-icons/aave.svg"}
                       width={24}
                       height={24}

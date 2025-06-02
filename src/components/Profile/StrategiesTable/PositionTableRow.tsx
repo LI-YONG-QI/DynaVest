@@ -33,7 +33,7 @@ export default function PositionTableRow({
   const { data: price = 0, isLoading } = useCurrencyPrice(token);
   const { redeem, invest } = useStrategyExecutor();
   const chainId = useChainId();
-  const { data: profit = "0" } = useProfit(position);
+  const { data: profit = 0 } = useProfit(position);
 
   const strategyMetadata = getStrategyMetadata(
     position.strategy,
@@ -132,11 +132,8 @@ export default function PositionTableRow({
 
         {/* Profit */}
         <td className="p-4 text-right">
-          <div className="font-medium text-md">
+          <div className="font-medium text-md text-green-500  ">
             {Number(profit) > 0.01 ? formatCoin(Number(profit)) : "<0.01"}
-          </div>
-          <div className="text-sm text-gray-500">
-            {formatCurrency(Number(profit))}
           </div>
         </td>
 

@@ -25,7 +25,7 @@ export abstract class BaseStrategy<T extends Protocols> {
   constructor(
     chainId: number,
     public readonly protocolAddresses: T,
-    public readonly metadata: BaseStrategyMetadata
+    public readonly name: string
   ) {
     if (this.isSupported(chainId)) {
       this.chainId = chainId as ProtocolChains<T>;
@@ -53,7 +53,7 @@ export abstract class BaseStrategy<T extends Protocols> {
     asset?: Address
   ): Promise<StrategyCall[]>;
 
-  abstract getProfit(data: unknown): Promise<string>;
+  abstract getProfit(data: unknown): Promise<number>;
 
   isSupported(chainId: number): boolean {
     return Object.keys(this.protocolAddresses).map(Number).includes(chainId);

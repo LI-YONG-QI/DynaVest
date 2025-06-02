@@ -6,16 +6,14 @@ import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { wagmiConfig as config } from "@/providers/config";
 
 export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
+  private readonly WETH_USDC_MARKET_ID =
+    "0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda";
+
   constructor(chainId: number) {
-    super(chainId, MORPHO_CONTRACTS, {
-      name: "MorphoSupply",
-      type: "Lending",
-      protocol: "Morpho",
-      description: "Lend assets to Morpho",
-    });
+    super(chainId, MORPHO_CONTRACTS, "MorphoSupply");
   }
 
-  async buildCalls(
+  async investCalls(
     amount: bigint,
     user: Address,
     asset?: Address
@@ -24,9 +22,7 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
       throw new Error("MorphoSupply: doesn't support native token yet");
 
     const morpho = this.getAddress("morpho");
-    const wethUsdcMarket =
-      "0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda"; // TODO: mock market id
-    const marketParams = await this.#getMarketParams(wethUsdcMarket);
+    const marketParams = await this.#getMarketParams(this.WETH_USDC_MARKET_ID);
 
     return [
       {
@@ -46,6 +42,35 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
         }),
       },
     ];
+  }
+
+  async redeemCalls(
+    amount: bigint,
+    user: Address,
+    asset?: Address
+  ): Promise<StrategyCall[]> {
+    const morpho = this.getAddress("morpho");
+    const marketParams = await this.#getMarketParams(this.WETH_USDC_MARKET_ID);
+
+    return [
+      {
+        to: morpho,
+        data: encodeFunctionData({
+          abi: MORPHO_ABI,
+          functionName: "withdraw",
+          args: [marketParams, amount, BigInt(0), user, user],
+        }),
+      },
+    ];
+  }
+
+  async getProfit(data: {
+    user: Address;
+    amount: number;
+    asset: Address;
+  }): Promise<number> {
+    const { amount } = data;
+    return amount * 4.75;
   }
 
   async #getMarketParams(marketId: Hex) {
