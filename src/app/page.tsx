@@ -15,6 +15,7 @@ import {
   DepositMessage,
   FindStrategiesMessage,
   StrategiesCardsMessage,
+  AnalyzePortfolioMessage,
 } from "@/classes/message";
 import useChatbot from "@/hooks/useChatbotResponse";
 import { useChat } from "@/contexts/ChatContext";
@@ -31,6 +32,7 @@ import { BotResponse } from "@/types";
 
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
+import AnalyzePortfolioChatWrapper from "@/components/ChatWrapper/AnalyzePortfolioChatWrapper";
 export default function Home() {
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
@@ -84,6 +86,15 @@ export default function Home() {
           riskLevel,
           chains
         );
+        break;
+      case "analyze_portfolio":
+        // TODO: load strategies, assets, risks from user portfolio
+        nextMessage = new AnalyzePortfolioMessage({
+          id: (Date.now() + 1).toString(),
+          text: "Analyze portfolio",
+          sender: "bot",
+          timestamp: new Date(),
+        });
         break;
       default:
         throw new Error("Invalid bot response type");
@@ -143,6 +154,7 @@ export default function Home() {
   };
 
   const renderBotMessageContent = (message: Message) => {
+    // Build Portfolio Flow
     if (message instanceof InvestMessage) {
       return (
         <InvestmentFormChatWrapper
@@ -180,6 +192,16 @@ export default function Home() {
       );
     } else if (message instanceof StrategiesCardsMessage) {
       return <DefiStrategiesCardsChatWrapper message={message} />;
+    }
+    // Analyze Portfolio Flow
+    else if (message instanceof AnalyzePortfolioMessage) {
+      return (
+        <AnalyzePortfolioChatWrapper
+          message={message}
+          addBotMessage={addBotMessage}
+          canBuildPortfolio={message.canBuildPortfolio}
+        />
+      );
     }
   };
 

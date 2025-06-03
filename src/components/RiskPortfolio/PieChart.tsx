@@ -10,14 +10,14 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LegendItem } from "./LegendItem";
-import { PieStrategy } from "@/types";
+import { PieStrategy, PieData } from "@/types";
 import { createChartConfig, createChartData, COLORS } from "@/utils/pie";
 
 // Simple color palette for the chart
 export function PortfolioPieChart({
   pieStrategies,
 }: {
-  pieStrategies: PieStrategy[];
+  pieStrategies: PieStrategy[] | PieData[];
 }) {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
@@ -108,8 +108,8 @@ export function PortfolioPieChart({
               key={strategy.id}
               color={strategy.color}
               name={strategy.name}
-              apy={strategy.apy}
-              risk={strategy.risk}
+              {...("apy" in strategy && { apy: strategy.apy })}
+              {...("risk" in strategy && { risk: strategy.risk })}
             />
           ))}
         </div>

@@ -11,3 +11,4 @@ export * from "./build-portfolio";
 export * from "./deposit";
 export * from "./find-strategies";
 export * from "./strategies-cards";
+export * from "./analyze-portfolio";

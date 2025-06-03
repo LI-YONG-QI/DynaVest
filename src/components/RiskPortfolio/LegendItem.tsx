@@ -6,8 +6,8 @@ export const LegendItem = ({
 }: {
   color: string;
   name: string;
-  apy: string;
-  risk: string;
+  apy?: string;
+  risk?: string;
 }) => {
   return (
     <div className="flex items-center p-1 gap-1">
@@ -21,10 +21,14 @@ export const LegendItem = ({
         <span className="text-[10px] md:text-xs text-[rgba(0,0,0,0.7)]">
           {name}
         </span>
-        <span className="text-[10px] md:text-xs text-[rgba(0,0,0,0.7)]">
-          {apy}
-        </span>
-        <span className="text-[10px] md:text-xs text-red-500">{risk}</span>
+        {apy && (
+          <span className="text-[10px] md:text-xs text-[rgba(0,0,0,0.7)]">
+            {apy}
+          </span>
+        )}
+        {risk && (
+          <span className="text-[10px] md:text-xs text-red-500">{risk}</span>
+        )}
       </div>
     </div>
   );
