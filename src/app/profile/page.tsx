@@ -101,9 +101,9 @@ export default function ProfilePage() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="h-8 w-px bg-[#c4d8f7] hidden sm:block"></div>
 
-            <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
+            <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
               <DepositDialog textClassName="text-sm sm:text-base" />
-            </button>
+            </div>
             <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
               <span>Withdraw</span>
             </button>

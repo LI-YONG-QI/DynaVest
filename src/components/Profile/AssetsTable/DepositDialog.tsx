@@ -1,4 +1,5 @@
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
+import { AlertCircleIcon } from "lucide-react";
 
 import {
   Dialog,
@@ -9,10 +10,17 @@ import {
 } from "@/components/ui/dialog";
 import AddressQRCode from "@/components/AddressQRCode";
 import CopyButton from "@/components/CopyButton";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useChainId } from "wagmi";
+import Image from "next/image";
 
+import { CHAINS } from "@/constants/chains";
 export function DepositDialog({ textClassName }: { textClassName?: string }) {
   const { client } = useSmartWallets();
+  const chainId = useChainId();
   const address = client?.account?.address;
+
+  const chain = CHAINS.find((chain) => chain.id === chainId);
 
   const text = textClassName
     ? textClassName
@@ -26,7 +34,34 @@ export function DepositDialog({ textClassName }: { textClassName?: string }) {
           <DialogTitle className="text-xl font-bold">Deposit Funds</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center py-4">
-          <span> Hello </span>
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle className="mb-2 text-center font-bold text-xl uppercase tracking-wide">
+              Warning !!
+            </AlertTitle>
+            <AlertDescription>
+              <p className=" font-bold text-sm capitalize">
+                please check network
+              </p>
+              <div className="flex items-center gap-2 ">
+                <p className="font-bold text-sm capitalize">
+                  Current Network: {chain?.name}
+                </p>
+                <Image
+                  src={chain?.icon || ""}
+                  alt={chain?.name || ""}
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <ul className="list-inside list-disc text-sm">
+                <li>
+                  If you deposit funds on the wrong network, you will lose your
+                  funds.
+                </li>
+              </ul>
+            </AlertDescription>
+          </Alert>
           <div className="w-full max-w-[250px] mx-auto">
             <AddressQRCode address={address || ""} />
           </div>
