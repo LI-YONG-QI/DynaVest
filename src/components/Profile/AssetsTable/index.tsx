@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import { WithdrawDialog } from "./WithdrawDialog";
-import { DepositDialog } from "./DepositDialog";
+import { DepositDialog } from "../DepositDialog";
 import { toast } from "react-toastify";
 import { Token } from "@/types";
 import { Address } from "viem";

@@ -31,19 +31,25 @@ import { BotResponse } from "@/types";
 
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
+import OnboardingDialog from "@/components/OnboardingDialog";
+import { useAssets } from "@/contexts/AssetsContext";
+
 export default function Home() {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [typingText, setTypingText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { closeChat } = useChat();
   const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
     useChatbot();
-
-  const { closeChat } = useChat();
+  const { totalValue, tokensQuery } = useAssets();
+  const { isPlaceholderData } = tokensQuery;
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -223,6 +229,18 @@ export default function Home() {
   useEffect(() => {
     closeChat();
   }, []);
+
+  useEffect(() => {
+    if (isPlaceholderData) {
+      setIsOnboardingOpen(false);
+    } else {
+      if (totalValue === 0) {
+        setIsOnboardingOpen(true);
+      } else {
+        setIsOnboardingOpen(false);
+      }
+    }
+  }, [totalValue, isPlaceholderData]);
 
   return (
     <div className="h-[80vh]">
@@ -523,6 +541,10 @@ export default function Home() {
             </div>
           </>
         )}
+        <OnboardingDialog
+          isOpen={isOnboardingOpen}
+          onOpenChange={setIsOnboardingOpen}
+        />
       </div>
     </div>
   );
