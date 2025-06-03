@@ -8,7 +8,7 @@ import AssetsTableComponent from "@/components/Profile/AssetsTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
 import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import { formatAmount } from "@/utils";
-import { DepositDialog } from "@/components/Profile/AssetsTable/DepositDialog";
+import { DepositDialog } from "@/components/Profile/DepositDialog";
 
 const PROFILE_TABS = [
   {
