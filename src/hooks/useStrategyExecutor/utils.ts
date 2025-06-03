@@ -8,7 +8,7 @@ import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 
-type PositionParams = {
+export type PositionParams = {
   address: Address;
   amount: number;
   token_name: string;
@@ -61,6 +61,11 @@ export async function getInvestCalls(
   return calls;
 }
 
+/**
+ * @notice Update the position in the database, if the position doesn't exist, create a new one
+ * @param positionParams - The parameters for the position
+ * @returns API Axios response
+ */
 export async function updatePosition(positionParams: PositionParams) {
   // TODO: refactor with backend
   const positions = await axios.get(
@@ -72,43 +77,17 @@ export async function updatePosition(positionParams: PositionParams) {
   );
 
   if (!position) {
-    await axios.post(
+    return await axios.post(
       `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
       positionParams
     );
   } else {
     const newAmount = Number(position.amount) + positionParams.amount;
-    await axios.patch(
+    return await axios.patch(
       `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${position.position_id}`,
       {
         amount: newAmount,
       }
     );
-  }
-}
-
-export async function updatePositions(
-  strategy: MultiStrategy,
-  amount: bigint,
-  chainId: number,
-  user: Address,
-  tokenName: string = "USDC"
-) {
-  for (const singleStrategy of strategy.strategies) {
-    const position: PositionParams = {
-      address: user,
-      amount: Number(
-        (amount * BigInt(singleStrategy.allocation)) / BigInt(100)
-      ),
-      token_name: tokenName,
-      chain_id: chainId,
-      strategy: singleStrategy.strategy.name,
-    };
-
-    try {
-      await updatePosition(position);
-    } catch (error) {
-      console.error("Error adding position:", error);
-    }
   }
 }

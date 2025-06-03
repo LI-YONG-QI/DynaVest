@@ -16,8 +16,9 @@ import {
   getRedeemCalls,
   getInvestCalls,
   updatePosition,
-  updatePositions,
+  type PositionParams,
 } from "./utils";
+import { Address } from "viem";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocols>;
@@ -33,7 +34,7 @@ type InvestParams = {
 };
 
 type MultiInvestParams = {
-  strategy: MultiStrategy;
+  multiStrategy: MultiStrategy;
   amount: bigint;
   token: Token;
   positionId?: string;
@@ -50,6 +51,42 @@ export function useStrategyExecutor() {
   const user = useMemo(() => {
     return client?.account?.address || null;
   }, [client?.account?.address]);
+
+  async function updatePositions(
+    txHash: string,
+    multiStrategy: MultiStrategy,
+    amount: bigint,
+    chainId: number,
+    user: Address,
+    tokenName: string = "USDC"
+  ) {
+    for (const singleStrategy of multiStrategy.strategies) {
+      const splitAmount = Number(
+        (amount * BigInt(singleStrategy.allocation)) / BigInt(100)
+      );
+
+      const position: PositionParams = {
+        address: user,
+        amount: splitAmount,
+        token_name: tokenName,
+        chain_id: chainId,
+        strategy: singleStrategy.strategy.name,
+      };
+      try {
+        await updatePosition(position);
+        await addTx.mutateAsync({
+          address: user,
+          chain_id: chainId,
+          strategy: singleStrategy.strategy.name,
+          hash: txHash,
+          amount: splitAmount,
+          token_name: tokenName,
+        });
+      } catch (error) {
+        console.error("Error adding position:", error);
+      }
+    }
+  }
 
   async function sendAndWaitTransaction(calls: StrategyCall[]) {
     async function waitForUserOp(userOp: `0x${string}`): Promise<string> {
@@ -106,7 +143,7 @@ export function useStrategyExecutor() {
       );
       const txHash = await sendAndWaitTransaction(calls);
 
-      // Redeem the position
+      // Update the status of position
       await axios.patch(
         `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${positionId}`,
         {
@@ -150,7 +187,6 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
       });
-
       await addTx.mutateAsync({
         address: user,
         chain_id: chainId,
@@ -168,11 +204,11 @@ export function useStrategyExecutor() {
   });
 
   const multiInvest = useMutation({
-    mutationFn: async ({ strategy, amount, token }: MultiInvestParams) => {
+    mutationFn: async ({ multiStrategy, amount, token }: MultiInvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
       const calls = await getInvestCalls(
-        strategy,
+        multiStrategy,
         amount,
         user,
         token,
@@ -180,7 +216,14 @@ export function useStrategyExecutor() {
       );
       const txHash = await sendAndWaitTransaction(calls);
 
-      await updatePositions(strategy, amount, chainId, user, token.name);
+      await updatePositions(
+        txHash,
+        multiStrategy,
+        amount,
+        chainId,
+        user,
+        token.name
+      );
       return txHash;
     },
   });

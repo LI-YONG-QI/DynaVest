@@ -30,7 +30,7 @@ export const useTransaction = () => {
 
   const addTx = useMutation({
     mutationFn: async (tx: AddTransactionRequest) => {
-      await axios.post(
+      return await axios.post(
         `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addTransaction`,
         tx
       );
