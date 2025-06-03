@@ -15,7 +15,7 @@ export class MultiStrategy {
     }[]
   ) {}
 
-  async buildCalls(
+  async investCalls(
     amount: bigint,
     user: Address,
     asset?: Address
@@ -23,7 +23,26 @@ export class MultiStrategy {
     const allCalls: StrategyCall[] = [];
 
     for (const strategy of this.strategies) {
-      const calls = await strategy.strategy.buildCalls(
+      const calls = await strategy.strategy.investCalls(
+        (amount * BigInt(strategy.allocation)) / BigInt(100),
+        user,
+        asset
+      );
+      allCalls.push(...calls);
+    }
+
+    return allCalls;
+  }
+
+  async redeemCalls(
+    amount: bigint,
+    user: Address,
+    asset?: Address
+  ): Promise<StrategyCall[]> {
+    const allCalls: StrategyCall[] = [];
+
+    for (const strategy of this.strategies) {
+      const calls = await strategy.strategy.redeemCalls(
         (amount * BigInt(strategy.allocation)) / BigInt(100),
         user,
         asset

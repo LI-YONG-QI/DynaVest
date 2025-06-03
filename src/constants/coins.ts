@@ -154,6 +154,32 @@ export function getWrappedToken(token: Token): Token {
   }
 }
 
+// TODO: collect all tokens in a single object
+const tokenMap: Record<string, Token> = {
+  [USDT.name]: USDT,
+  [USDC.name]: USDC,
+  [ETH.name]: ETH,
+  [BNB.name]: BNB,
+  [WETH.name]: WETH,
+  [WBNB.name]: WBNB,
+  [wstETH.name]: wstETH,
+  [wbETH.name]: wbETH,
+  [cbBTC.name]: cbBTC,
+  [CELO.name]: CELO,
+  [FLOW.name]: FLOW,
+  [cEUR.name]: cEUR,
+  [GRAIL.name]: GRAIL,
+  [xGRAIL.name]: xGRAIL,
+};
+
+export const getTokenByName = (name: string): Token => {
+  const token = tokenMap[name];
+  if (!token) {
+    throw new Error(`Token ${name} not found`);
+  }
+  return token;
+};
+
 export const COINGECKO_IDS = {
   [USDT.name]: "tether",
   [USDC.name]: "usd-coin",

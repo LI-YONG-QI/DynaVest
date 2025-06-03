@@ -25,7 +25,6 @@ const EditChatWrapper: React.FC<EditChatWrapperProps> = ({
     message.strategies = strategies;
 
     setIsEdit(false);
-
     await addBotMessage(message.next());
   };
 

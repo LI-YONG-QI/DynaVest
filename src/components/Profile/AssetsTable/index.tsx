@@ -5,15 +5,17 @@ import { useAssets } from "@/contexts/AssetsContext";
 import { WithdrawDialog } from "./WithdrawDialog";
 import { DepositDialog } from "./DepositDialog";
 import { toast } from "react-toastify";
+import { Token } from "@/types";
+import { Address } from "viem";
 
 export default function AssetsTableComponent() {
-  const { tokensData, handleWithdraw, isError, isLoadingError, error } =
-    useAssets();
+  const { tokensQuery, withdrawAsset } = useAssets();
+  const { data: tokensData, isError, error, isLoadingError } = tokensQuery;
 
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  const sortedData = [...tokensData].sort((a, b) => {
+  const sortedData = tokensData?.sort((a, b) => {
     if (!sortKey) return 0;
     return sortDirection === "asc"
       ? a[sortKey] - b[sortKey]
@@ -27,6 +29,24 @@ export default function AssetsTableComponent() {
       setSortKey("balance");
       setSortDirection("desc");
     }
+  };
+
+  const handleWithdraw = (asset: Token, amount: string, to: Address) => {
+    withdrawAsset.mutate(
+      {
+        asset,
+        amount,
+        to,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Withdrawal successful");
+        },
+        onError: () => {
+          toast.error("Withdrawal failed");
+        },
+      }
+    );
   };
 
   useEffect(() => {
@@ -58,7 +78,7 @@ export default function AssetsTableComponent() {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((asset) => (
+          {sortedData?.map((asset) => (
             <tr
               key={asset.token.name}
               className="bg-white rounded-xl shadow-[0_0_0_0.2px_#3d84ff,_0px_4px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_0_0_1.5px_#3d84ff,_0px_4px_12px_rgba(0,0,0,0.15)] transition-all"
@@ -90,9 +110,7 @@ export default function AssetsTableComponent() {
                   {asset.balance.toFixed(4).toString()}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {asset.price
-                    ? `$ ${(asset.balance * asset.price).toFixed(2)}`
-                    : `$ ${asset.balance.toString()}`}
+                  {`$ ${asset.value.toFixed(2)}`}
                 </div>
               </td>
 

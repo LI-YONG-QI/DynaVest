@@ -1288,4 +1288,4 @@ export const AAVE_V3_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;

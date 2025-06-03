@@ -13,6 +13,8 @@ import { getStrategy } from "@/utils/strategies";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 
 // Props interface
+
+// TODO: refactor
 interface InvestmentFormProps {
   strategy: InvestStrategy;
   mode?: InvestmentFormMode;
@@ -67,14 +69,14 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const { switchChainAsync } = useWagmiSwitchChain();
 
   const chainId = useChainId();
-  const { execute } = useStrategyExecutor();
+  const { invest: investStrategy } = useStrategyExecutor();
 
   // Advanced settings state
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [slippage, setSlippage] = useState<number | "auto">("auto");
   const [customSlippage, setCustomSlippage] = useState("");
 
-  const AMOUNT_LIMIT = 0.01;
+  const AMOUNT_LIMIT = 0;
 
   // Handle setting max amount
   const handleSetMax = () => {
@@ -121,27 +123,26 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     const strategyHandler = getStrategy(strategy.protocol, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
 
-    try {
-      let result;
-      if (currency.isNativeToken) {
-        result = await execute(strategyHandler, parsedAmount);
-      } else {
-        result = await execute(
-          strategyHandler,
-          parsedAmount,
-          currency.chains![chainId]
-        );
+    investStrategy.mutate(
+      {
+        strategy: strategyHandler,
+        amount: parsedAmount,
+        token: currency,
+      },
+      {
+        onSuccess: (tx) => {
+          toast.success(`Investment successful! ${tx}`);
+          if (handleClose) handleClose();
+        },
+        onError: (error) => {
+          console.error(error);
+          toast.error(`Investment failed! ${error}`);
+        },
+        onSettled: () => {
+          setIsLoading(false);
+        },
       }
-
-      toast.success(`Investment successful! ${result}`);
-
-      if (handleClose) handleClose();
-    } catch (error) {
-      console.error(error);
-      toast.error(`Investment failed! ${error}`);
-    }
-
-    setIsLoading(false);
+    );
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -339,7 +340,7 @@ interface AmountInputProps {
   strategy: InvestStrategy;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
-  maxBalance: number;
+  maxBalance: { amount: bigint; price: number };
   handleSetMax: () => void;
 }
 
@@ -433,7 +434,7 @@ const AmountInput = ({
               {isLoadingBalance ? (
                 <MoonLoader size={10} />
               ) : isSupportedChain ? (
-                maxBalance.toFixed(4)
+                maxBalance.amount.toString()
               ) : (
                 "NaN"
               )}

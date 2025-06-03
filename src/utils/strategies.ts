@@ -1,7 +1,14 @@
 import { bsc } from "viem/chains";
 
-import { Protocol, Protocols } from "@/types";
-import { BNB, ETH, PERMIT_EXPIRY, wbETH, wstETH } from "@/constants";
+import { Protocol, Protocols, StrategyMetadata } from "@/types";
+import {
+  BNB,
+  ETH,
+  PERMIT_EXPIRY,
+  STRATEGIES_METADATA,
+  wbETH,
+  wstETH,
+} from "@/constants";
 import {
   BaseStrategy,
   MorphoSupply,
@@ -47,4 +54,16 @@ export function getStrategy(
     default:
       throw new Error("Unsupported protocol");
   }
+}
+
+export function getStrategyMetadata(
+  protocol: string,
+  chainId: number
+): StrategyMetadata {
+  const strategyMetadata = STRATEGIES_METADATA.find(
+    (s) => s.protocol === protocol && s.chainId === chainId
+  );
+
+  if (!strategyMetadata) throw new Error("Strategy metadata not found");
+  return strategyMetadata;
 }

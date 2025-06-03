@@ -1,8 +1,5 @@
 import { wagmiConfig } from "@/providers/config";
 
-const chains = wagmiConfig.chains;
-console.log(chains);
-
 export const CHAINS = wagmiConfig.chains.map((chain) => {
   return {
     ...chain,

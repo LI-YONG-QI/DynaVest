@@ -5,18 +5,20 @@ import { useState } from "react";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
-// import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
+import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
+import { formatAmount } from "@/utils";
+import { DepositDialog } from "@/components/Profile/AssetsTable/DepositDialog";
 
 const PROFILE_TABS = [
   {
     label: "Assets",
     value: "assets",
   },
-  // {
-  //   label: "Strategies",
-  //   value: "strategies",
-  // },
+  {
+    label: "Strategies",
+    value: "strategies",
+  },
   {
     label: "Transactions",
     value: "transactions",
@@ -27,8 +29,8 @@ function getTabComponent(tab: string) {
   switch (tab) {
     case "assets":
       return <AssetsTableComponent />;
-    // case "strategies":
-    //   return <StrategiesTableComponent />;
+    case "strategies":
+      return <StrategiesTableComponent />;
     case "transactions":
       return <TransactionsTableComponent />;
     default:
@@ -38,7 +40,11 @@ function getTabComponent(tab: string) {
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
-  const { tokensData } = useAssets();
+  const { tokensQuery, profitsQuery } = useAssets();
+  const { data: tokensData } = tokensQuery;
+  const { data: profitsData } = profitsQuery;
+
+  const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
 
   return (
     <div className="pb-10 px-2 sm:px-0">
@@ -93,26 +99,11 @@ export default function ProfilePage() {
           </div>
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#E2EDFF] rounded-lg hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
-              </svg>
-              <span>Edit Name</span>
-            </button>
             <div className="h-8 w-px bg-[#c4d8f7] hidden sm:block"></div>
-            <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <span>Deposit</span>
-            </button>
+
+            <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
+              <DepositDialog textClassName="text-sm sm:text-base" />
+            </div>
             <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
               <span>Withdraw</span>
             </button>
@@ -126,18 +117,9 @@ export default function ProfilePage() {
               Available Balance
             </h4>
             <p className="text-base sm:text-lg font-bold tracking-wide">
-              ${" "}
               {tokensData
-                .reduce((acc, token) => acc + token.value, 0)
+                ?.reduce((acc, token) => acc + token.value, 0)
                 .toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <h4 className="text-xs sm:text-sm font-medium text-gray-300">
-              Total Assets
-            </h4>
-            <p className="text-base sm:text-lg font-bold tracking-wide">
-              {/* TODO: mock data */}$ 15
             </p>
           </div>
           <div>
@@ -145,7 +127,7 @@ export default function ProfilePage() {
               Total Profit
             </h4>
             <p className="text-green-500 font-bold tracking-wide text-base sm:text-lg">
-              {/* TODO: mock data */}$ 213
+              {totalProfit ? `${formatAmount(totalProfit)}` : "0"}
             </p>
           </div>
         </div>

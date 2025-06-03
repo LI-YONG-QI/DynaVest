@@ -43,12 +43,11 @@ export class UniswapV3AddLiquidity extends BaseStrategy<
   typeof UNISWAP_CONTRACTS
 > {
   constructor(chainId: number) {
-    // TODO: mock metadata
     super(chainId, UNISWAP_CONTRACTS, {
+      name: "Uniswap V3 Add Liquidity",
+      type: "Yield",
       protocol: "Uniswap V3",
-      icon: "/crypto-icons/uniswap.svg",
-      type: "Lending",
-      description: "Lend assets to Uniswap V3",
+      description: "Add liquidity to Uniswap V3 pools",
     });
   }
 
@@ -63,7 +62,6 @@ export class UniswapV3AddLiquidity extends BaseStrategy<
     }
 
     const nftManager = this.getAddress("nftManager");
-
     const deadline = getDeadline();
 
     const usdt = USDT.chains![this.chainId as keyof typeof USDT.chains];

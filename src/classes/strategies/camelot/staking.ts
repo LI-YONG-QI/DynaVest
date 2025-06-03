@@ -6,13 +6,12 @@ import { XGRAIL_ABI, CAMELOT_STRATEGY_ABI } from "@/constants/abis";
 import { GRAIL, WETH, xGRAIL } from "@/constants/coins";
 
 export class CamelotStaking extends BaseStrategy<typeof CAMELOT_CONTRACTS> {
-  // TODO: mock metadata
   constructor(chainId: number) {
     super(chainId, CAMELOT_CONTRACTS, {
-      protocol: "Morpho",
-      icon: "/crypto-icons/morpho.svg",
-      type: "Lending",
-      description: "Lend assets to Morpho",
+      name: "Camelot Staking",
+      type: "Staking",
+      protocol: "Camelot",
+      description: "Stake assets on Camelot",
     });
   }
 

@@ -1,10 +1,11 @@
 import type { Address } from "viem";
 
-import type {
+import {
   Protocols,
   ProtocolChains,
   ProtocolContracts,
 } from "@/types/strategies";
+import { Position } from "@/types/position";
 
 export type StrategyCall = {
   to: Address;
@@ -13,8 +14,8 @@ export type StrategyCall = {
 };
 
 export type BaseStrategyMetadata = {
+  name: string;
   protocol: string;
-  icon: string;
   type: "Lending" | "Trading" | "Staking" | "Yield" | "Other";
   description: string;
 };
@@ -25,7 +26,7 @@ export abstract class BaseStrategy<T extends Protocols> {
   constructor(
     chainId: number,
     public readonly protocolAddresses: T,
-    public readonly metadata: BaseStrategyMetadata
+    public readonly name: string
   ) {
     if (this.isSupported(chainId)) {
       this.chainId = chainId as ProtocolChains<T>;
@@ -35,17 +36,25 @@ export abstract class BaseStrategy<T extends Protocols> {
   }
 
   /**
-   * Builds transaction calls for the strategy
+   * Builds invest transaction calls for the strategy
    * @param amount - The amount to use in the strategy
    * @param user - The user address that will execute the strategy
    * @param asset - (optional) The asset to invest in. If asset is undefined, the strategy is for native tokens.
    * @returns Array of calls to be executed
    */
-  abstract buildCalls(
+  abstract investCalls(
     amount: bigint,
     user: Address,
     asset?: Address
   ): Promise<StrategyCall[]>;
+
+  abstract redeemCalls(
+    amount: bigint,
+    user: Address,
+    asset?: Address
+  ): Promise<StrategyCall[]>;
+
+  abstract getProfit(user: Address, position: Position): Promise<number>;
 
   isSupported(chainId: number): boolean {
     return Object.keys(this.protocolAddresses).map(Number).includes(chainId);

@@ -149,14 +149,7 @@ export default function useCurrencies(tokens: Token[]) {
   }, [tokens, fetchTokenPrices, fetchTokenBalances]);
 
   // Use a single React Query for fetching and caching all token data
-  const {
-    data: tokensData = initialTokensData,
-    isLoading,
-    isLoadingError,
-    isError,
-    error,
-    refetch: refreshData,
-  } = useQuery({
+  return useQuery({
     queryKey: ["tokenData", chainId, tokens.map((t) => t.name).join(",")],
     queryFn: fetchTokenData,
     enabled: tokens.length > 0 && !!client,
@@ -167,20 +160,4 @@ export default function useCurrencies(tokens: Token[]) {
     refetchOnMount: true, // Force refetch on mount
     retry: 2,
   });
-
-  return {
-    tokensData,
-    isLoading,
-    isLoadingError,
-    isError,
-    error,
-    refreshData,
-    // Helper methods
-    getTokenBalance: (name: string) =>
-      tokensData.find((t) => t.token.name === name)?.balance || 0,
-    getTokenPrice: (name: string) =>
-      tokensData.find((t) => t.token.name === name)?.price,
-    getTokenValue: (name: string) =>
-      tokensData.find((t) => t.token.name === name)?.value || 0,
-  };
 }
