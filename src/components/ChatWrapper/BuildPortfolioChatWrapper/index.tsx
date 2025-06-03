@@ -11,8 +11,6 @@ interface BuildPortfolioChatWrapperProps {
 const BuildPortfolioChatWrapper: React.FC<BuildPortfolioChatWrapperProps> = ({
   message,
 }) => {
-  const [isEdit, setIsEdit] = useState(true);
-
   return (
     <div className="flex flex-col gap-4">
       <p className="mt-4 text-lg font-bold">
@@ -28,15 +26,17 @@ const BuildPortfolioChatWrapper: React.FC<BuildPortfolioChatWrapperProps> = ({
       </div>
       <div className="flex gap-5">
         <Button
-          onClick={() => setIsEdit(false)}
+          onClick={() => {
+            window.location.href = "/profile";
+          }}
           text="Check my portfolio"
-          disabled={!isEdit}
           icon={<FileCheck />}
         />
         <Button
-          onClick={() => setIsEdit(false)}
+          onClick={() => {
+            window.location.href = "/strategies";
+          }}
           text="Explore more DeFi Investment"
-          disabled={!isEdit}
           icon={<MoveUpRight />}
         />
       </div>
