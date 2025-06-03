@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useDisconnect } from "wagmi";
@@ -7,6 +9,7 @@ import { toast } from "react-toastify";
 
 import ChainSelector from "../ChainSelector";
 import { useAddUser } from "./useAddUser";
+import CopyButton from "../CopyButton";
 
 export default function ConnectWalletButton() {
   const {
@@ -63,7 +66,6 @@ export default function ConnectWalletButton() {
       }
       return;
     }
-    setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleDisconnect = async () => {
@@ -108,67 +110,73 @@ export default function ConnectWalletButton() {
     <div
       className={`relative flex items-center justify-center text-center gap-x-1 ${
         isDropdownOpen ? "rounded-t-[10px]" : "rounded-[10px]"
-      } py-3 px-4 w-[175px] md:w-[200px] h-[54px]`}
+      } py-2 px-3 w-[150px] md:w-[190px] h-[48px]`}
       style={backgroundStyle}
       ref={dropdownRef}
     >
-      <div className="flex items-center max-w-[35%]">
+      <div className="flex items-center max-w-[30%] ml-2">
         {/* Chain Selector */}
         <ChainSelector />
       </div>
 
-      {/* Vertical divider */}
-      <div className="w-[2px] h-6 bg-white mx-1"></div>
-
-      <button
-        disabled={!buttonReady}
+      <div
         onClick={handleButtonOnClick}
         className="pl-1 cursor-pointer flex items-center justify-between w-full h-full"
       >
-        <div className="flex items-center gap-4 w-full">
+        <div className="flex items-center gap-3 w-full mr-2">
           {buttonReady ? (
             loggedIn ? (
               <div className="flex items-center justify-between w-full">
                 {/* User info with wallet */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* User info */}
-                  <div className="flex flex-col items-start">
-                    <span className="font-bold text-[14px] text-[#3B446A] tracking-wider">
+                  <div className="flex flex-col items-start min-w-0">
+                    <span className="font-bold text-[13px] text-[#3B446A] tracking-wider truncate">
                       UserName
                     </span>
-                    <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black opacity-60">
-                      {address?.slice(0, 6) + "..." + address?.slice(-4)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black opacity-60 leading-none truncate">
+                        {address?.slice(0, 4) + "..." + address?.slice(-4)}
+                      </span>
+                      <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                        <CopyButton text={address} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Arrow down icon */}
-                <Image
-                  src="/dropdown-icons/arrow-down.svg"
-                  alt="Arrow Down"
-                  width={16}
-                  height={16}
-                  className={`text-[#3B446A] transition-transform ml-2 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center justify-center w-5 h-5 flex-shrink-0"
+                >
+                  <Image
+                    src="/dropdown-icons/arrow-down.svg"
+                    alt="Arrow Down"
+                    width={12}
+                    height={12}
+                    className={`text-[#3B446A] transition-transform ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
               </div>
             ) : (
               <div className="flex items-center justify-center w-full">
-                <span className="text-center text-white font-medium text-base">
+                <span className="text-center text-white font-medium text-sm">
                   Connect Wallet
                 </span>
               </div>
             )
           ) : (
             <div className="flex items-center justify-center w-full">
-              <span className="text-center text-white font-medium text-base">
+              <span className="text-center text-white font-medium text-sm">
                 Loading...
               </span>
             </div>
           )}
         </div>
-      </button>
+      </div>
 
       {/* DROPDOWN */}
       {isDropdownOpen && (
@@ -183,19 +191,6 @@ export default function ConnectWalletButton() {
           <div className="w-full">
             {/* Menu items */}
             <div className="w-full">
-              {/* History */}
-              <button className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
-                <Image
-                  src="/dropdown-icons/history-icon.svg"
-                  alt="History"
-                  width={20}
-                  height={20}
-                />
-                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
-                  History
-                </span>
-              </button>
-
               {/* Profile */}
               <button
                 onClick={() => router.push("/profile")}
@@ -209,19 +204,6 @@ export default function ConnectWalletButton() {
                 />
                 <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
                   Profile
-                </span>
-              </button>
-
-              {/* Settings */}
-              <button className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
-                <Image
-                  src="/dropdown-icons/settings-icon.svg"
-                  alt="Settings"
-                  width={20}
-                  height={20}
-                />
-                <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black">
-                  Settings
                 </span>
               </button>
 
