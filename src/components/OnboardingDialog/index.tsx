@@ -10,7 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DepositDialog } from "../Profile/DepositDialog";
+import { DepositDialog } from "@/components/DepositDialog";
+import { USDC } from "@/constants/coins";
 
 interface OnboardingDialogProps {
   trigger?: React.ReactNode;
@@ -65,7 +66,10 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
 
             {/* Buttons - positioned at bottom to align with image bottom */}
             <div className="flex flex-col gap-[10px] mt-auto">
-              <DepositDialog textClassName="w-full bg-[#5F79F1] text-white rounded-[8px] py-[14px] px-[20px] flex justify-center items-center hover:bg-[#5F79F1]/90 transition-all duration-200" />
+              <DepositDialog
+                token={USDC}
+                textClassName="w-full bg-[#5F79F1] text-white rounded-[8px] py-[14px] px-[20px] flex justify-center items-center hover:bg-[#5F79F1]/90 transition-all duration-200"
+              />
 
               <div className="flex justify-center">
                 <button

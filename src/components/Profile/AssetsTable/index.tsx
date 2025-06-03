@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import { WithdrawDialog } from "./WithdrawDialog";
-import { DepositDialog } from "../DepositDialog";
+import { DepositDialog } from "@/components/DepositDialog";
 import { toast } from "react-toastify";
 import { Token } from "@/types";
 import { Address } from "viem";
@@ -117,7 +117,7 @@ export default function AssetsTableComponent() {
               {/* Actions */}
               <td className="p-4 text-right rounded-r-xl">
                 <div className="flex justify-end gap-1">
-                  <DepositDialog />
+                  <DepositDialog token={asset.token} />
 
                   <WithdrawDialog
                     asset={asset.token}

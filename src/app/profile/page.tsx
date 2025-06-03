@@ -8,7 +8,8 @@ import AssetsTableComponent from "@/components/Profile/AssetsTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
 import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import { formatAmount } from "@/utils";
-import { DepositDialog } from "@/components/Profile/DepositDialog";
+import { DepositDialog } from "@/components/DepositDialog";
+import { USDC } from "@/constants/coins";
 
 const PROFILE_TABS = [
   {
@@ -102,7 +103,10 @@ export default function ProfilePage() {
             <div className="h-8 w-px bg-[#c4d8f7] hidden sm:block"></div>
 
             <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <DepositDialog textClassName="text-sm sm:text-base" />
+              <DepositDialog
+                textClassName="text-sm sm:text-base"
+                token={USDC}
+              />
             </div>
             <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
               <span>Withdraw</span>
