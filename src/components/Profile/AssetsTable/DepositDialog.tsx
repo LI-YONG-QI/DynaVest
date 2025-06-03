@@ -10,21 +10,23 @@ import {
 import AddressQRCode from "@/components/AddressQRCode";
 import CopyButton from "@/components/CopyButton";
 
-export function DepositDialog() {
+export function DepositDialog({ textClassName }: { textClassName?: string }) {
   const { client } = useSmartWallets();
-
   const address = client?.account?.address;
+
+  const text = textClassName
+    ? textClassName
+    : "px-3 py-1.5 rounded-lg text-sm text-primary hover:bg-gray-50 transition-colors";
 
   return (
     <Dialog>
-      <DialogTrigger className="px-3 py-1.5 rounded-lg text-sm text-primary hover:bg-gray-50 transition-colors">
-        Deposit
-      </DialogTrigger>
+      <DialogTrigger className={text}>Deposit</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-bold">Deposit Funds</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center py-4">
+          <span> Hello </span>
           <div className="w-full max-w-[250px] mx-auto">
             <AddressQRCode address={address || ""} />
           </div>

@@ -8,6 +8,7 @@ import AssetsTableComponent from "@/components/Profile/AssetsTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
 import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import { formatAmount } from "@/utils";
+import { DepositDialog } from "@/components/Profile/AssetsTable/DepositDialog";
 
 const PROFILE_TABS = [
   {
@@ -98,25 +99,10 @@ export default function ProfilePage() {
           </div>
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#E2EDFF] rounded-lg hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
-              </svg>
-              <span>Edit Name</span>
-            </button>
             <div className="h-8 w-px bg-[#c4d8f7] hidden sm:block"></div>
+
             <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <span>Deposit</span>
+              <DepositDialog textClassName="text-sm sm:text-base" />
             </button>
             <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
               <span>Withdraw</span>
