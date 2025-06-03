@@ -148,7 +148,7 @@ export default function ConnectWalletButton() {
                 {/* Arrow down icon */}
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-center w-5 h-5 flex-shrink-0"
+                  className="flex items-center justify-center w-5 h-5 flex-shrink-0 ml-2"
                 >
                   <Image
                     src="/dropdown-icons/arrow-down.svg"
@@ -164,7 +164,7 @@ export default function ConnectWalletButton() {
             ) : (
               <div className="flex items-center justify-center w-full">
                 <span className="text-center text-white font-medium text-sm">
-                  Connect Wallet
+                  Connect
                 </span>
               </div>
             )
