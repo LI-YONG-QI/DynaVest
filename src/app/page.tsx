@@ -32,9 +32,10 @@ import { BotResponse } from "@/types";
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
 import OnboardingDialog from "@/components/OnboardingDialog";
+import { useAssets } from "@/contexts/AssetsContext";
 
 export default function Home() {
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
 
@@ -47,6 +48,8 @@ export default function Home() {
   const { closeChat } = useChat();
   const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
     useChatbot();
+  const { totalValue, tokensQuery } = useAssets();
+  const { isPlaceholderData } = tokensQuery;
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -226,6 +229,18 @@ export default function Home() {
   useEffect(() => {
     closeChat();
   }, []);
+
+  useEffect(() => {
+    if (isPlaceholderData) {
+      setIsOnboardingOpen(false);
+    } else {
+      if (totalValue === 0) {
+        setIsOnboardingOpen(true);
+      } else {
+        setIsOnboardingOpen(false);
+      }
+    }
+  }, [totalValue, isPlaceholderData]);
 
   return (
     <div className="h-[80vh]">

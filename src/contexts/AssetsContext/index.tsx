@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useMemo } from "react";
 import { Address, encodeFunctionData, Hash, parseUnits } from "viem";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
@@ -22,6 +22,7 @@ interface AssetsContextType {
   positionsQuery: UseQueryResult<Position[], Error>;
   withdrawAsset: UseMutationResult<Hash, Error, WithdrawAssetParams>;
   profitsQuery: UseQueryResult<number[], Error>;
+  totalValue: number;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -52,8 +53,11 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const profitsQuery = useProfits(positionsQuery.data || []);
 
   const { client } = useSmartWallets();
-
   const tokensQuery = useCurrencies(tokensWithChain);
+
+  const totalValue = useMemo(() => {
+    return tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
+  }, [tokensQuery]);
 
   const withdrawAsset = useMutation({
     mutationFn: async ({ asset, amount, to }: WithdrawAssetParams) => {
@@ -89,6 +93,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     positionsQuery,
     tokensQuery,
     profitsQuery,
+    totalValue,
   };
 
   return (
