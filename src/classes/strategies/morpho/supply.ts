@@ -3,6 +3,7 @@ import { readContract } from "@wagmi/core";
 
 import { MORPHO_CONTRACTS, ERC20_ABI, MORPHO_ABI } from "@/constants";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
+import { Position } from "@/types/position";
 import { wagmiConfig as config } from "@/providers/config";
 
 /**
@@ -48,11 +49,7 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
     ];
   }
 
-  async redeemCalls(
-    amount: bigint,
-    user: Address,
-    asset?: Address
-  ): Promise<StrategyCall[]> {
+  async redeemCalls(amount: bigint, user: Address): Promise<StrategyCall[]> {
     const morpho = this.getAddress("morpho");
     const marketParams = await this.#getMarketParams(this.WETH_USDC_MARKET_ID);
 
@@ -68,13 +65,19 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
     ];
   }
 
-  async getProfit(data: {
-    user: Address;
-    amount: number;
-    asset: Address;
-  }): Promise<number> {
-    const { amount } = data;
-    return amount * 4.75;
+  async getProfit(user: Address, position: Position): Promise<number> {
+    const { createAt } = position;
+    const now = new Date();
+    const createdAt = new Date(createAt);
+    const diffTime = Math.abs(now.getTime() - createdAt.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Calculate profit using APY 4.5%
+    const APY = 0.045; // 4.5%
+    const dailyRate = APY / 365;
+    const profit = position.amount * dailyRate * diffDays;
+
+    return Math.floor(profit);
   }
 
   async #getMarketParams(marketId: Hex) {

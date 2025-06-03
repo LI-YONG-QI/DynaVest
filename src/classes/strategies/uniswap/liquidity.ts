@@ -62,7 +62,6 @@ export class UniswapV3AddLiquidity extends BaseStrategy<
     }
 
     const nftManager = this.getAddress("nftManager");
-
     const deadline = getDeadline();
 
     const usdt = USDT.chains![this.chainId as keyof typeof USDT.chains];

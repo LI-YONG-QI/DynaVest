@@ -1,26 +1,27 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { Address, encodeFunctionData, parseUnits } from "viem";
-import { toast } from "react-toastify";
+import { Address, encodeFunctionData, Hash, parseUnits } from "viem";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import useCurrencies, { TokenData } from "@/hooks/useCurrencies";
 import { Token } from "@/types";
+import { Position } from "@/types/position";
 import { ERC20_ABI } from "@/constants";
 import { SUPPORTED_TOKENS } from "@/constants/profile";
 import type { SupportedChainIds } from "@/providers/config";
+import {
+  useMutation,
+  UseMutationResult,
+  UseQueryResult,
+} from "@tanstack/react-query";
+import { usePositions } from "./usePositions";
+import { useProfits } from "./useProfits";
 
 interface AssetsContextType {
-  tokensData: TokenData[];
-  isLoading: boolean;
-  isError: boolean;
-  isLoadingError: boolean;
-  error: Error | null;
-  refreshData: () => void;
-  handleWithdraw: (asset: Token, amount: string, to: Address) => Promise<void>;
-  getTokenBalance: (name: string) => number;
-  getTokenPrice: (name: string) => number | undefined;
-  getTokenValue: (name: string) => number;
+  tokensQuery: UseQueryResult<TokenData[], Error>;
+  positionsQuery: UseQueryResult<Position[], Error>;
+  withdrawAsset: UseMutationResult<Hash, Error, WithdrawAssetParams>;
+  profitsQuery: UseQueryResult<number[], Error>;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -38,36 +39,31 @@ interface AssetsProviderProps {
   tokens?: Token[];
 }
 
+interface WithdrawAssetParams {
+  asset: Token;
+  amount: string;
+  to: Address;
+}
+
 export function AssetsProvider({ children }: AssetsProviderProps) {
   const chainId = useChainId() as SupportedChainIds;
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
-
-  const {
-    tokensData,
-    isLoading,
-    isError,
-    error,
-    isLoadingError,
-    refreshData,
-    getTokenBalance,
-    getTokenPrice,
-    getTokenValue,
-  } = useCurrencies(tokensWithChain);
+  const positionsQuery = usePositions();
+  const profitsQuery = useProfits(positionsQuery.data || []);
 
   const { client } = useSmartWallets();
 
-  const handleWithdraw = async (asset: Token, amount: string, to: Address) => {
-    if (!client) {
-      toast.error("Client not found");
-      return;
-    }
+  const tokensQuery = useCurrencies(tokensWithChain);
 
-    await client.switchChain({ id: chainId });
-    try {
+  const withdrawAsset = useMutation({
+    mutationFn: async ({ asset, amount, to }: WithdrawAssetParams) => {
+      if (!client) throw new Error("Client not found");
+
+      await client.switchChain({ id: chainId });
       const decimals = asset.decimals || 6;
       const amountInBaseUnits = parseUnits(amount, decimals);
 
-      let tx;
+      let tx: Hash;
       if (asset.isNativeToken) {
         tx = await client.sendTransaction({
           to,
@@ -84,29 +80,15 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
         });
       }
 
-      toast.success(
-        `${asset.name} withdrawal submitted successfully, tx hash: ${tx}`
-      );
-
-      // Refresh data after successful transaction
-      refreshData();
-    } catch (error) {
-      console.log("Error processing withdrawal:", error);
-      toast.error("Something went wrong");
-    }
-  };
+      return tx;
+    },
+  });
 
   const value = {
-    tokensData,
-    isLoading,
-    isError,
-    isLoadingError,
-    error,
-    refreshData,
-    handleWithdraw,
-    getTokenBalance,
-    getTokenPrice,
-    getTokenValue,
+    withdrawAsset,
+    positionsQuery,
+    tokensQuery,
+    profitsQuery,
   };
 
   return (

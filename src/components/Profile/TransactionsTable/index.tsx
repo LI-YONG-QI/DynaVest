@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { formatUnits } from "viem";
 import { useTransaction, type GetTransactionResponse } from "./useTransaction";
 import { getProtocolMetadata } from "@/constants/protocols/metadata";
 
@@ -64,9 +63,7 @@ export default function TransactionsTableComponent() {
 
               {/* Amount */}
               <td className="p-4 rounded-r-xl">
-                <div className="font-medium text-md">
-                  {formatUnits(BigInt(transaction.amount), 6)}
-                </div>
+                <div className="font-medium text-md">{transaction.amount}</div>
               </td>
             </tr>
           ))}

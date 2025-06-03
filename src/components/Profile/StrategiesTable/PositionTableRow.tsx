@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { formatUnits } from "viem";
 import { useChainId } from "wagmi";
-import { formatCoin, formatCurrency } from "@/utils";
+import { formatAmount, formatCurrency } from "@/utils";
+import { toast } from "react-toastify";
+import { parseUnits } from "viem";
+
 import { getTokenByName } from "@/constants/coins";
 import {
   getProtocolMetadata,
@@ -11,9 +13,8 @@ import {
 } from "@/constants/protocols/metadata";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
-import { type Position } from "./useProfilePosition";
+import { type Position } from "@/types/position";
 import { useCurrencyPrice } from "@/hooks/useCurrency";
-import { toast } from "react-toastify";
 import { useProfit } from "./useProfit";
 import { Protocol, StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
@@ -42,11 +43,12 @@ export default function PositionTableRow({
 
   const handleRedeem = () => {
     const strategy = getStrategy(position.strategy as Protocol, chainId);
+    const token = getTokenByName(position.tokenName);
 
     redeem.mutate(
       {
         strategy,
-        amount: BigInt(position.amount),
+        amount: parseUnits(position.amount.toString(), token.decimals),
         token,
         positionId: position.id,
       },
@@ -116,24 +118,17 @@ export default function PositionTableRow({
         {/* Amount */}
         <td className="p-4 text-right">
           <div className="font-medium text-md">
-            {isLoading
-              ? "0.00"
-              : formatUnits(BigInt(position.amount), token.decimals).toString()}
+            {isLoading ? "0.00" : position.amount}
           </div>
           <div className="text-sm text-gray-500">
-            {isLoading
-              ? "0.00"
-              : formatCurrency(
-                  Number(formatUnits(BigInt(position.amount), token.decimals)) *
-                    price
-                )}
+            {isLoading ? "0.00" : formatCurrency(position.amount * price)}
           </div>
         </td>
 
         {/* Profit */}
         <td className="p-4 text-right">
           <div className="font-medium text-md text-green-500  ">
-            {Number(profit) > 0.01 ? formatCoin(Number(profit)) : "<0.01"}
+            {formatAmount(profit)}
           </div>
         </td>
 

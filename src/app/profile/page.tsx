@@ -5,9 +5,9 @@ import { useState } from "react";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
-// import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
 import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
+import { formatAmount } from "@/utils";
 
 const PROFILE_TABS = [
   {
@@ -39,7 +39,11 @@ function getTabComponent(tab: string) {
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
-  const { tokensData } = useAssets();
+  const { tokensQuery, profitsQuery } = useAssets();
+  const { data: tokensData } = tokensQuery;
+  const { data: profitsData } = profitsQuery;
+
+  const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
 
   return (
     <div className="pb-10 px-2 sm:px-0">
@@ -127,18 +131,9 @@ export default function ProfilePage() {
               Available Balance
             </h4>
             <p className="text-base sm:text-lg font-bold tracking-wide">
-              ${" "}
               {tokensData
-                .reduce((acc, token) => acc + token.value, 0)
+                ?.reduce((acc, token) => acc + token.value, 0)
                 .toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <h4 className="text-xs sm:text-sm font-medium text-gray-300">
-              Total Assets
-            </h4>
-            <p className="text-base sm:text-lg font-bold tracking-wide">
-              {/* TODO: mock data */}$ 15
             </p>
           </div>
           <div>
@@ -146,7 +141,7 @@ export default function ProfilePage() {
               Total Profit
             </h4>
             <p className="text-green-500 font-bold tracking-wide text-base sm:text-lg">
-              {/* TODO: mock data */}$ 213
+              {totalProfit ? `${formatAmount(totalProfit)}` : "0"}
             </p>
           </div>
         </div>

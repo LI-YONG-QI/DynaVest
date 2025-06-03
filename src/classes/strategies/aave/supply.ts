@@ -1,3 +1,4 @@
+import { Position } from "@/types/position";
 import type { Address } from "viem";
 import { encodeFunctionData, formatUnits } from "viem";
 import { readContract } from "@wagmi/core";
@@ -6,6 +7,7 @@ import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
 import { wagmiConfig } from "@/providers/config";
+import { getTokenByName } from "@/constants/coins";
 
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
@@ -77,12 +79,10 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
     ];
   }
 
-  async getProfit(data: {
-    user: Address;
-    amount: number;
-    underlyingAsset: Address;
-  }) {
-    const { user, amount, underlyingAsset } = data;
+  async getProfit(user: Address, position: Position) {
+    const { amount, tokenName } = position;
+
+    const underlyingAsset = getTokenByName(tokenName).chains![this.chainId];
     const pool = this.getAddress("pool");
 
     const aTokenAddress = await readContract(wagmiConfig, {

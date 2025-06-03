@@ -5,6 +5,7 @@ import {
   ProtocolChains,
   ProtocolContracts,
 } from "@/types/strategies";
+import { Position } from "@/types/position";
 
 export type StrategyCall = {
   to: Address;
@@ -53,7 +54,7 @@ export abstract class BaseStrategy<T extends Protocols> {
     asset?: Address
   ): Promise<StrategyCall[]>;
 
-  abstract getProfit(data: unknown): Promise<number>;
+  abstract getProfit(user: Address, position: Position): Promise<number>;
 
   isSupported(chainId: number): boolean {
     return Object.keys(this.protocolAddresses).map(Number).includes(chainId);

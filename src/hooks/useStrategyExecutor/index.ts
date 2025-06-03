@@ -2,6 +2,7 @@ import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useMemo } from "react";
 import { useChainId, useClient } from "wagmi";
 import axios from "axios";
+import { formatUnits, type Address } from "viem";
 import { waitForTransactionReceipt } from "viem/actions";
 import { useMutation } from "@tanstack/react-query";
 
@@ -18,7 +19,7 @@ import {
   updatePosition,
   type PositionParams,
 } from "./utils";
-import { Address } from "viem";
+import { getTokenByName } from "@/constants/coins";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocols>;
@@ -61,8 +62,13 @@ export function useStrategyExecutor() {
     tokenName: string = "USDC"
   ) {
     for (const singleStrategy of multiStrategy.strategies) {
+      const token = getTokenByName(tokenName);
+
       const splitAmount = Number(
-        (amount * BigInt(singleStrategy.allocation)) / BigInt(100)
+        formatUnits(
+          (amount * BigInt(singleStrategy.allocation)) / BigInt(100),
+          token.decimals
+        )
       );
 
       const position: PositionParams = {
@@ -156,7 +162,7 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
         hash: txHash,
-        amount: Number(amount),
+        amount: Number(formatUnits(amount, token.decimals)),
         token_name: token.name,
       });
 
@@ -182,7 +188,7 @@ export function useStrategyExecutor() {
 
       await updatePosition({
         address: user,
-        amount: Number(amount),
+        amount: Number(formatUnits(amount, token.decimals)),
         token_name: token.name,
         chain_id: chainId,
         strategy: strategy.name,
@@ -192,7 +198,7 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
         hash: txHash,
-        amount: Number(amount),
+        amount: Number(formatUnits(amount, token.decimals)),
         token_name: token.name,
       });
 

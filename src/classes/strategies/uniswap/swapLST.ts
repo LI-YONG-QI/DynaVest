@@ -6,13 +6,13 @@ import { ERC20_ABI, V3_SWAP_ROUTER_ABI } from "@/constants/abis";
 import { UNISWAP_CONTRACTS } from "@/constants/protocols/uniswap";
 import { Token } from "@/types/blockchain";
 import { wagmiConfig } from "@/providers/config";
+import { Position } from "@/types/position";
 
 /**
  * @notice swap nativeToken to wstETH
  * @notice Ethereum: ETH -> wstETH
  * @notice BSC: BNB -> wbETH
  */
-
 export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
   constructor(
     chainId: number,
@@ -114,12 +114,18 @@ export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
     ];
   }
 
-  async getProfit(data: {
-    user: Address;
-    amount: number;
-    underlyingAsset: Address;
-  }) {
-    const { amount } = data;
-    return amount * 2.8;
+  async getProfit(user: Address, position: Position) {
+    const { createAt } = position;
+    const now = new Date();
+    const createdAt = new Date(createAt);
+    const diffTime = Math.abs(now.getTime() - createdAt.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Calculate profit using APY 4.5%
+    const APY = 0.045; // 4.5%
+    const dailyRate = APY / 365;
+    const profit = position.amount * dailyRate * diffDays;
+
+    return Math.floor(profit);
   }
 }

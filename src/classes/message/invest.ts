@@ -1,13 +1,13 @@
 import { Message, MessageMetadata } from "./base";
 import { PortfolioMessage } from "./portfolio";
-import { arbitrum } from "viem/chains";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { RiskLevel, RiskPortfolioStrategies, StrategiesSet } from "@/types";
 import { RISK_OPTIONS } from "@/constants/risk";
+import { wagmiConfig } from "@/providers/config";
 
 export class InvestMessage extends Message {
   public amount: string = "0";
-  public chain: number = arbitrum.id;
+  public chain: number = wagmiConfig.chains[0].id;
 
   constructor(metadata: MessageMetadata, _chain?: number) {
     super(metadata);

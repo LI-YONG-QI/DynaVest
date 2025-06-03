@@ -1,6 +1,7 @@
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Position } from "@/types/position";
 
 type PositionResponse = {
   position_id: string;
@@ -14,15 +15,6 @@ type PositionResponse = {
   status: string;
 };
 
-export type Position = {
-  id: string;
-  strategy: string;
-  tokenName: string;
-  amount: number;
-  chainId: number;
-  status: string;
-};
-
 const getPositions = async (address: string): Promise<Position[]> => {
   const response = await axios.get<PositionResponse[]>(
     `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${address}`
@@ -30,6 +22,7 @@ const getPositions = async (address: string): Promise<Position[]> => {
 
   return response.data.map((position) => ({
     id: position.position_id,
+    createAt: position.created_at,
     strategy: position.strategy,
     tokenName: position.token_name,
     amount: position.amount,
@@ -38,7 +31,7 @@ const getPositions = async (address: string): Promise<Position[]> => {
   }));
 };
 
-export const useProfilePosition = () => {
+export const usePositions = () => {
   const { client } = useSmartWallets();
   const address = client?.account?.address;
 

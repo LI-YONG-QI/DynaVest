@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { Address } from "viem";
 
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
@@ -68,14 +68,23 @@ export async function getInvestCalls(
  */
 export async function updatePosition(positionParams: PositionParams) {
   // TODO: refactor with backend
-  const positions = await axios.get(
-    `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${positionParams.address}`
-  );
-  const position = positions.data.find(
+
+  let res: AxiosResponse;
+  try {
+    res = await axios.get(
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/positions/${positionParams.address}`
+    );
+  } catch {
+    return await axios.post(
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
+      positionParams
+    );
+  }
+
+  const position = res.data.find(
     (pos: PositionResponse) =>
       pos.strategy === positionParams.strategy && pos.status === "true"
   );
-
   if (!position) {
     return await axios.post(
       `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,

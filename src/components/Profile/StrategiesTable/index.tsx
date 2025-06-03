@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-import { useProfilePosition } from "./useProfilePosition";
 import PositionTableRow from "./PositionTableRow";
+import { useAssets } from "@/contexts/AssetsContext";
 
 export default function StrategiesTableComponent() {
   const [sortKey, setSortKey] = useState<"amount" | null>("amount");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const { data: positions, isError, error } = useProfilePosition();
+  const { positionsQuery } = useAssets();
+  const { data: positions, isError, error } = positionsQuery;
 
   const sortedData = positions
     ? [...positions]
