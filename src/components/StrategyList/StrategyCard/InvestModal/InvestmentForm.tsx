@@ -28,6 +28,7 @@ enum ButtonState {
   Withdraw = "Withdraw",
   LP = "Add Liquidity",
   SwitchChain = "Switch Chain",
+  Swap = "Swap",
 }
 
 const InvestmentForm: FC<InvestmentFormProps> = ({
@@ -36,6 +37,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   handleClose,
   handlePortfolio,
 }) => {
+  const hasSecondInput = mode === "lp" || mode === "swap";
+  const hasAdvancedSettings = mode === "swap";
+
   // first token input
   const [amount, setAmount] = useState<string>("");
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
@@ -107,6 +111,11 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     console.log("LP");
   };
 
+  // TODO: Support SWAP
+  const processSwap = () => {
+    console.log("SWAP");
+  };
+
   const handleSwitchChain = async (chainId: number) => {
     try {
       await switchChainAsync({ chainId });
@@ -158,6 +167,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
       case ButtonState.LP:
         processLp();
         break;
+      case ButtonState.Swap:
+        processSwap();
+        break;
       case ButtonState.SwitchChain:
         handleSwitchChain(strategy.chainId);
         break;
@@ -183,6 +195,8 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           return ButtonState.Withdraw;
         case "lp":
           return ButtonState.LP;
+        case "swap":
+          return ButtonState.Swap;
         default:
           return ButtonState.Pending;
       }
@@ -210,7 +224,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
         handleSetMax={handleSetMax}
       />
 
-      {mode == "lp" && (
+      {hasSecondInput && (
         <AmountInput
           inputName="secondAmount"
           amount={secondAmount}
@@ -228,94 +242,96 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
       )}
 
       {/* Advanced Settings */}
-      <div className="my-4">
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
-        >
-          <span>Advanced Settings</span>
-          <svg
-            className={`size-4 transition-transform ${
-              showAdvanced ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+      {hasAdvancedSettings && (
+        <div className="my-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+            <span>Advanced Settings</span>
+            <svg
+              className={`size-4 transition-transform ${
+                showAdvanced ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
 
-        {showAdvanced && (
-          <div className="mt-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Max Slippage</span>
-              <button
-                type="button"
-                onClick={() => setSlippage("auto")}
-                className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
-              >
-                Auto
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
-              {["auto", "0.1", "0.5", "1.0"].map((value) => (
+          {showAdvanced && (
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Max Slippage</span>
                 <button
-                  key={value}
                   type="button"
-                  onClick={() => {
-                    setSlippage(value === "auto" ? "auto" : Number(value));
-                    if (value !== "custom") setCustomSlippage("");
-                  }}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-                    (value === "auto" && slippage === "auto") ||
-                    (value !== "auto" && slippage === Number(value))
-                      ? "bg-[#5F79F1] text-white"
-                      : "text-black hover:bg-[#5F79F1]/20"
-                  }`}
+                  onClick={() => setSlippage("auto")}
+                  className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
                 >
-                  {value === "auto" ? "Auto" : `${value}%`}
+                  Auto
                 </button>
-              ))}
-              <div className="relative flex-1 xl:max-w-[80px]">
-                <input
-                  type="text"
-                  value={customSlippage}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setCustomSlippage(val);
-                      const num = parseFloat(val);
-                      if (!isNaN(num)) {
-                        setSlippage(num);
-                      } else if (val === "") {
-                        setSlippage("auto");
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
+                {["auto", "0.1", "0.5", "1.0"].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setSlippage(value === "auto" ? "auto" : Number(value));
+                      if (value !== "custom") setCustomSlippage("");
+                    }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md ${
+                      (value === "auto" && slippage === "auto") ||
+                      (value !== "auto" && slippage === Number(value))
+                        ? "bg-[#5F79F1] text-white"
+                        : "text-black hover:bg-[#5F79F1]/20"
+                    }`}
+                  >
+                    {value === "auto" ? "Auto" : `${value}%`}
+                  </button>
+                ))}
+                <div className="relative flex-1 xl:max-w-[80px]">
+                  <input
+                    type="text"
+                    value={customSlippage}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setCustomSlippage(val);
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) {
+                          setSlippage(num);
+                        } else if (val === "") {
+                          setSlippage("auto");
+                        }
                       }
+                    }}
+                    onFocus={() =>
+                      setSlippage(
+                        customSlippage
+                          ? parseFloat(customSlippage) || "auto"
+                          : "auto"
+                      )
                     }
-                  }}
-                  onFocus={() =>
-                    setSlippage(
-                      customSlippage
-                        ? parseFloat(customSlippage) || "auto"
-                        : "auto"
-                    )
-                  }
-                  placeholder="1.5%"
-                  className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
-                />
+                    placeholder="1.5%"
+                    className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Invest button */}
       <button
