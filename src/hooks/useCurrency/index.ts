@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { getBalance } from "@wagmi/core";
 import { useChainId } from "wagmi";
 import { Address } from "viem";
@@ -16,6 +16,10 @@ async function _fetchTokenBalance(
   user: Address,
   chainId: number = base.id
 ) {
+  if (!token.chains?.[chainId] && !token.isNativeToken) {
+    throw new Error("Token not supported on this chain");
+  }
+
   const params = {
     address: user,
     ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
@@ -39,36 +43,33 @@ async function fetchTokenPrice(token: Token) {
   );
 
   const price = Number(response.data[id].usd);
-  console.log("Price", price);
+
   return price;
 }
 
 export function useCurrencyPrice(token: Token) {
   return useQuery({
-    queryKey: ["tokenPrice", token.name],
+    queryKey: ["tokenPrice", token],
     queryFn: () => fetchTokenPrice(token),
-    staleTime: 30 * 1000, // Consider data stale after 30 seconds
+    staleTime: 2 * 60 * 1000, // Consider data stale after 30 seconds
   });
 }
 
 export default function useCurrency(token: Token) {
   const { client } = useSmartWallets();
 
-  const [currency, setCurrency] = useState<Token>(token);
   const chainId = useChainId();
-
   const { data: price = 0 } = useCurrencyPrice(token);
 
   // Fetch balance function to be used with useQuery
   const fetchBalance = useCallback(async () => {
-    await client?.switchChain({ id: chainId });
     const user = client?.account.address;
 
     if (!user) return;
 
-    const { value: amount } = await _fetchTokenBalance(currency, user, chainId);
+    const { value: amount } = await _fetchTokenBalance(token, user, chainId);
     return { amount, price };
-  }, [client, currency, chainId, price]);
+  }, [client, token, chainId, price]);
 
   // Use React Query for fetching and caching the balance
   const {
@@ -79,17 +80,15 @@ export default function useCurrency(token: Token) {
     isLoadingError,
     error,
   } = useQuery({
-    queryKey: ["tokenBalance", currency.name, currency.chains?.[chainId]],
+    queryKey: ["tokenBalance", token],
     queryFn: fetchBalance,
-    enabled: !!client && !!currency.chains?.[chainId] && !!price,
+    enabled: !!client && !!price,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
-    refetchOnWindowFocus: true,
+    // refetchOnWindowFocus: true,
   });
 
   // Log errors if any
   return {
-    currency,
-    setCurrency,
     refetch,
     balance,
     isError,
