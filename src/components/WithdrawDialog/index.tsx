@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { ArrowLeft, ChevronDown, Info, QrCodeIcon } from "lucide-react";
-import { useChainId, useSwitchChain } from "wagmi";
+import { useChainId } from "wagmi";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Address, formatUnits } from "viem";
 
 import {
   Dialog,
@@ -24,7 +25,10 @@ import {
 import { CHAINS } from "@/constants/chains";
 import { Token } from "@/types";
 import { NetworkSelectView } from "@/components/DepositDialog/NetworkSelectView";
+import { AssetSelectView } from "@/components/AssetSelectDialog";
 import { createWithdrawFormSchema } from "./types";
+import useCurrency from "@/hooks/useCurrency";
+import { useAssets } from "@/contexts/AssetsContext";
 
 type WithdrawDialogProps = {
   textClassName?: string;
@@ -33,16 +37,18 @@ type WithdrawDialogProps = {
 
 export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const chainId = useChainId();
-  const { switchChainAsync } = useSwitchChain();
-
-  const [selectedChainId, setSelectedChainId] = useState(chainId);
+  const { withdrawAsset } = useAssets();
   const [showNetworkSelect, setShowNetworkSelect] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [showAssetSelect, setShowAssetSelect] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Token>(token);
   const [currentView, setCurrentView] = useState<"form" | "confirmation">(
     "form"
   );
+  const { balance } = useCurrency(selectedAsset);
+  const maxBalance = Number(
+    formatUnits(balance.amount, selectedAsset.decimals)
+  );
 
-  const maxBalance = 100.0; // This should come from props or context
   const withdrawFormSchema = createWithdrawFormSchema(maxBalance);
   type WithdrawFormValues = z.infer<typeof withdrawFormSchema>;
 
@@ -54,36 +60,47 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
     },
   });
 
-  const chain = CHAINS.find((chain) => chain.id === selectedChainId);
+  const chain = CHAINS.find((chain) => chain.id === chainId);
   const text = textClassName
     ? textClassName
     : "px-3 py-1.5 rounded-lg text-sm text-primary hover:bg-gray-50 transition-colors";
 
-  const handleNetworkSelect = async (newChainId: number) => {
-    await switchChainAsync({ chainId: newChainId });
-    toast.success(`Switched chain successfully`);
-    setSelectedChainId(newChainId);
-    setShowNetworkSelect(false);
-  };
-
-  const handleShowNetworkSelect = () => {
-    setShowNetworkSelect(true);
-  };
-
   const handleBackToForm = () => {
     setShowNetworkSelect(false);
+    setShowAssetSelect(false);
   };
 
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
+  const handleAssetSelect = (asset: Token) => {
+    setSelectedAsset(asset);
+    setShowAssetSelect(false);
+    // Reset form when asset changes
+    form.reset({
+      address: form.getValues("address"),
+      withdrawalAmount: "",
+    });
   };
 
   const handleMaxClick = () => {
     form.setValue("withdrawalAmount", maxBalance.toString());
   };
 
-  const onSubmit = (values: WithdrawFormValues) => {
-    console.log("Form submitted:", values);
+  const onSubmit = async (values: WithdrawFormValues) => {
+    withdrawAsset.mutate(
+      {
+        asset: selectedAsset,
+        amount: values.withdrawalAmount,
+        to: values.address as Address,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Withdrawal successful");
+        },
+        onError: () => {
+          toast.error("Withdrawal failed");
+        },
+      }
+    );
+
     setCurrentView("confirmation");
   };
 
@@ -112,12 +129,26 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
           <DialogHeader className="sr-only">
             <DialogTitle>Select Network</DialogTitle>
           </DialogHeader>
-          <NetworkSelectView
-            selectedChainId={selectedChainId}
-            searchTerm={searchTerm}
+          <NetworkSelectView onBack={handleBackToForm} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show asset selection view
+  if (showAssetSelect) {
+    return (
+      <Dialog>
+        <DialogTrigger className={text}>Withdraw</DialogTrigger>
+        <DialogContent className="sm:max-w-[650px] w-[95%] max-w-[650px] p-0 bg-[#FEFEFE] border border-[#E5E5E5] rounded-xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select Asset</DialogTitle>
+          </DialogHeader>
+          <AssetSelectView
+            selectedAsset={selectedAsset}
+            onAssetSelect={handleAssetSelect}
             onBack={handleBackToForm}
-            onNetworkSelect={handleNetworkSelect}
-            onSearchChange={handleSearchChange}
+            title="Select Asset"
           />
         </DialogContent>
       </Dialog>
@@ -129,7 +160,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
       <DialogTrigger className={text}>Withdraw</DialogTrigger>
       <DialogContent className="sm:max-w-[650px] w-[95%] max-w-[650px] p-0 bg-[#FEFEFE] border border-[#E5E5E5] rounded-xl">
         <DialogHeader className="sr-only">
-          <DialogTitle>Withdraw {token.name}</DialogTitle>
+          <DialogTitle>Withdraw {selectedAsset.name}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -150,7 +181,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                   </button>
                 )}
                 <h2 className="font-[Manrope] font-semibold text-[22px] leading-[1.27] text-[#404040]">
-                  Withdraw {token.name}
+                  Withdraw {selectedAsset.name}
                 </h2>
               </div>
             </div>
@@ -174,12 +205,16 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                 </p>
               </div>
               <div className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4 opacity-80">
-                <div className="flex items-center justify-between w-full gap-2 py-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAssetSelect(true)}
+                  className="flex items-center justify-between w-full gap-2 py-2"
+                >
                   <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
-                    {token.name}
+                    {selectedAsset.name}
                   </p>
                   <ChevronDown className="w-6 h-6 text-[#1A1A1A]" />
-                </div>
+                </button>
               </div>
             </div>
 
@@ -223,7 +258,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
               </div>
               <button
                 type="button"
-                onClick={handleShowNetworkSelect}
+                onClick={() => setShowNetworkSelect(true)}
                 className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4 opacity-80 hover:opacity-100 transition-opacity"
               >
                 <div className="flex items-center justify-between w-full gap-2 py-2">
@@ -251,12 +286,12 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                       <div className="flex items-center justify-between w-full gap-2 py-2">
                         <input
                           type="text"
-                          placeholder={`Min 0.00000001 ${token.name}`}
+                          placeholder={`Min 0.00000001 ${selectedAsset.name}`}
                           {...field}
                           className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#6C6C6C] bg-transparent border-none outline-none flex-1"
                         />
                         <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
-                          {token.name}
+                          {selectedAsset.name}
                         </p>
                       </div>
                     </div>
@@ -301,7 +336,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                   <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
                     {currentView === "form"
                       ? `$${total.toFixed(2)}`
-                      : `${total.toFixed(8)} ${token.name}`}
+                      : `${total.toFixed(8)} ${selectedAsset.name}`}
                   </p>
                 </div>
               </div>

@@ -8,7 +8,7 @@ import InvestmentForm from "./InvestmentForm";
 interface InvestModalProps {
   isOpen: boolean;
   onClose: () => void;
-strategy: StrategyMetadata;
+  strategy: StrategyMetadata;
   displayInsufficientBalance?: boolean;
 }
 
@@ -19,7 +19,6 @@ export default function InvestModal({
   displayInsufficientBalance = true, // todo: dynamic
 }: InvestModalProps) {
   const [isClosing, setIsClosing] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const [orderHash, setOrderHash] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);

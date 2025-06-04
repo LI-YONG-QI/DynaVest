@@ -15,6 +15,7 @@ import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 // Props interface
 
 // TODO: refactor
+// TODO: split responsibilities of the AmountInput (avoid props drilling)
 interface InvestmentFormProps {
   strategy: InvestStrategy;
   mode?: InvestmentFormMode;
