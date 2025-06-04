@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
@@ -10,6 +11,7 @@ import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import { formatAmount } from "@/utils";
 import { DepositDialog } from "@/components/DepositDialog";
 import { USDC } from "@/constants/coins";
+import { WithdrawDialog } from "@/components/WithdrawDialog";
 
 const PROFILE_TABS = [
   {
@@ -41,11 +43,27 @@ function getTabComponent(tab: string) {
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
-  const { tokensQuery, profitsQuery } = useAssets();
+
+  const { client } = useSmartWallets();
+  const { tokensQuery, profitsQuery, updateTotalValue } = useAssets();
   const { data: tokensData } = tokensQuery;
   const { data: profitsData } = profitsQuery;
 
   const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
+  const user = client?.account.address;
+
+  useEffect(() => {
+    if (user && !tokensQuery.isPlaceholderData) {
+      updateTotalValue.mutate(undefined, {
+        onSuccess: () => {
+          console.log("Total value updated");
+        },
+        onError: (error) => {
+          console.error("Error updating total value", error);
+        },
+      });
+    }
+  }, [user, tokensQuery.isPlaceholderData]);
 
   return (
     <div className="pb-10 px-2 sm:px-0">
@@ -108,9 +126,12 @@ export default function ProfilePage() {
                 token={USDC}
               />
             </div>
-            <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <span>Withdraw</span>
-            </button>
+            <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
+              <WithdrawDialog
+                textClassName="text-sm sm:text-base"
+                token={USDC}
+              />
+            </div>
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FC, useState, useEffect, FormEvent } from "react";
 import { toast } from "react-toastify";
 import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 
 import useCurrency from "@/hooks/useCurrency";
 import useSwitchChain from "@/hooks/useSwitchChain";
@@ -434,7 +434,7 @@ const AmountInput = ({
               {isLoadingBalance ? (
                 <MoonLoader size={10} />
               ) : isSupportedChain ? (
-                maxBalance.amount.toString()
+                formatUnits(maxBalance.amount, currency.decimals)
               ) : (
                 "NaN"
               )}
