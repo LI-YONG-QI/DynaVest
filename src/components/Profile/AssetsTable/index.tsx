@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAssets } from "@/contexts/AssetsContext";
@@ -9,16 +9,8 @@ import { DepositDialog } from "@/components/DepositDialog";
 export default function AssetsTableComponent() {
   const { tokensQuery } = useAssets();
   const { data: tokensData, isError, error, isLoadingError } = tokensQuery;
-
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-
-  const sortedData = tokensData?.sort((a, b) => {
-    if (!sortKey) return 0;
-    return sortDirection === "asc"
-      ? a[sortKey] - b[sortKey]
-      : b[sortKey] - a[sortKey];
-  });
 
   const handleSort = () => {
     if (sortKey === "balance") {
@@ -28,6 +20,15 @@ export default function AssetsTableComponent() {
       setSortDirection("desc");
     }
   };
+
+  const sortedData = useMemo(() => {
+    return tokensData?.sort((a, b) => {
+      if (!sortKey) return 0;
+      return sortDirection === "asc"
+        ? a[sortKey] - b[sortKey]
+        : b[sortKey] - a[sortKey];
+    });
+  }, [tokensData, sortKey, sortDirection]);
 
   useEffect(() => {
     if (isError && isLoadingError) {

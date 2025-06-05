@@ -14,7 +14,7 @@ import {
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
-import { useCurrencyPrice } from "@/hooks/useCurrency";
+import { useCurrencyPrice } from "@/hooks/useCurrency/useCurrencyPrice";
 import { useProfit } from "./useProfit";
 import { Protocol, StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
