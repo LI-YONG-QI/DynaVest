@@ -48,7 +48,7 @@ export default function Home() {
   const { closeChat } = useChat();
   const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
     useChatbot();
-  const { totalValue, tokensQuery } = useAssets();
+  const { totalValue, tokensQuery, isPriceError } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -231,16 +231,19 @@ export default function Home() {
 
   // Process onboarding logic
   useEffect(() => {
-    console.log(
-      "useEffect",
-      tokensQuery.isPlaceholderData,
-      tokensQuery.isError
-    );
-    if (!tokensQuery.isPlaceholderData && !tokensQuery.isError) {
-      console.log(tokensQuery.data);
+    if (
+      !tokensQuery.isPlaceholderData &&
+      !tokensQuery.isError &&
+      !isPriceError
+    ) {
       setIsOnboardingOpen(totalValue === 0);
     }
-  }, [totalValue, tokensQuery]);
+  }, [
+    totalValue,
+    tokensQuery.isPlaceholderData,
+    tokensQuery.isError,
+    isPriceError,
+  ]);
 
   return (
     <div className="h-[80vh]">

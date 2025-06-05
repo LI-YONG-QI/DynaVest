@@ -25,6 +25,7 @@ interface AssetsContextType {
   updateTotalValue: UseMutationResult<void, Error, void>;
   profitsQuery: UseQueryResult<number[], Error>;
   totalValue: number;
+  isPriceError: boolean;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -55,7 +56,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const profitsQuery = useProfits(positionsQuery.data || []);
 
   const { client } = useSmartWallets();
-  const tokensQuery = useCurrencies(tokensWithChain);
+  const { tokensQuery, isPriceError } = useCurrencies(tokensWithChain);
 
   const totalValue = useMemo(() => {
     return tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
@@ -130,6 +131,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     profitsQuery,
     totalValue,
     updateTotalValue,
+    isPriceError,
   };
 
   return (

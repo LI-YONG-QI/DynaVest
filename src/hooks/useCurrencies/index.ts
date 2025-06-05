@@ -23,13 +23,7 @@ export default function useCurrencies(tokens: Token[]) {
 
   // Initialize with empty data
   const [initialTokensData, setInitialTokensData] = useState<TokenData[]>([]);
-
-  const priceQuery = useQuery({
-    queryKey: ["tokenPrices", chainId, tokens.map((t) => t.name).join(",")],
-    queryFn: () => fetchTokensPriceFromCoinGecko(tokens),
-    enabled: tokens.length > 0 && !!client,
-    staleTime: 30 * 1000, // Consider data stale after 30 seconds
-  });
+  const [isPriceError, setIsPriceError] = useState(false);
 
   useEffect(() => {
     if (tokens && tokens.length > 0) {
@@ -48,25 +42,30 @@ export default function useCurrencies(tokens: Token[]) {
     async (tokensData: TokenData[]): Promise<TokenData[]> => {
       if (!tokens || tokens.length === 0) return tokensData;
 
-      const { data: pricesResponse } = priceQuery;
-      // Handle price fetch error
-      if (!pricesResponse || pricesResponse.isError) return tokensData;
+      try {
+        const pricesResponse = await fetchTokensPriceFromCoinGecko(tokens);
+        // Handle price fetch error
 
-      // Create a new array with updated prices
-      const updatedTokensData = tokensData.map((tokenData) => {
-        const id = COINGECKO_IDS[tokenData.token.name];
-        if (id && pricesResponse[id].usd) {
-          return {
-            ...tokenData,
-            price: pricesResponse[id].usd,
-          };
-        }
-        return tokenData;
-      });
+        // Create a new array with updated prices
+        const updatedTokensData = tokensData.map((tokenData) => {
+          const id = COINGECKO_IDS[tokenData.token.name];
+          if (id && pricesResponse[id].usd) {
+            return {
+              ...tokenData,
+              price: pricesResponse[id].usd,
+            };
+          }
+          return tokenData;
+        });
 
-      return updatedTokensData;
+        return updatedTokensData;
+      } catch (error) {
+        console.warn("Error fetching token prices", error);
+        setIsPriceError(true);
+        return tokensData;
+      }
     },
-    [tokens, priceQuery]
+    [tokens]
   );
 
   // Function to fetch token balances
@@ -142,7 +141,7 @@ export default function useCurrencies(tokens: Token[]) {
   }, [tokens, fetchTokenPrices, fetchTokenBalances]);
 
   // Use a single React Query for fetching and caching all token data
-  return useQuery({
+  const tokensQuery = useQuery({
     queryKey: ["tokenData", chainId, tokens.map((t) => t.name).join(",")],
     queryFn: fetchTokenData,
     enabled: tokens.length > 0 && !!client,
@@ -150,4 +149,9 @@ export default function useCurrencies(tokens: Token[]) {
     placeholderData: initialTokensData,
     retry: 2,
   });
+
+  return {
+    tokensQuery,
+    isPriceError,
+  };
 }
