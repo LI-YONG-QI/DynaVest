@@ -1,8 +1,8 @@
 # Ignore Prisma generated files
 src/generated/**/*
 
-# Ignore legacy strategies with compilation errors
-src/classes/strategies/legacy/**/*
+# # Ignore legacy strategies with compilation errors
+# src/classes/strategies/legacy/**/*
 
 # Other generated files
 node_modules
