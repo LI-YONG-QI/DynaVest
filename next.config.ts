@@ -17,6 +17,20 @@ const nextConfig: NextConfig = {
     // 或者，只檢查特定目錄
     // dirs: ['app', 'components', 'lib', 'hooks', 'types', 'utils']
   },
+  // webpack: (config) => {
+  //   // 排除 legacy strategies 資料夾
+  //   config.watchOptions = {
+  //     ...config.watchOptions,
+  //     ignored: [
+  //       ...(Array.isArray(config.watchOptions?.ignored)
+  //         ? config.watchOptions.ignored
+  //         : []),
+  //       "**/src/classes/strategies/legacy/**/*",
+  //     ],
+  //   };
+
+  //   return config;
+  // },
 };
 
 export default nextConfig;
