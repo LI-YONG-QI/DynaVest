@@ -26,7 +26,7 @@ export const useProfit = (position: Position) => {
   }, [client?.account?.address]);
 
   return useQuery({
-    queryKey: ["profit", user, chainId, position.strategy],
+    queryKey: ["profit", user, chainId, position],
     queryFn: () => getProfit(user!, chainId, position),
     enabled: !!client && !!user,
     staleTime: 30 * 1000,

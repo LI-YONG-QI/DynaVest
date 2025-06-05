@@ -116,6 +116,7 @@ export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
 
   async getProfit(user: Address, position: Position) {
     const { createAt } = position;
+
     const now = new Date();
     const createdAt = new Date(createAt);
     const diffTime = Math.abs(now.getTime() - createdAt.getTime());
@@ -126,6 +127,6 @@ export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
     const dailyRate = APY / 365;
     const profit = position.amount * dailyRate * diffDays;
 
-    return Math.floor(profit);
+    return profit;
   }
 }

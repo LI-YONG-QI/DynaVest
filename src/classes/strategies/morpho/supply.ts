@@ -67,6 +67,7 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
 
   async getProfit(user: Address, position: Position): Promise<number> {
     const { createAt } = position;
+
     const now = new Date();
     const createdAt = new Date(createAt);
     const diffTime = Math.abs(now.getTime() - createdAt.getTime());
@@ -77,7 +78,7 @@ export class MorphoSupply extends BaseStrategy<typeof MORPHO_CONTRACTS> {
     const dailyRate = APY / 365;
     const profit = position.amount * dailyRate * diffDays;
 
-    return Math.floor(profit);
+    return profit;
   }
 
   async #getMarketParams(marketId: Hex) {

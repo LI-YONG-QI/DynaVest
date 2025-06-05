@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useChainId } from "wagmi";
-import { formatAmount, formatCurrency } from "@/utils";
+import { formatAmount } from "@/utils";
 import { toast } from "react-toastify";
 import { parseUnits } from "viem";
 
@@ -35,6 +35,8 @@ export default function PositionTableRow({
   const { redeem, invest } = useStrategyExecutor();
   const chainId = useChainId();
   const { data: profit = 0 } = useProfit(position);
+
+  console.log("Profit", profit);
 
   const strategyMetadata = getStrategyMetadata(
     position.strategy,
