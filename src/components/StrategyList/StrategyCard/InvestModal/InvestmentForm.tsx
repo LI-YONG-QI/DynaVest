@@ -40,23 +40,20 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   // first token input
   const [amount, setAmount] = useState<string>("");
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  const {
-    currency,
-    setCurrency,
-    balance: maxBalance,
-    isLoadingBalance,
-  } = useCurrency(strategy.tokens[0]);
+  const [currency, setCurrency] = useState<Token>(strategy.tokens[0]);
+  const { balance: maxBalance, isLoadingBalance } = useCurrency(currency);
 
   // second token input - for LP
   const [secondAmount, setSecondAmount] = useState<string>("");
   const [showSecondCurrencyDropdown, setShowSecondCurrencyDropdown] =
     useState(false);
+  const [secondCurrency, setSecondCurrency] = useState<Token>(
+    strategy.tokens?.[1] || strategy.tokens[0]
+  );
   const {
-    currency: secondCurrency,
-    setCurrency: setSecondCurrency,
     balance: secondMaxBalance,
     isLoadingBalance: isLoadingSecondBalance,
-  } = useCurrency(strategy.tokens?.[1] || strategy.tokens[0]);
+  } = useCurrency(secondCurrency);
 
   const [buttonState, setButtonState] = useState<ButtonState>(
     ButtonState.Pending
