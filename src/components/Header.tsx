@@ -12,8 +12,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Strategies", href: "/strategies", isActive: true },
   { label: "Bot", href: "/", isActive: true },
+  { label: "Strategies", href: "/strategies", isActive: true },
   // { label: "Quests", href: "/quests" },
 ];
 

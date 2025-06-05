@@ -295,10 +295,12 @@ export default function Home() {
                   </button>
                   <button
                     className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() => handleMessage("Deposit into my wallet")}
+                    onClick={() =>
+                      handleMessage("Give me some DeFi strategies")
+                    }
                   >
                     <span className="font-[Manrope] font-semibold text-base text-center">
-                      Deposit into my wallet
+                      Give me some DeFi strategies
                     </span>
                   </button>
                 </div>
