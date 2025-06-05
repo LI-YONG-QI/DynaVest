@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useAssets } from "@/contexts/AssetsContext";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { DepositDialog } from "@/components/DepositDialog";
+import { formatAmount } from "@/utils";
 
 export default function AssetsTableComponent() {
   const { tokensQuery } = useAssets();
@@ -88,10 +89,10 @@ export default function AssetsTableComponent() {
               {/* Balance */}
               <td className="p-4 text-right">
                 <div className="font-medium text-md">
-                  {asset.balance.toFixed(4).toString()}
+                  {Number(asset.balance.toFixed(4))}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {`$ ${asset.value.toFixed(2)}`}
+                  {`$ ${formatAmount(asset.value)}`}
                 </div>
               </td>
 

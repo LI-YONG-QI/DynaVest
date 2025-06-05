@@ -21,10 +21,11 @@ export const getRiskColor = (risk: {
 };
 
 export function formatAmount(amount: number) {
+  if (amount === 0) return "0";
   if (amount < 0.01) {
     return "<0.01";
   }
-  return `$${amount.toFixed(2)}`;
+  return `${Number(amount.toFixed(2))}`;
 }
 
 // TODO: Convert given value to USD

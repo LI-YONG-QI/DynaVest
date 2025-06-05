@@ -118,10 +118,10 @@ export default function PositionTableRow({
         {/* Amount */}
         <td className="p-4 text-right">
           <div className="font-medium text-md">
-            {isLoading ? "0.00" : position.amount}
+            {isLoading ? "0.00" : Number(position.amount).toFixed(2)}
           </div>
           <div className="text-sm text-gray-500">
-            {isLoading ? "0.00" : formatCurrency(position.amount * price)}
+            {isLoading ? "0.00" : formatAmount(position.amount * price)}
           </div>
         </td>
 
