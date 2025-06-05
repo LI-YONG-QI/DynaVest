@@ -3,12 +3,12 @@ import { formatUnits } from "viem";
 import { useChainId } from "wagmi";
 import { getBalance } from "@wagmi/core";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 import { wagmiConfig as config } from "@/providers/config";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { Token } from "@/types";
 import { COINGECKO_IDS } from "@/constants/coins";
+import { fetchTokensPrices as fetchTokensPriceFromCoinGecko } from "../useCurrency/utils";
 
 export interface TokenData {
   token: Token;
@@ -41,37 +41,26 @@ export default function useCurrencies(tokens: Token[]) {
     async (tokensData: TokenData[]): Promise<TokenData[]> => {
       if (!tokens || tokens.length === 0) return tokensData;
 
-      const tokenIds = tokens
-        .map((token) => COINGECKO_IDS[token.name])
-        .filter((id) => !!id);
+      try {
+        const pricesResponse = await fetchTokensPriceFromCoinGecko(tokens);
 
-      if (tokenIds.length === 0) {
+        // Create a new array with updated prices
+        const updatedTokensData = tokensData.map((tokenData) => {
+          const id = COINGECKO_IDS[tokenData.token.name];
+          if (id && pricesResponse[id].usd) {
+            return {
+              ...tokenData,
+              price: pricesResponse[id].usd,
+            };
+          }
+          return tokenData;
+        });
+
+        return updatedTokensData;
+      } catch (error) {
+        console.warn("Error fetching token prices", error);
         return tokensData;
       }
-
-      const priceResponse = await axios.get(
-        "https://api.coingecko.com/api/v3/simple/price",
-        {
-          params: {
-            ids: tokenIds.join(","),
-            vs_currencies: "usd",
-          },
-        }
-      );
-
-      // Create a new array with updated prices
-      const updatedTokensData = tokensData.map((tokenData) => {
-        const id = COINGECKO_IDS[tokenData.token.name];
-        if (id && priceResponse.data[id]) {
-          return {
-            ...tokenData,
-            price: priceResponse.data[id].usd,
-          };
-        }
-        return tokenData;
-      });
-
-      return updatedTokensData;
     },
     [tokens]
   );
