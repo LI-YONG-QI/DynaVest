@@ -24,6 +24,13 @@ export default function useCurrencies(tokens: Token[]) {
   // Initialize with empty data
   const [initialTokensData, setInitialTokensData] = useState<TokenData[]>([]);
 
+  const priceQuery = useQuery({
+    queryKey: ["tokenPrices", chainId, tokens.map((t) => t.name).join(",")],
+    queryFn: () => fetchTokensPriceFromCoinGecko(tokens),
+    enabled: tokens.length > 0 && !!client,
+    staleTime: 30 * 1000, // Consider data stale after 30 seconds
+  });
+
   useEffect(() => {
     if (tokens && tokens.length > 0) {
       const emptyTokensData = tokens.map((token) => ({
@@ -41,28 +48,25 @@ export default function useCurrencies(tokens: Token[]) {
     async (tokensData: TokenData[]): Promise<TokenData[]> => {
       if (!tokens || tokens.length === 0) return tokensData;
 
-      try {
-        const pricesResponse = await fetchTokensPriceFromCoinGecko(tokens);
+      const { data: pricesResponse } = priceQuery;
+      // Handle price fetch error
+      if (!pricesResponse || pricesResponse.isError) return tokensData;
 
-        // Create a new array with updated prices
-        const updatedTokensData = tokensData.map((tokenData) => {
-          const id = COINGECKO_IDS[tokenData.token.name];
-          if (id && pricesResponse[id].usd) {
-            return {
-              ...tokenData,
-              price: pricesResponse[id].usd,
-            };
-          }
-          return tokenData;
-        });
+      // Create a new array with updated prices
+      const updatedTokensData = tokensData.map((tokenData) => {
+        const id = COINGECKO_IDS[tokenData.token.name];
+        if (id && pricesResponse[id].usd) {
+          return {
+            ...tokenData,
+            price: pricesResponse[id].usd,
+          };
+        }
+        return tokenData;
+      });
 
-        return updatedTokensData;
-      } catch (error) {
-        console.warn("Error fetching token prices", error);
-        return tokensData;
-      }
+      return updatedTokensData;
     },
-    [tokens]
+    [tokens, priceQuery]
   );
 
   // Function to fetch token balances
@@ -143,10 +147,7 @@ export default function useCurrencies(tokens: Token[]) {
     queryFn: fetchTokenData,
     enabled: tokens.length > 0 && !!client,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
-    refetchOnWindowFocus: true,
-    refetchInterval: 2 * 60 * 1000, // Refresh data every 2 minutes
     placeholderData: initialTokensData,
-    refetchOnMount: true, // Force refetch on mount
     retry: 2,
   });
 }

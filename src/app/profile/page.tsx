@@ -52,6 +52,7 @@ export default function ProfilePage() {
   const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
   const user = client?.account.address;
 
+  // TODO: refactor reason -> unstable update information
   useEffect(() => {
     if (user && !tokensQuery.isPlaceholderData) {
       updateTotalValue.mutate(undefined, {
