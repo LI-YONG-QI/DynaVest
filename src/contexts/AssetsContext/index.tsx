@@ -2,6 +2,12 @@ import React, { createContext, useContext, ReactNode, useMemo } from "react";
 import { Address, encodeFunctionData, Hash, parseUnits } from "viem";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
+import axios from "axios";
+import {
+  useMutation,
+  UseMutationResult,
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 import useCurrencies, { TokenData } from "@/hooks/useCurrencies";
 import { Token } from "@/types";
@@ -9,11 +15,6 @@ import { Position } from "@/types/position";
 import { ERC20_ABI } from "@/constants";
 import { SUPPORTED_TOKENS } from "@/constants/profile";
 import type { SupportedChainIds } from "@/providers/config";
-import {
-  useMutation,
-  UseMutationResult,
-  UseQueryResult,
-} from "@tanstack/react-query";
 import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
 
@@ -21,6 +22,7 @@ interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
   positionsQuery: UseQueryResult<Position[], Error>;
   withdrawAsset: UseMutationResult<Hash, Error, WithdrawAssetParams>;
+  updateTotalValue: UseMutationResult<void, Error, void>;
   profitsQuery: UseQueryResult<number[], Error>;
   totalValue: number;
 }
@@ -59,6 +61,25 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     return tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
   }, [tokensQuery]);
 
+  const updateTotalValue = useMutation({
+    mutationFn: async () => {
+      const user = client?.account.address;
+
+      if (!user) throw new Error("User not found");
+      if (!tokensQuery.isPlaceholderData) {
+        const totalValue =
+          tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
+
+        await axios.patch<{ success: boolean }>(
+          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${user}`,
+          {
+            total_value: totalValue,
+          }
+        );
+      }
+    },
+  });
+
   const withdrawAsset = useMutation({
     mutationFn: async ({ asset, amount, to }: WithdrawAssetParams) => {
       if (!client) throw new Error("Client not found");
@@ -69,19 +90,33 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
       let tx: Hash;
       if (asset.isNativeToken) {
-        tx = await client.sendTransaction({
-          to,
-          value: amountInBaseUnits,
-        });
+        tx = await client.sendTransaction(
+          {
+            to,
+            value: amountInBaseUnits,
+          },
+          {
+            uiOptions: {
+              showWalletUIs: false,
+            },
+          }
+        );
       } else {
-        tx = await client.sendTransaction({
-          to: asset.chains?.[chainId],
-          data: encodeFunctionData({
-            abi: ERC20_ABI,
-            functionName: "transfer",
-            args: [to, amountInBaseUnits],
-          }),
-        });
+        tx = await client.sendTransaction(
+          {
+            to: asset.chains?.[chainId],
+            data: encodeFunctionData({
+              abi: ERC20_ABI,
+              functionName: "transfer",
+              args: [to, amountInBaseUnits],
+            }),
+          },
+          {
+            uiOptions: {
+              showWalletUIs: false,
+            },
+          }
+        );
       }
 
       return tx;
@@ -94,6 +129,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     tokensQuery,
     profitsQuery,
     totalValue,
+    updateTotalValue,
   };
 
   return (

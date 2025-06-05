@@ -1,7 +1,6 @@
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
-import { useChainId, useSwitchChain } from "wagmi";
+import { useChainId } from "wagmi";
 import { useState } from "react";
-import { toast } from "react-toastify";
 
 import {
   Dialog,
@@ -25,23 +24,12 @@ export function DepositDialog({ textClassName, token }: DepositDialogProps) {
   const chainId = useChainId();
   const address = client?.account?.address;
   const [showNetworkSelect, setShowNetworkSelect] = useState(false);
-  const [selectedChainId, setSelectedChainId] = useState(chainId);
-  const [searchTerm, setSearchTerm] = useState("");
-  const { switchChainAsync } = useSwitchChain();
 
-  const chain = CHAINS.find((chain) => chain.id === selectedChainId);
+  const chain = CHAINS.find((chain) => chain.id === chainId);
 
   const text = textClassName
     ? textClassName
     : "px-3 py-1.5 rounded-lg text-sm text-primary hover:bg-gray-50 transition-colors";
-
-  const handleNetworkSelect = async (newChainId: number) => {
-    await switchChainAsync({ chainId: newChainId });
-    toast.success(`Switched chain successfully`);
-
-    setSelectedChainId(newChainId);
-    setShowNetworkSelect(false);
-  };
 
   const handleBackToDeposit = () => {
     setShowNetworkSelect(false);
@@ -49,10 +37,6 @@ export function DepositDialog({ textClassName, token }: DepositDialogProps) {
 
   const handleShowNetworkSelect = () => {
     setShowNetworkSelect(true);
-  };
-
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
   };
 
   return (
@@ -66,13 +50,7 @@ export function DepositDialog({ textClassName, token }: DepositDialogProps) {
         </DialogHeader>
 
         {showNetworkSelect ? (
-          <NetworkSelectView
-            selectedChainId={selectedChainId}
-            searchTerm={searchTerm}
-            onBack={handleBackToDeposit}
-            onNetworkSelect={handleNetworkSelect}
-            onSearchChange={handleSearchChange}
-          />
+          <NetworkSelectView onBack={handleBackToDeposit} />
         ) : (
           <DepositView
             token={token}

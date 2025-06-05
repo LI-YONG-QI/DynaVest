@@ -1,26 +1,41 @@
 import { ArrowLeft, Check, Search } from "lucide-react";
 import Image from "next/image";
+import { useChainId, useSwitchChain } from "wagmi";
+import { useState } from "react";
 
 import { CHAINS } from "@/constants/chains";
+import { toast } from "react-toastify";
 
 type NetworkSelectViewProps = {
-  selectedChainId: number;
-  searchTerm: string;
   onBack: () => void;
-  onNetworkSelect: (chainId: number) => void;
-  onSearchChange: (term: string) => void;
 };
 
-export function NetworkSelectView({
-  selectedChainId,
-  searchTerm,
-  onBack,
-  onNetworkSelect,
-  onSearchChange,
-}: NetworkSelectViewProps) {
+export function NetworkSelectView({ onBack }: NetworkSelectViewProps) {
+  const chainId = useChainId();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { switchChain } = useSwitchChain();
+
   const filteredChains = CHAINS.filter((chain) =>
     chain.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleNetworkSelect = async (newChainId: number) => {
+    switchChain(
+      { chainId: newChainId },
+      {
+        onSuccess: () => {
+          toast.success(`Switched chain successfully`);
+        },
+        onError: () => {
+          toast.error(`Failed to switch chain`);
+        },
+      }
+    );
+  };
 
   return (
     <div className="flex flex-col items-center gap-4 p-4 pb-6 h-[636px]">
@@ -47,7 +62,7 @@ export function NetworkSelectView({
             type="text"
             placeholder="Search network"
             value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="font-[Manrope] font-normal text-[14px] leading-[1.64] text-center text-[rgba(43,49,69,0.6)] bg-transparent border-none outline-none flex-1"
           />
         </div>
@@ -58,11 +73,9 @@ export function NetworkSelectView({
         {filteredChains.map((chainOption) => (
           <button
             key={chainOption.id}
-            onClick={() => onNetworkSelect(chainOption.id)}
+            onClick={() => handleNetworkSelect(chainOption.id)}
             className={`flex items-center justify-between w-full gap-2 p-3 px-4 rounded-xl transition-colors ${
-              chainOption.id === selectedChainId
-                ? "bg-[#F8F9FE]"
-                : "hover:bg-gray-50"
+              chainOption.id === chainId ? "bg-[#F8F9FE]" : "hover:bg-gray-50"
             }`}
           >
             <div className="flex items-center gap-4 flex-1">
@@ -82,7 +95,7 @@ export function NetworkSelectView({
               </div>
             </div>
             <div className="flex items-center justify-center w-6 h-6">
-              {chainOption.id === selectedChainId ? (
+              {chainOption.id === chainId ? (
                 <div className="w-5 h-5 bg-[#5F79F1] rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" />
                 </div>

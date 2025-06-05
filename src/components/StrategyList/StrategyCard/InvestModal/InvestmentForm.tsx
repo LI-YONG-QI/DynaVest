@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FC, useState, useEffect, FormEvent } from "react";
 import { toast } from "react-toastify";
 import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 
 import useCurrency from "@/hooks/useCurrency";
 import useSwitchChain from "@/hooks/useSwitchChain";
@@ -15,6 +15,7 @@ import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 // Props interface
 
 // TODO: refactor
+// TODO: split responsibilities of the AmountInput (avoid props drilling)
 interface InvestmentFormProps {
   strategy: InvestStrategy;
   mode?: InvestmentFormMode;
@@ -434,7 +435,7 @@ const AmountInput = ({
               {isLoadingBalance ? (
                 <MoonLoader size={10} />
               ) : isSupportedChain ? (
-                maxBalance.amount.toString()
+                formatUnits(maxBalance.amount, currency.decimals)
               ) : (
                 "NaN"
               )}
