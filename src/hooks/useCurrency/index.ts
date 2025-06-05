@@ -80,7 +80,7 @@ export default function useCurrency(token: Token) {
     isLoadingError,
     error,
   } = useQuery({
-    queryKey: ["tokenBalance", token],
+    queryKey: ["tokenBalance", token, chainId],
     queryFn: fetchBalance,
     enabled: !!client && !!price,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds

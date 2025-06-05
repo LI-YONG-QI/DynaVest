@@ -90,19 +90,33 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
       let tx: Hash;
       if (asset.isNativeToken) {
-        tx = await client.sendTransaction({
-          to,
-          value: amountInBaseUnits,
-        });
+        tx = await client.sendTransaction(
+          {
+            to,
+            value: amountInBaseUnits,
+          },
+          {
+            uiOptions: {
+              showWalletUIs: false,
+            },
+          }
+        );
       } else {
-        tx = await client.sendTransaction({
-          to: asset.chains?.[chainId],
-          data: encodeFunctionData({
-            abi: ERC20_ABI,
-            functionName: "transfer",
-            args: [to, amountInBaseUnits],
-          }),
-        });
+        tx = await client.sendTransaction(
+          {
+            to: asset.chains?.[chainId],
+            data: encodeFunctionData({
+              abi: ERC20_ABI,
+              functionName: "transfer",
+              args: [to, amountInBaseUnits],
+            }),
+          },
+          {
+            uiOptions: {
+              showWalletUIs: false,
+            },
+          }
+        );
       }
 
       return tx;

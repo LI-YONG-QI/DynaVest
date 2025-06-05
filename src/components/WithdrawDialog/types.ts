@@ -20,9 +20,9 @@ export const createWithdrawFormSchema = (maxBalance: number = 100.0) =>
       .refine(
         (val) => {
           const amount = parseFloat(val);
-          return amount >= 0.00000001;
+          return amount >= 0.01;
         },
-        { message: "Minimum withdrawal amount is 0.00000001" }
+        { message: "Minimum withdrawal amount is 0.01" }
       )
       .refine(
         (val) => {
@@ -32,4 +32,3 @@ export const createWithdrawFormSchema = (maxBalance: number = 100.0) =>
         { message: "Amount cannot exceed your available balance" }
       ),
   });
-

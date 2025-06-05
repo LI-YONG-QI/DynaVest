@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { ArrowLeft, ChevronDown, Info, QrCodeIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, Info, QrCodeIcon } from "lucide-react";
 import { useChainId } from "wagmi";
-import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Address, formatUnits } from "viem";
+import { type Address, formatUnits } from "viem";
 
 import {
   Dialog,
@@ -29,6 +28,15 @@ import { AssetSelectView } from "@/components/AssetSelectDialog";
 import { createWithdrawFormSchema } from "./types";
 import useCurrency from "@/hooks/useCurrency";
 import { useAssets } from "@/contexts/AssetsContext";
+import { toast } from "react-toastify";
+
+const calculateFees = (amount: number) => {
+  const feePercentage = 0.001; // 0.1%
+  const fee = amount * feePercentage;
+  const total = amount - fee;
+
+  return { fee, total };
+};
 
 type WithdrawDialogProps = {
   textClassName?: string;
@@ -41,13 +49,11 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const [showNetworkSelect, setShowNetworkSelect] = useState(false);
   const [showAssetSelect, setShowAssetSelect] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Token>(token);
-  const [currentView, setCurrentView] = useState<"form" | "confirmation">(
-    "form"
-  );
   const { balance } = useCurrency(selectedAsset);
-  const maxBalance = Number(
-    formatUnits(balance.amount, selectedAsset.decimals)
-  );
+
+  const maxBalance = useMemo(() => {
+    return Number(formatUnits(balance.amount, selectedAsset.decimals));
+  }, [balance, selectedAsset.decimals]);
 
   const withdrawFormSchema = createWithdrawFormSchema(maxBalance);
   type WithdrawFormValues = z.infer<typeof withdrawFormSchema>;
@@ -84,6 +90,8 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
     form.setValue("withdrawalAmount", maxBalance.toString());
   };
 
+  const { total } = calculateFees(Number(form.watch("withdrawalAmount")));
+
   const onSubmit = async (values: WithdrawFormValues) => {
     withdrawAsset.mutate(
       {
@@ -92,33 +100,16 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
         to: values.address as Address,
       },
       {
-        onSuccess: () => {
-          toast.success("Withdrawal successful");
+        onSuccess: (tx) => {
+          toast.success(`Withdrawal successful ${tx}`);
         },
-        onError: () => {
+        onError: (error) => {
+          console.log("error", error);
           toast.error("Withdrawal failed");
         },
       }
     );
-
-    setCurrentView("confirmation");
   };
-
-  const handleBack = () => {
-    setCurrentView("form");
-  };
-
-  const calculateFees = () => {
-    const amount = parseFloat(form.watch("withdrawalAmount")) || 0;
-    const feePercentage = 0.001; // 0.1%
-    const networkFee = 0.000001; // Example ETH network fee
-    const fee = amount * feePercentage;
-    const total = amount - fee;
-
-    return { fee, networkFee, total };
-  };
-
-  const { total } = calculateFees();
 
   // Show network selection view
   if (showNetworkSelect) {
@@ -171,15 +162,6 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
             {/* Header with back button and title */}
             <div className="flex items-center justify-between w-full gap-4">
               <div className="flex items-center gap-4">
-                {currentView === "confirmation" && (
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="flex items-center justify-center w-6 h-6"
-                  >
-                    <ArrowLeft className="w-6 h-6 text-[#1A1A1A]" />
-                  </button>
-                )}
                 <h2 className="font-[Manrope] font-semibold text-[22px] leading-[1.27] text-[#404040]">
                   Withdraw {selectedAsset.name}
                 </h2>
@@ -204,7 +186,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                   Asset
                 </p>
               </div>
-              <div className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4 opacity-80">
+              <div className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4">
                 <button
                   type="button"
                   onClick={() => setShowAssetSelect(true)}
@@ -226,7 +208,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                 <FormItem className="w-full">
                   <div className="flex items-center justify-between w-full gap-2 py-1 mb-1">
                     <FormLabel className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                      {currentView === "form" ? "Address" : "To Address"}
+                      Address
                     </FormLabel>
                   </div>
                   <FormControl>
@@ -236,7 +218,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                           type="text"
                           placeholder="Enter address"
                           {...field}
-                          className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#6C6C6C] bg-transparent border-none outline-none flex-1"
+                          className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A] bg-transparent border-none outline-none flex-1"
                         />
                         <button type="button" className="p-2 rounded-full">
                           <QrCodeIcon className="w-6 h-6 text-[#1A1A1A]" />
@@ -259,7 +241,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
               <button
                 type="button"
                 onClick={() => setShowNetworkSelect(true)}
-                className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4 opacity-80 hover:opacity-100 transition-opacity"
+                className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4 hover:bg-[#e8f1ff] transition-colors"
               >
                 <div className="flex items-center justify-between w-full gap-2 py-2">
                   <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
@@ -286,9 +268,9 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                       <div className="flex items-center justify-between w-full gap-2 py-2">
                         <input
                           type="text"
-                          placeholder={`Min 0.00000001 ${selectedAsset.name}`}
+                          placeholder={`Min 0.01 ${selectedAsset.name}`}
                           {...field}
-                          className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#6C6C6C] bg-transparent border-none outline-none flex-1"
+                          className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A] bg-transparent border-none outline-none flex-1"
                         />
                         <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
                           {selectedAsset.name}
@@ -298,7 +280,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                   </FormControl>
                   <div className="flex items-center justify-between w-full gap-2 p-4 px-4">
                     <p className="font-[Inter] font-normal text-[12px] leading-[1.33] text-[#121212]">
-                      Balance: {maxBalance.toFixed(2)}
+                      Balance: {Number(maxBalance.toFixed(10))}
                     </p>
                     <button
                       type="button"
@@ -319,38 +301,33 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                 {/* Fee Row */}
                 <div className="flex items-center justify-between w-full gap-2 py-3">
                   <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                    {currentView === "form" ? "Fees" : "Network Fee"}
+                    Fees
                   </p>
                   <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                    {currentView === "form" ? "0.1%" : "0.000001 ETH"}
+                    0.1%
                   </p>
                 </div>
 
                 {/* Total Row */}
                 <div className="flex items-center justify-between w-full gap-2 py-3">
                   <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                    {currentView === "form"
-                      ? "Total payment"
-                      : "Total Withdrawal"}
+                    Total payment
                   </p>
                   <p className="font-[Manrope] font-semibold text-[16px] leading-[1.5] tracking-[0.94%] text-[#1A1A1A]">
-                    {currentView === "form"
-                      ? `$${total.toFixed(2)}`
-                      : `${total.toFixed(8)} ${selectedAsset.name}`}
+                    ${Number(total.toFixed(6))}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Submit Button */}
-            {currentView === "form" && (
-              <button
-                type="submit"
-                className="w-full bg-[#5F79F1] text-white font-[Manrope] font-semibold text-[16px] leading-[1.5] py-3 px-4 rounded-xl hover:bg-[#4A6AE8] transition-colors"
-              >
-                Continue
-              </button>
-            )}
+
+            <button
+              type="submit"
+              className="w-full bg-[#5F79F1] text-white font-[Manrope] font-semibold text-[16px] leading-[1.5] py-3 px-4 rounded-xl hover:bg-[#4A6AE8] transition-colors"
+            >
+              Continue
+            </button>
           </form>
         </Form>
       </DialogContent>

@@ -1,15 +1,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { useAssets } from "@/contexts/AssetsContext";
-import { WithdrawDialog } from "./WithdrawDialog";
+import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { DepositDialog } from "@/components/DepositDialog";
-import { toast } from "react-toastify";
-import { Token } from "@/types";
-import { Address } from "viem";
 
 export default function AssetsTableComponent() {
-  const { tokensQuery, withdrawAsset } = useAssets();
+  const { tokensQuery } = useAssets();
   const { data: tokensData, isError, error, isLoadingError } = tokensQuery;
 
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
@@ -29,24 +27,6 @@ export default function AssetsTableComponent() {
       setSortKey("balance");
       setSortDirection("desc");
     }
-  };
-
-  const handleWithdraw = (asset: Token, amount: string, to: Address) => {
-    withdrawAsset.mutate(
-      {
-        asset,
-        amount,
-        to,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Withdrawal successful");
-        },
-        onError: () => {
-          toast.error("Withdrawal failed");
-        },
-      }
-    );
   };
 
   useEffect(() => {
@@ -119,13 +99,7 @@ export default function AssetsTableComponent() {
                 <div className="flex justify-end gap-1">
                   <DepositDialog token={asset.token} />
 
-                  <WithdrawDialog
-                    asset={asset.token}
-                    balance={asset.balance}
-                    onWithdraw={(amount, to) =>
-                      handleWithdraw(asset.token, amount, to)
-                    }
-                  />
+                  <WithdrawDialog token={asset.token} />
                 </div>
               </td>
             </tr>
