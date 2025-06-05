@@ -20,8 +20,8 @@ export class InvestMessage extends Message {
    * Filters strategies by chain ID and generates allocations
    */
   private getStrategiesSetByChain(chainId: number): StrategiesSet {
-    // Fixed strategies to use for all risk levels
-    const getFixedStrategies = () => {
+    // Get strategies for medium and high risk (all 3 strategies)
+    const getAllStrategies = () => {
       return STRATEGIES_METADATA.filter(
         (s) =>
           (s.protocol === "AaveV3Supply" ||
@@ -31,18 +31,46 @@ export class InvestMessage extends Message {
       );
     };
 
+    // Get strategies for low risk (only 2 strategies)
+    const getLowRiskStrategies = () => {
+      return STRATEGIES_METADATA.filter(
+        (s) =>
+          (s.protocol === "AaveV3Supply" ||
+            s.protocol === "UniswapV3SwapLST") &&
+          s.chainId === chainId
+      );
+    };
+
+    const getRandomAllocation = (lower: number, upper: number) => {
+      const random = Math.floor(Math.random() * (upper - lower)) + lower;
+      console.log("Random", random);
+      return random;
+    };
+
     // Define allocation percentages for each risk level
     const getAllocationsByRisk = (riskLevel: RiskLevel): number[] => {
+      let aaveAllocation: number;
+      let morphoAllocation: number;
+      let lstAllocation: number;
+
       switch (riskLevel) {
         case "low":
-          // Conservative allocation: AAVE 60%, Morpho 30%, Uniswap 10%
-          return [10, 20, 70];
+          // Conservative allocation: AAVE 30%, Uniswap LST 70%
+
+          aaveAllocation = getRandomAllocation(20, 50);
+          return [aaveAllocation, 100 - aaveAllocation];
         case "medium":
           // Balanced allocation: AAVE 40%, Morpho 40%, Uniswap 20%
-          return [30, 20, 50];
+          aaveAllocation = getRandomAllocation(15, 30);
+          morphoAllocation = getRandomAllocation(15, 30);
+          lstAllocation = 100 - aaveAllocation - morphoAllocation;
+          return [aaveAllocation, morphoAllocation, lstAllocation];
         case "high":
           // Aggressive allocation: AAVE 20%, Morpho 30%, Uniswap 50%
-          return [34, 33, 33];
+          aaveAllocation = getRandomAllocation(20, 50);
+          morphoAllocation = getRandomAllocation(20, 50);
+          lstAllocation = 100 - aaveAllocation - morphoAllocation;
+          return [aaveAllocation, morphoAllocation, lstAllocation];
         default:
           throw new Error("Invalid risk type");
       }
@@ -60,16 +88,23 @@ export class InvestMessage extends Message {
     // Create strategies set object
     const strategiesSet: StrategiesSet = {} as StrategiesSet;
 
-    // Get the fixed strategies for this chain
-    const availableStrategies = getFixedStrategies();
-
-    // For each risk level, use the same strategies but with different allocations
+    // For each risk level, use appropriate strategies with different allocations
     RISK_OPTIONS.forEach((riskLevel) => {
       const allocations = getAllocationsByRisk(riskLevel);
 
-      strategiesSet[riskLevel] = availableStrategies
-        .slice(0, 3)
-        .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      if (riskLevel === "low") {
+        // Use only 2 strategies for low risk
+        const availableStrategies = getLowRiskStrategies();
+        strategiesSet[riskLevel] = availableStrategies
+          .slice(0, 2)
+          .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      } else {
+        // Use all 3 strategies for medium and high risk
+        const availableStrategies = getAllStrategies();
+        strategiesSet[riskLevel] = availableStrategies
+          .slice(0, 3)
+          .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      }
     });
 
     return strategiesSet;

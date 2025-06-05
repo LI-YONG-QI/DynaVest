@@ -35,6 +35,10 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   const { balance, isLoadingBalance } = useCurrency(USDC);
   const { multiInvest } = useStrategyExecutor();
 
+  const totalAPY = strategies.reduce((acc, strategy) => {
+    return acc + (strategy.apy * strategy.allocation) / 100;
+  }, 0);
+
   const nextMessage = async (action: "build" | "edit") => {
     if (isLoadingBalance) return;
 
@@ -101,10 +105,9 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
               options={RISK_OPTIONS}
             />
 
-            <div className="flex items-center">
-              <p className="text-gray text-xs md:text-sm font-normal px-1">
-                {getRiskDescription(message.risk)}
-              </p>
+            <div className="flex flex-col text-xs md:text-sm font-normal px-1 gap-2">
+              <p className="text-gray ">{getRiskDescription(message.risk)}</p>
+              <p className="text-gray">Total APY: {totalAPY.toFixed(2)}%</p>
             </div>
           </div>
         </div>
