@@ -45,8 +45,7 @@ export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
 
   const { client } = useSmartWallets();
-  const { tokensQuery, profitsQuery, updateTotalValue, assetsBalance } =
-    useAssets();
+  const { profitsQuery, updateTotalValue, assetsBalance } = useAssets();
   const { data: profitsData } = profitsQuery;
 
   const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
@@ -54,7 +53,7 @@ export default function ProfilePage() {
 
   // TODO: refactor reason -> unstable update information
   useEffect(() => {
-    if (user && !tokensQuery.isPlaceholderData) {
+    if (user && !assetsBalance.isLoading) {
       updateTotalValue.mutate(undefined, {
         onSuccess: () => {
           console.log("Total value updated");
@@ -64,7 +63,7 @@ export default function ProfilePage() {
         },
       });
     }
-  }, [user, tokensQuery.isPlaceholderData]);
+  }, [user, assetsBalance.isLoading]);
 
   return (
     <div className="pb-10 px-2 sm:px-0">
@@ -143,9 +142,9 @@ export default function ProfilePage() {
               Available Balance
             </h4>
             <p className="text-base sm:text-lg font-bold tracking-wide">
-              {assetsBalance
-                ?.reduce((acc, token) => acc + token.value, 0)
-                .toFixed(2)}
+              {Number(
+                assetsBalance.data.reduce((acc, token) => acc + token.value, 0)
+              ).toFixed(2)}
             </p>
           </div>
           <div>

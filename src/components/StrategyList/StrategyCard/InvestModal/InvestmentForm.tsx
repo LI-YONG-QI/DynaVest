@@ -41,7 +41,8 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [amount, setAmount] = useState<string>("");
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [currency, setCurrency] = useState<Token>(strategy.tokens[0]);
-  const { balance: maxBalance, isLoadingBalance } = useCurrency(currency);
+  const { balance: maxBalance = BigInt(0), isLoadingBalance } =
+    useCurrency(currency);
 
   // second token input - for LP
   const [secondAmount, setSecondAmount] = useState<string>("");
@@ -51,7 +52,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     strategy.tokens?.[1] || strategy.tokens[0]
   );
   const {
-    balance: secondMaxBalance,
+    balance: secondMaxBalance = BigInt(0),
     isLoadingBalance: isLoadingSecondBalance,
   } = useCurrency(secondCurrency);
 
@@ -78,7 +79,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
 
   // Handle setting max amount
   const handleSetMax = () => {
-    setAmount(maxBalance.toString());
+    setAmount(formatUnits(maxBalance, currency.decimals));
   };
 
   const invest = async () => {
@@ -338,7 +339,7 @@ interface AmountInputProps {
   strategy: InvestStrategy;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
-  maxBalance: { amount: bigint; price: number };
+  maxBalance: bigint;
   handleSetMax: () => void;
 }
 
@@ -432,7 +433,7 @@ const AmountInput = ({
               {isLoadingBalance ? (
                 <MoonLoader size={10} />
               ) : isSupportedChain ? (
-                formatUnits(maxBalance.amount, currency.decimals)
+                formatUnits(maxBalance, currency.decimals)
               ) : (
                 "NaN"
               )}

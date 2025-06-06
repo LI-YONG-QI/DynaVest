@@ -9,13 +9,13 @@ import { formatAmount } from "@/utils";
 import { formatUnits } from "viem";
 
 export default function AssetsTableComponent() {
-  const { tokensQuery, assetsBalance } = useAssets();
-  const { isError, error, isLoadingError } = tokensQuery;
+  const { assetsBalance } = useAssets();
+  const { isError, error, isLoading } = assetsBalance;
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const serializeBalance = useMemo(() => {
-    return assetsBalance?.map((t) => ({
+    return assetsBalance.data.map((t) => ({
       ...t,
       balance: Number(formatUnits(t.balance, t.token.decimals)),
     }));
@@ -39,13 +39,12 @@ export default function AssetsTableComponent() {
     });
   }, [serializeBalance, sortKey, sortDirection]);
 
-  // TODO: 將 assetsBalance 跟 tokensQuery 並入同一個 hook，並將狀態做綁定
   useEffect(() => {
-    if (isError && isLoadingError) {
+    if (isError && isLoading) {
       console.log(error);
       toast.error("Error fetching assets");
     }
-  }, [isError, isLoadingError, error]);
+  }, [isError, isLoading, error]);
 
   return (
     <div className="mx-4 w-[calc(100%-2rem)]">

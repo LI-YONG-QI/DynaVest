@@ -14,10 +14,10 @@ import {
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
-import { useTokenPrice } from "@/hooks/useCurrency/useTokenPrice";
 import { useProfit } from "./useProfit";
 import { Protocol, StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
+import { useAssets } from "@/contexts/AssetsContext";
 
 interface PositionTableRowProps {
   position: Position;
@@ -31,10 +31,14 @@ export default function PositionTableRow({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = getTokenByName(position.tokenName);
 
-  const { data: price = 0, isLoading } = useTokenPrice(token.name);
+  const { pricesQuery } = useAssets();
+  const { data: profit = 0 } = useProfit(position);
   const { redeem, invest } = useStrategyExecutor();
   const chainId = useChainId();
-  const { data: profit = 0 } = useProfit(position);
+
+  const price = pricesQuery.data?.[token.name] || 0;
+
+  console.log("price", price);
 
   const strategyMetadata = getStrategyMetadata(
     position.strategy,
@@ -118,10 +122,10 @@ export default function PositionTableRow({
         {/* Amount */}
         <td className="p-4 text-right">
           <div className="font-medium text-md">
-            {isLoading ? "0.00" : Number(position.amount).toFixed(2)}
+            {Number(position.amount).toFixed(2)}
           </div>
           <div className="text-sm text-gray-500">
-            {`$ ${isLoading ? "0.00" : formatAmount(position.amount * price)}`}
+            {`$ ${formatAmount(position.amount * price)}`}
           </div>
         </td>
 

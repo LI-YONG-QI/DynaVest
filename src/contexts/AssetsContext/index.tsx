@@ -31,6 +31,15 @@ type AssetBalance = TokenData & {
   value: number;
 };
 
+// 新增：包含完整狀態的資產餘額接口
+interface AssetsBalanceQuery {
+  data: AssetBalance[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  isSuccess: boolean;
+}
+
 interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
   positionsQuery: UseQueryResult<Position[], Error>;
@@ -40,7 +49,7 @@ interface AssetsContextType {
   totalValue: number;
   isPriceError: boolean;
   pricesQuery: UseQueryResult<Record<string, number>, Error>;
-  assetsBalance: AssetBalance[];
+  assetsBalance: AssetsBalanceQuery; // 改為包含狀態的對象
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -76,21 +85,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
   const { data: prices, isError: isPriceError } = pricesQuery;
 
-  // const getTokenPrice = useMemo(() => {
-  //   return (tokenName: string): number => {
-  //     const token = tokensWithChain.find((t) => t.name === tokenName);
-  //     if (!token) return 0;
-
-  //     const id = Object.entries(COINGECKO_IDS).find(
-  //       ([name]) => name === tokenName
-  //     )?.[1];
-
-  //     if (!id) return 0;
-  //     return prices?.[id].usd;
-  //   };
-  // }, [prices, tokensWithChain]);
-
-  const assetsBalance: AssetBalance[] = useMemo(() => {
+  const assetsBalanceData: AssetBalance[] = useMemo(() => {
     return (
       tokensQuery.data?.map((t) => ({
         ...t,
@@ -101,7 +96,22 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     );
   }, [tokensQuery, prices]);
 
-  const totalValue = assetsBalance.reduce((acc, t) => acc + t.value, 0);
+  // 創建包含完整狀態的 assetsBalance 對象
+  const assetsBalance: AssetsBalanceQuery = useMemo(
+    () => ({
+      data: assetsBalanceData,
+      isLoading:
+        tokensQuery.isLoading ||
+        pricesQuery.isLoading ||
+        tokensQuery.isPlaceholderData,
+      isError: tokensQuery.isError || pricesQuery.isError,
+      error: tokensQuery.error || pricesQuery.error,
+      isSuccess: tokensQuery.isSuccess && pricesQuery.isSuccess,
+    }),
+    [assetsBalanceData, tokensQuery, pricesQuery]
+  );
+
+  const totalValue = assetsBalanceData.reduce((acc, t) => acc + t.value, 0);
 
   const updateTotalValue = useMutation({
     mutationFn: async () => {

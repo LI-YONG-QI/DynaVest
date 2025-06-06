@@ -8,7 +8,7 @@ export function useTokenPrice(tokenName: string) {
   const { assetsBalance, pricesQuery } = useAssets();
 
   return {
-    data: assetsBalance.find((t) => t.token.name === tokenName)?.value,
+    data: assetsBalance.data.find((t) => t.token.name === tokenName)?.value,
     isLoading: pricesQuery.isLoading,
     isError: pricesQuery.isError,
     error: pricesQuery.error,
