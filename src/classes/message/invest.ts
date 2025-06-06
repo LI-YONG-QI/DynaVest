@@ -1,13 +1,13 @@
 import { Message, MessageMetadata } from "./base";
 import { PortfolioMessage } from "./portfolio";
-import { arbitrum } from "viem/chains";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { RiskLevel, RiskPortfolioStrategies, StrategiesSet } from "@/types";
 import { RISK_OPTIONS } from "@/constants/risk";
+import { wagmiConfig } from "@/providers/config";
 
 export class InvestMessage extends Message {
   public amount: string = "0";
-  public chain: number = arbitrum.id;
+  public chain: number = wagmiConfig.chains[0].id;
 
   constructor(metadata: MessageMetadata, _chain?: number) {
     super(metadata);
@@ -20,53 +20,57 @@ export class InvestMessage extends Message {
    * Filters strategies by chain ID and generates allocations
    */
   private getStrategiesSetByChain(chainId: number): StrategiesSet {
-    // Helper function to get strategies by risk level
-    const getStrategiesByRisk = (riskLevel: RiskLevel) => {
+    // Get strategies for medium and high risk (all 3 strategies)
+    const getAllStrategies = () => {
       return STRATEGIES_METADATA.filter(
-        (s) => s.risk.level === riskLevel && s.chainId === chainId
+        (s) =>
+          (s.protocol === "AaveV3Supply" ||
+            s.protocol === "MorphoSupply" ||
+            s.protocol === "UniswapV3SwapLST") &&
+          s.chainId === chainId
       );
     };
 
-    // Generate allocations based on strategy count and risk type
-    const generateAllocations = (
-      strategies: typeof STRATEGIES_METADATA,
-      riskLevel: RiskLevel
-    ): number[] => {
-      const count = strategies.length;
-      if (count === 0) return [];
+    // Get strategies for low risk (only 2 strategies)
+    const getLowRiskStrategies = () => {
+      return STRATEGIES_METADATA.filter(
+        (s) =>
+          (s.protocol === "AaveV3Supply" ||
+            s.protocol === "UniswapV3SwapLST") &&
+          s.chainId === chainId
+      );
+    };
+
+    const getRandomAllocation = (lower: number, upper: number) => {
+      const random = Math.floor(Math.random() * (upper - lower)) + lower;
+      console.log("Random", random);
+      return random;
+    };
+
+    // Define allocation percentages for each risk level
+    const getAllocationsByRisk = (riskLevel: RiskLevel): number[] => {
+      let aaveAllocation: number;
+      let morphoAllocation: number;
+      let lstAllocation: number;
 
       switch (riskLevel) {
         case "low":
-          // More weight on first strategies (lower risk ones)
-          return Array(count)
-            .fill(0)
-            .map((_, i) => Math.max(30 - i * 5, 10))
-            .map((val, _, arr) =>
-              Math.round((val / arr.reduce((a, b) => a + b, 0)) * 100)
-            );
+          // Conservative allocation: AAVE 30%, Uniswap LST 70%
 
+          aaveAllocation = getRandomAllocation(20, 50);
+          return [aaveAllocation, 100 - aaveAllocation];
         case "medium":
-          // Balanced allocation with peak in middle
-          return Array(count)
-            .fill(0)
-            .map((_, i) =>
-              i === Math.floor(count / 2)
-                ? 30
-                : 15 + Math.abs(Math.floor(count / 2) - i) * 5
-            )
-            .map((val, _, arr) =>
-              Math.round((val / arr.reduce((a, b) => a + b, 0)) * 100)
-            );
-
+          // Balanced allocation: AAVE 40%, Morpho 40%, Uniswap 20%
+          aaveAllocation = getRandomAllocation(15, 30);
+          morphoAllocation = getRandomAllocation(15, 30);
+          lstAllocation = 100 - aaveAllocation - morphoAllocation;
+          return [aaveAllocation, morphoAllocation, lstAllocation];
         case "high":
-          // Higher weights on later (higher risk) strategies
-          return Array(count)
-            .fill(0)
-            .map((_, i) => 10 + i * 5)
-            .map((val, _, arr) =>
-              Math.round((val / arr.reduce((a, b) => a + b, 0)) * 100)
-            );
-
+          // Aggressive allocation: AAVE 20%, Morpho 30%, Uniswap 50%
+          aaveAllocation = getRandomAllocation(20, 50);
+          morphoAllocation = getRandomAllocation(20, 50);
+          lstAllocation = 100 - aaveAllocation - morphoAllocation;
+          return [aaveAllocation, morphoAllocation, lstAllocation];
         default:
           throw new Error("Invalid risk type");
       }
@@ -84,13 +88,23 @@ export class InvestMessage extends Message {
     // Create strategies set object
     const strategiesSet: StrategiesSet = {} as StrategiesSet;
 
-    // For each risk level, get strategies and add allocations
+    // For each risk level, use appropriate strategies with different allocations
     RISK_OPTIONS.forEach((riskLevel) => {
-      const strategies = getStrategiesByRisk(riskLevel);
+      const allocations = getAllocationsByRisk(riskLevel);
 
-      strategiesSet[riskLevel] = strategies.map((strategy, i, arr) =>
-        addAllocation(strategy, generateAllocations(arr, riskLevel)[i])
-      );
+      if (riskLevel === "low") {
+        // Use only 2 strategies for low risk
+        const availableStrategies = getLowRiskStrategies();
+        strategiesSet[riskLevel] = availableStrategies
+          .slice(0, 2)
+          .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      } else {
+        // Use all 3 strategies for medium and high risk
+        const availableStrategies = getAllStrategies();
+        strategiesSet[riskLevel] = availableStrategies
+          .slice(0, 3)
+          .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      }
     });
 
     return strategiesSet;

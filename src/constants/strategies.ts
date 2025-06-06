@@ -95,7 +95,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     image: "/crypto-icons/arb.svg",
     externalLink: "https://lido.fi/",
     learnMoreLink: "https://lido.fi/",
-    tokens: [ETH],
+    tokens: [USDC],
     chainId: arbitrum.id,
   },
   {
@@ -190,7 +190,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     image: "/crypto-icons/base.png",
     externalLink: "https://lido.fi/",
     learnMoreLink: "https://lido.fi/",
-    tokens: [ETH],
+    tokens: [USDC],
     chainId: base.id,
   },
   {

@@ -16,7 +16,6 @@ import {
   FindStrategiesMessage,
   StrategiesCardsMessage,
 } from "@/classes/message";
-import useChatbot from "@/hooks/useChatbotResponse";
 import { useChat } from "@/contexts/ChatContext";
 import {
   PortfolioChatWrapper,
@@ -31,19 +30,24 @@ import { BotResponse } from "@/types";
 
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
+import OnboardingDialog from "@/components/OnboardingDialog";
+import { useAssets } from "@/contexts/AssetsContext";
+
 export default function Home() {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [typingText, setTypingText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { closeChat, sendMessage } = useChat();
+  const loadingBotResponse = sendMessage.isPending;
 
-  const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
-    useChatbot();
-
-  const { closeChat } = useChat();
+  const { totalValue, tokensQuery, isPriceError } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -187,7 +191,7 @@ export default function Home() {
     addUserMessage(userInput);
 
     try {
-      const botResponse = await sendMessage(userInput);
+      const botResponse = await sendMessage.mutateAsync(userInput);
       const nextMessage = parseBotResponse(botResponse);
 
       await handleTypingText(nextMessage);
@@ -223,6 +227,22 @@ export default function Home() {
   useEffect(() => {
     closeChat();
   }, []);
+
+  // Process onboarding logic
+  useEffect(() => {
+    if (
+      !tokensQuery.isPlaceholderData &&
+      !tokensQuery.isError &&
+      !isPriceError
+    ) {
+      setIsOnboardingOpen(totalValue === 0);
+    }
+  }, [
+    totalValue,
+    tokensQuery.isPlaceholderData,
+    tokensQuery.isError,
+    isPriceError,
+  ]);
 
   return (
     <div className="h-[80vh]">
@@ -277,10 +297,12 @@ export default function Home() {
                   </button>
                   <button
                     className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() => handleMessage("Deposit into my wallet")}
+                    onClick={() =>
+                      handleMessage("Give me some DeFi strategies")
+                    }
                   >
                     <span className="font-[Manrope] font-semibold text-base text-center">
-                      Deposit into my wallet
+                      Give me some DeFi strategies
                     </span>
                   </button>
                 </div>
@@ -523,6 +545,10 @@ export default function Home() {
             </div>
           </>
         )}
+        <OnboardingDialog
+          isOpen={isOnboardingOpen}
+          onOpenChange={setIsOnboardingOpen}
+        />
       </div>
     </div>
   );

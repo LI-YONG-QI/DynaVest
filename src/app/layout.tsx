@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   DM_Sans,
   Inter,
@@ -13,7 +13,6 @@ import "./globals.css";
 import Providers from "@/providers";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
-import { ChatProvider } from "@/contexts/ChatContext";
 import Chatroom from "@/components/Chatroom";
 import { ToastContainer } from "react-toastify";
 
@@ -59,6 +58,13 @@ export const metadata: Metadata = {
   description: "Make DeFi investment easy and simple with DynaVest AI",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,27 +73,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lilyScript.variable} ${dmSans.variable} ${inter.variable} ${manrope.variable} ${plusJakarta.variable} ${poppins.variable} ${bricolageGrotesque.variable} antialiased`}
+        className={`${lilyScript.variable} ${dmSans.variable} ${inter.variable} ${manrope.variable} ${plusJakarta.variable} ${poppins.variable} ${bricolageGrotesque.variable} antialiased font-manrope`}
         style={{
           background:
             "linear-gradient(-59.08deg, #E6F2FB 0%, #EBE7FB 55%, #E6F2FB 100%) fixed",
         }}
       >
-        <ChatProvider>
-          <Providers>
-            <div className="min-h-screen w-full">
-              <div className="mx-auto">
-                <Header />
-                <div className="pt-10 max-w-7xl mx-auto px-5 md:px-20 relative">
-                  {children}
-                  <BottomNav />
-                  <ToastContainer position="bottom-right" />
-                </div>
-                <Chatroom />
+        <Providers>
+          <div className="min-h-screen w-full">
+            <div className="mx-auto">
+              <Header />
+              <div className="pt-10 max-w-7xl mx-auto px-5 md:px-20 relative">
+                {children}
+                <BottomNav />
+                <ToastContainer position="bottom-right" />
               </div>
+              <Chatroom />
             </div>
-          </Providers>
-        </ChatProvider>
+          </div>
+        </Providers>
       </body>
     </html>
   );

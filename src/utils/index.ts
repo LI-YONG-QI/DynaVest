@@ -20,6 +20,14 @@ export const getRiskColor = (risk: {
   }
 };
 
+export function formatAmount(amount: number) {
+  if (amount === 0) return "0";
+  if (amount < 0.01) {
+    return "<0.01";
+  }
+  return `${Number(amount.toFixed(2))}`;
+}
+
 // TODO: Convert given value to USD
 export const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("en-US", {
@@ -30,10 +38,10 @@ export const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const formatCoin = (value: number, symbol: string) => {
+export const formatCoin = (value: number) => {
   return `${value.toLocaleString("en-US", {
     maximumFractionDigits: 6,
-  })} ${symbol}`;
+  })}`;
 };
 
 export function cn(...inputs: ClassValue[]) {

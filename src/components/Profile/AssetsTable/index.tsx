@@ -1,24 +1,25 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
-
-import { useAssets } from "@/contexts/AssetsContext";
-import { WithdrawDialog } from "./WithdrawDialog";
-import { DepositDialog } from "./DepositDialog";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
-export default function AssetsTableComponent() {
-  const { tokensData, handleWithdraw, isError, isLoadingError, error } =
-    useAssets();
+import { useAssets } from "@/contexts/AssetsContext";
+import { WithdrawDialog } from "@/components/WithdrawDialog";
+import { DepositDialog } from "@/components/DepositDialog";
+import { formatAmount } from "@/utils";
+import { formatUnits } from "viem";
 
+export default function AssetsTableComponent() {
+  const { assetsBalance } = useAssets();
+  const { isError, error, isLoading } = assetsBalance;
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  const sortedData = [...tokensData].sort((a, b) => {
-    if (!sortKey) return 0;
-    return sortDirection === "asc"
-      ? a[sortKey] - b[sortKey]
-      : b[sortKey] - a[sortKey];
-  });
+  const serializeBalance = useMemo(() => {
+    return assetsBalance.data.map((t) => ({
+      ...t,
+      balance: Number(formatUnits(t.balance, t.token.decimals)),
+    }));
+  }, [assetsBalance]);
 
   const handleSort = () => {
     if (sortKey === "balance") {
@@ -29,12 +30,21 @@ export default function AssetsTableComponent() {
     }
   };
 
+  const sortedData = useMemo(() => {
+    return serializeBalance?.sort((a, b) => {
+      if (!sortKey) return 0;
+      return sortDirection === "asc"
+        ? a[sortKey] - b[sortKey]
+        : b[sortKey] - a[sortKey];
+    });
+  }, [serializeBalance, sortKey, sortDirection]);
+
   useEffect(() => {
-    if (isError && isLoadingError) {
+    if (isError && isLoading) {
       console.log(error);
       toast.error("Error fetching assets");
     }
-  }, [isError, isLoadingError, error]);
+  }, [isError, isLoading, error]);
 
   return (
     <div className="mx-4 w-[calc(100%-2rem)]">
@@ -58,7 +68,7 @@ export default function AssetsTableComponent() {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((asset) => (
+          {sortedData?.map((asset) => (
             <tr
               key={asset.token.name}
               className="bg-white rounded-xl shadow-[0_0_0_0.2px_#3d84ff,_0px_4px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_0_0_1.5px_#3d84ff,_0px_4px_12px_rgba(0,0,0,0.15)] transition-all"
@@ -87,27 +97,19 @@ export default function AssetsTableComponent() {
               {/* Balance */}
               <td className="p-4 text-right">
                 <div className="font-medium text-md">
-                  {asset.balance.toFixed(4).toString()}
+                  {Number(asset.balance.toFixed(4))}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {asset.price
-                    ? `$ ${(asset.balance * asset.price).toFixed(2)}`
-                    : `$ ${asset.balance.toString()}`}
+                  {`$ ${formatAmount(asset.value)}`}
                 </div>
               </td>
 
               {/* Actions */}
               <td className="p-4 text-right rounded-r-xl">
                 <div className="flex justify-end gap-1">
-                  <DepositDialog />
+                  <DepositDialog token={asset.token} />
 
-                  <WithdrawDialog
-                    asset={asset.token}
-                    balance={asset.balance}
-                    onWithdraw={(amount, to) =>
-                      handleWithdraw(asset.token, amount, to)
-                    }
-                  />
+                  <WithdrawDialog token={asset.token} />
                 </div>
               </td>
             </tr>

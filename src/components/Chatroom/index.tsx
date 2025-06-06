@@ -3,17 +3,20 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Message } from "@/types/message";
-import useChatbot from "@/hooks/useChatbotResponse";
 import ChatBubble from "./ChatBubble";
 import { useChat } from "@/contexts/ChatContext";
 
 const Chatroom = () => {
-  const { showChat, messages, setMessages, isMinimized, toggleMinimize } =
-    useChat();
+  const {
+    showChat,
+    messages,
+    setMessages,
+    isMinimized,
+    toggleMinimize,
+    sendMessage,
+  } = useChat();
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
-    useChatbot();
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -42,7 +45,7 @@ const Chatroom = () => {
     setInputMessage("");
 
     try {
-      const botResponse = await sendMessage(inputMessage);
+      const botResponse = await sendMessage.mutateAsync(inputMessage);
       if (!botResponse || !botResponse.type) return;
 
       // Add bot response
@@ -68,18 +71,31 @@ const Chatroom = () => {
 
   if (!showChat) return null;
 
-  return (
-    <div
-      className={`fixed bg-white bottom-20 md:bottom-6 right-3 md:right-6 rounded-2xl overflow-hidden shadow-2xl z-50 transition-all duration-300 transform ${
-        isMinimized
-          ? "translate-y-0 w-auto md:w-80"
-          : "max-h-[600px] h-[500px] translate-y-0 w-70 md:w-80 sm:w-96"
-      }`}
-    >
-      {/* Header */}
-      <div
-        className={`bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2`}
+  {
+    /* Minimized Chat - Floating Circle Button */
+  }
+
+  if (isMinimized) {
+    return (
+      <button
+        onClick={toggleMinimize}
+        className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-50 bg-[#5F79F1] rounded-full p-3 shadow-lg hover:bg-[#4A64DC] transition-colors"
       >
+        <Image
+          src="/bot-icon-white.svg"
+          alt="Chat with DynaVest Bot"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      </button>
+    );
+  }
+
+  return (
+    <div className="fixed bg-white bottom-20 md:bottom-6 right-3 md:right-6 rounded-2xl overflow-hidden shadow-2xl z-50 w-full max-w-md h-[500px] flex flex-col">
+      {/* Header */}
+      <div className="bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2 rounded-t-2xl">
         <div className="flex items-center gap-x-3">
           <button
             onClick={toggleMinimize}
@@ -93,7 +109,7 @@ const Chatroom = () => {
               className="object-contain w-6 h-6"
             />
           </button>
-          <div className={`leading-5 ${isMinimized ? "hidden md:block" : ""}`}>
+          <div className="leading-5">
             <h3 className="font-bold md:text-lg">DynaVest Bot</h3>
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -103,39 +119,21 @@ const Chatroom = () => {
         </div>
         <button
           onClick={toggleMinimize}
-          className={`${
-            isMinimized ? "hidden" : ""
-          } md:flex bg-opacity-20 items-center rounded-full p-1.5 hover:bg-opacity-30 transition-all`}
+          className="flex bg-opacity-20 items-center rounded-full p-1.5 hover:bg-opacity-30 transition-all"
         >
-          {isMinimized ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          )}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </button>
       </div>
 
@@ -148,7 +146,7 @@ const Chatroom = () => {
                 <ChatBubble key={message.id} message={message} />
               ))}
               {/* Render loading chat when waiting for bot response */}
-              {loadingBotResponse && (
+              {sendMessage.isPending && (
                 <ChatBubble
                   message={{
                     id: (Date.now() + 1).toString(),

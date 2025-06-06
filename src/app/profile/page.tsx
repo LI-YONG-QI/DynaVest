@@ -1,22 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
-// import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
 import TransactionsTableComponent from "@/components/Profile/TransactionsTable";
+import StrategiesTableComponent from "@/components/Profile/StrategiesTable";
+import { formatAmount } from "@/utils";
+import { DepositDialog } from "@/components/DepositDialog";
+import { USDC } from "@/constants/coins";
+import { WithdrawDialog } from "@/components/WithdrawDialog";
+import { usePrivy } from "@privy-io/react-auth";
 
 const PROFILE_TABS = [
   {
     label: "Assets",
     value: "assets",
   },
-  // {
-  //   label: "Strategies",
-  //   value: "strategies",
-  // },
+  {
+    label: "Strategies",
+    value: "strategies",
+  },
   {
     label: "Transactions",
     value: "transactions",
@@ -27,8 +33,8 @@ function getTabComponent(tab: string) {
   switch (tab) {
     case "assets":
       return <AssetsTableComponent />;
-    // case "strategies":
-    //   return <StrategiesTableComponent />;
+    case "strategies":
+      return <StrategiesTableComponent />;
     case "transactions":
       return <TransactionsTableComponent />;
     default:
@@ -38,7 +44,28 @@ function getTabComponent(tab: string) {
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
-  const { tokensData } = useAssets();
+  const { user: privyUser } = usePrivy();
+
+  const { client } = useSmartWallets();
+  const { profitsQuery, updateTotalValue, assetsBalance } = useAssets();
+  const { data: profitsData } = profitsQuery;
+
+  const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
+  const user = client?.account.address;
+
+  // TODO: refactor reason -> unstable update information
+  useEffect(() => {
+    if (user && !assetsBalance.isLoading) {
+      updateTotalValue.mutate(undefined, {
+        onSuccess: () => {
+          console.log("Total value updated");
+        },
+        onError: (error) => {
+          console.error("Error updating total value", error);
+        },
+      });
+    }
+  }, [user, assetsBalance.isLoading]);
 
   return (
     <div className="pb-10 px-2 sm:px-0">
@@ -58,64 +85,27 @@ export default function ProfilePage() {
             <div>
               <div className="flex gap-2 items-center">
                 <h1 className="text-[#141A21] font-bold text-xl sm:text-2xl">
-                  Alison
+                  {privyUser?.google?.name}
                 </h1>
-                <button className="border border-solid border-black rounded-sm h-5 w-5 flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    x="0px"
-                    y="0px"
-                    width="100"
-                    height="100"
-                    viewBox="0 0 32 32"
-                    className="h-4 w-4"
-                  >
-                    <path d="M 4.0175781 4 L 13.091797 17.609375 L 4.3359375 28 L 6.9511719 28 L 14.246094 19.34375 L 20.017578 28 L 20.552734 28 L 28.015625 28 L 18.712891 14.042969 L 27.175781 4 L 24.560547 4 L 17.558594 12.310547 L 12.017578 4 L 4.0175781 4 z M 7.7558594 6 L 10.947266 6 L 24.279297 26 L 21.087891 26 L 7.7558594 6 z"></path>
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 sm:gap-5 mt-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-400 text-xs sm:text-sm">
-                    User Id
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold">82874</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-400 text-xs sm:text-sm">
-                    Joined
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold">7231</span>
-                </div>
               </div>
             </div>
           </div>
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#E2EDFF] rounded-lg hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
-              </svg>
-              <span>Edit Name</span>
-            </button>
             <div className="h-8 w-px bg-[#c4d8f7] hidden sm:block"></div>
-            <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <span>Deposit</span>
-            </button>
-            <button className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
-              <span>Withdraw</span>
-            </button>
+
+            <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
+              <DepositDialog
+                textClassName="text-sm sm:text-base"
+                token={USDC}
+              />
+            </div>
+            <div className="rounded-lg px-3 sm:px-4 py-2 bg-[#E2EDFF] hover:bg-[#d0e0ff] transition-colors text-sm sm:text-base">
+              <WithdrawDialog
+                textClassName="text-sm sm:text-base"
+                token={USDC}
+              />
+            </div>
           </div>
         </div>
 
@@ -126,18 +116,9 @@ export default function ProfilePage() {
               Available Balance
             </h4>
             <p className="text-base sm:text-lg font-bold tracking-wide">
-              ${" "}
-              {tokensData
-                .reduce((acc, token) => acc + token.value, 0)
-                .toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <h4 className="text-xs sm:text-sm font-medium text-gray-300">
-              Total Assets
-            </h4>
-            <p className="text-base sm:text-lg font-bold tracking-wide">
-              {/* TODO: mock data */}$ 15
+              {Number(
+                assetsBalance.data.reduce((acc, token) => acc + token.value, 0)
+              ).toFixed(2)}
             </p>
           </div>
           <div>
@@ -145,7 +126,7 @@ export default function ProfilePage() {
               Total Profit
             </h4>
             <p className="text-green-500 font-bold tracking-wide text-base sm:text-lg">
-              {/* TODO: mock data */}$ 213
+              {totalProfit ? `${formatAmount(totalProfit)}` : "0"}
             </p>
           </div>
         </div>

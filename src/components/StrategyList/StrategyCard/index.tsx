@@ -8,7 +8,12 @@ import { Tooltip } from "@/components/Tooltip";
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { RiskLevel, StrategyMetadata } from "@/types";
+import type {
+  BotResponse,
+  Message,
+  RiskLevel,
+  StrategyMetadata,
+} from "@/types";
 
 function getRiskLevelLabel(risk: RiskLevel) {
   switch (risk) {
@@ -23,27 +28,26 @@ function getRiskLevelLabel(risk: RiskLevel) {
   }
 }
 
-export default function StrategyCard({
-  title,
-  id,
-  apy,
-  risk,
-  protocol,
-  description,
-  image,
-  externalLink,
-  learnMoreLink,
-  tokens,
-  chainId,
-  displayInsufficientBalance = false,
-}: StrategyMetadata) {
+export default function StrategyCard(strategy: StrategyMetadata) {
+  const {
+    title,
+    id,
+    apy,
+    risk,
+    protocol,
+    description,
+    externalLink,
+    tokens,
+    chainId,
+    displayInsufficientBalance = false,
+  } = strategy;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Extract the base description without "Learn More" text
   const baseDescription = description.replace(/\s*Learn More\s*$/, "");
 
-  const { openChat } = useChat();
-
+  const { openChat, setMessages, sendMessage } = useChat();
   const router = useRouter();
 
   const handleCardClick = (e: MouseEvent) => {
@@ -56,33 +60,75 @@ export default function StrategyCard({
     router.push(`/strategies/${id}`);
   };
 
+  const handleBotClick = async () => {
+    const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: prompt,
+      sender: "user",
+      timestamp: new Date(),
+      type: "Text",
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    openChat();
+
+    sendMessage.mutate(prompt, {
+      onSuccess: (data: BotResponse) => {
+        if (data.type === "question") {
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: data.data?.answer ?? "",
+            sender: "bot",
+            timestamp: new Date(),
+            type: "Text",
+          };
+
+          setMessages((prev) => [...prev, botMessage]);
+        }
+      },
+      onError: (error) => {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: error.message ?? "",
+          sender: "bot",
+          timestamp: new Date(),
+          type: "Text",
+        };
+
+        setMessages((prev) => [...prev, botMessage]);
+      },
+    });
+  };
+
   return (
     <>
-      <div 
+      <div
         onClick={handleCardClick}
         className="flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-50 transition-colors"
       >
         {/* Header Section */}
         <div className="flex justify-between md:justify-around items-center w-full">
-            <Image
-              src={`/crypto-icons/chains/${chainId}.svg`}
-              alt={title}
-              width={60}
-              height={60}
-              className="rounded-lg object-cover"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsModalOpen(true);
-              }}
-            />
+          <Image
+            src={`/crypto-icons/chains/${chainId}.svg`}
+            alt={title}
+            width={60}
+            height={60}
+            className="rounded-lg object-cover"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsModalOpen(true);
+            }}
+          />
           <div className="ml-4 flex flex-col justify-center gap-2.5 w-[224px]">
             <div className="flex gap-[3px] self-stretch">
-              <h3 className="font-[family-name:var(--font-manrope)] text-[18px] font-bold text-lg text-[#17181C]">
+              <h3 className="text-[18px] font-semibold text-[#17181C]">
                 {title}
               </h3>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-[family-name:var(--font-inter)] font-medium text-base text-[#17181C]">
+              <span className="font-medium text-base text-[#17181C]">
                 APY {apy}%
               </span>
               <div
@@ -90,7 +136,7 @@ export default function StrategyCard({
                 style={{ backgroundColor: getRiskColor(risk)?.bg || "#E5E7EB" }}
               >
                 <span
-                  className="font-[family-name:var(--font-inter)] text-xs font-medium"
+                  className="text-xs font-medium"
                   style={{ color: getRiskColor(risk)?.text || "#6B7280" }}
                 >
                   {getRiskLevelLabel(risk.level)}
@@ -139,7 +185,17 @@ export default function StrategyCard({
                   </div>
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
-                    ${Math.abs(title.split('').reduce((hash, char) => ((hash << 5) - hash) + char.charCodeAt(0), 0) % 100)}M
+                    $
+                    {Math.abs(
+                      title
+                        .split("")
+                        .reduce(
+                          (hash, char) =>
+                            (hash << 5) - hash + char.charCodeAt(0),
+                          0
+                        ) % 100
+                    )}
+                    M
                   </p>
                   <div className="text-sm text-gray-900 flex items-center">
                     {tokens.map((token) => (
@@ -172,11 +228,7 @@ export default function StrategyCard({
           >
             Invest
           </button>
-          <button
-            onClick={() =>
-              openChat(`Hello. Do you want to ask anything about ${title}?`)
-            }
-          >
+          <button onClick={handleBotClick}>
             <Image src="/bot-icon-blue.svg" alt="bot" width={30} height={30} />
           </button>
         </div>
@@ -185,19 +237,7 @@ export default function StrategyCard({
       <InvestModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        strategy={{
-          title,
-          id,
-          apy,
-          risk,
-          protocol,
-          description,
-          image,
-          externalLink,
-          learnMoreLink,
-          tokens,
-          chainId,
-        }}
+        strategy={strategy}
         displayInsufficientBalance={displayInsufficientBalance}
       />
     </>

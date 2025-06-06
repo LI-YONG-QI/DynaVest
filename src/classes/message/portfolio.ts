@@ -2,11 +2,7 @@ import { Message, MessageMetadata } from "./base";
 import { BuildPortfolioMessage } from "./build-portfolio";
 import { EditMessage } from "./edit";
 import { DepositMessage } from "./deposit";
-import {
-  RiskLevel,
-  RiskPortfolioStrategies,
-  StrategiesSet,
-} from "@/types";
+import { RiskLevel, RiskPortfolioStrategies, StrategiesSet } from "@/types";
 
 export class PortfolioMessage extends Message {
   public strategies: RiskPortfolioStrategies[] = [];

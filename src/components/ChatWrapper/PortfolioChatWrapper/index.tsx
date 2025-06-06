@@ -16,6 +16,7 @@ import { getStrategy } from "@/utils/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 interface PortfolioChatWrapperProps {
   message: PortfolioMessage;
@@ -31,8 +32,14 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
     message.strategies
   );
   const [isEdit, setIsEdit] = useState(true);
+
+  // TODO: hardcode USDC
   const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { execute } = useStrategyExecutor();
+  const { multiInvest } = useStrategyExecutor();
+
+  const totalAPY = strategies.reduce((acc, strategy) => {
+    return acc + (strategy.apy * strategy.allocation) / 100;
+  }, 0);
 
   const nextMessage = async (action: "build" | "edit") => {
     if (isLoadingBalance) return;
@@ -44,13 +51,13 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
 
     if (action === "build") {
       if (
+        // TODO: hardcode USDC
         parseUnits(message.amount, USDC.decimals) >
         parseUnits(balance.toString(), USDC.decimals)
       ) {
         await addBotMessage(message.next("deposit"));
       } else {
         await executeMultiStrategy();
-        await addBotMessage(message.next("build"));
       }
     } else {
       await addBotMessage(message.next(action));
@@ -58,22 +65,29 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   };
 
   async function executeMultiStrategy() {
+    const strategiesHandlers = strategies.map((strategy) => ({
+      strategy: getStrategy(strategy.protocol, strategy.chainId),
+      allocation: strategy.allocation,
+    }));
+    const multiStrategy = new MultiStrategy(strategiesHandlers);
+
     try {
-      const strategiesHandler = strategies.map((strategy) => ({
-        strategy: getStrategy(strategy.protocol, strategy.chainId),
-        allocation: strategy.allocation,
-      }));
-
-      const multiStrategy = new MultiStrategy(strategiesHandler);
-      const tx = await execute(
+      const txHash = await multiInvest.mutateAsync({
         multiStrategy,
-        parseUnits(message.amount, USDC.decimals),
-        USDC.chains![message.chain]
-      );
-
-      toast.success(`Portfolio built successfully, ${tx}`);
+        amount: parseUnits(message.amount, USDC.decimals),
+        token: USDC,
+      });
+      toast.success(`Portfolio built successfully, ${txHash}`);
+      await addBotMessage(message.next("build"));
     } catch (error) {
-      toast.error(`Error building portfolio, ${error}`);
+      console.error("Error building portfolio:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        const errorData = JSON.parse(error.response.data);
+        console.error("Error response data:", errorData);
+        toast.error(`Error building portfolio, ${errorData.message}`);
+      } else {
+        toast.error(`Error building portfolio, ${error}`);
+      }
     }
   }
 
@@ -94,10 +108,9 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
               options={RISK_OPTIONS}
             />
 
-            <div className="flex items-center">
-              <p className="text-gray text-xs md:text-sm font-normal px-1">
-                {getRiskDescription(message.risk)}
-              </p>
+            <div className="flex flex-col text-xs md:text-sm font-normal px-1 gap-2">
+              <p className="text-gray ">{getRiskDescription(message.risk)}</p>
+              <p className="text-gray">Total APY: {totalAPY.toFixed(2)}%</p>
             </div>
           </div>
         </div>

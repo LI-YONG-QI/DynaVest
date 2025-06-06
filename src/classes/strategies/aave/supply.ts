@@ -1,21 +1,20 @@
+import { Position } from "@/types/position";
 import type { Address } from "viem";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, formatUnits } from "viem";
+import { readContract } from "@wagmi/core";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
+import { wagmiConfig } from "@/providers/config";
+import { getTokenByName } from "@/constants/coins";
 
 export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
   constructor(chainId: number) {
-    super(chainId, AAVE_CONTRACTS, {
-      protocol: "Aave V3",
-      icon: "/crypto-icons/aave.svg",
-      type: "Lending",
-      description: "Lend assets to Aave V3",
-    });
+    super(chainId, AAVE_CONTRACTS, "AaveV3Supply");
   }
 
-  async buildCalls(
+  async investCalls(
     amount: bigint,
     user: Address,
     asset?: Address
@@ -44,5 +43,62 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
         }),
       },
     ];
+  }
+
+  async redeemCalls(
+    amount: bigint,
+    user: Address,
+    underlyingAsset?: Address
+  ): Promise<StrategyCall[]> {
+    if (!underlyingAsset) throw new Error("AaveV3Supply: asset is required");
+    const pool = this.getAddress("pool");
+
+    const aTokenAddress = await readContract(wagmiConfig, {
+      abi: AAVE_V3_ABI,
+      address: pool,
+      functionName: "getReserveAToken",
+      args: [underlyingAsset],
+    });
+
+    const aTokenBalance = await readContract(wagmiConfig, {
+      abi: ERC20_ABI,
+      address: aTokenAddress as Address,
+      functionName: "balanceOf",
+      args: [user],
+    });
+
+    return [
+      {
+        to: pool,
+        data: encodeFunctionData({
+          abi: AAVE_V3_ABI,
+          functionName: "withdraw",
+          args: [underlyingAsset, aTokenBalance, user],
+        }),
+      },
+    ];
+  }
+
+  async getProfit(user: Address, position: Position) {
+    const { amount, tokenName } = position;
+
+    const underlyingAsset = getTokenByName(tokenName).chains![this.chainId];
+    const pool = this.getAddress("pool");
+
+    const aTokenAddress = await readContract(wagmiConfig, {
+      abi: AAVE_V3_ABI,
+      address: pool,
+      functionName: "getReserveAToken",
+      args: [underlyingAsset],
+    });
+
+    const aTokenBalance = await readContract(wagmiConfig, {
+      abi: ERC20_ABI,
+      address: aTokenAddress as Address,
+      functionName: "balanceOf",
+      args: [user],
+    });
+
+    return Number(formatUnits(aTokenBalance, 6)) - amount;
   }
 }
