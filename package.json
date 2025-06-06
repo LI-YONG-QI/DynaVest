@@ -11,9 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@1inch/cross-chain-sdk": "^0.1.13",
     "@hookform/resolvers": "^5.0.1",
-    "@prisma/client": "^6.8.1",
     "@privy-io/react-auth": "^2.8.2",
     "@privy-io/wagmi": "^1.0.3",
     "@radix-ui/react-dialog": "^1.1.13",
@@ -30,11 +28,9 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "ethers": "^6.13.5",
     "lucide-react": "^0.503.0",
     "next": "15.2.4",
     "permissionless": "^0.2.46",
-    "prisma": "^6.8.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-copy-to-clipboard": "^5.1.0",
@@ -46,7 +42,6 @@
     "tailwind-merge": "^3.2.0",
     "viem": "^2.25.0",
     "wagmi": "^2.14.16",
-    "web3": "^4.16.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
