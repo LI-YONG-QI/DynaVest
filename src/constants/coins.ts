@@ -180,9 +180,17 @@ export const getTokenByName = (name: string): Token => {
   return token;
 };
 
-export const COINGECKO_IDS = {
-  [USDT.name]: "tether",
-  [USDC.name]: "usd-coin",
-  [ETH.name]: "ethereum",
-  [BNB.name]: "binancecoin",
+export const COINGECKO_IDS: Record<string, string> = {
+  USDT: "tether",
+  USDC: "usd-coin",
+  ETH: "ethereum",
+  BNB: "binancecoin",
 };
+
+export function getTokenNameByCoingeckoId(id: string): string {
+  return (
+    Object.entries(COINGECKO_IDS).find(
+      ([name]) => COINGECKO_IDS[name] === id
+    )?.[0] || ""
+  );
+}

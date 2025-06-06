@@ -45,8 +45,8 @@ export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
 
   const { client } = useSmartWallets();
-  const { tokensQuery, profitsQuery, updateTotalValue } = useAssets();
-  const { data: tokensData } = tokensQuery;
+  const { tokensQuery, profitsQuery, updateTotalValue, assetsBalance } =
+    useAssets();
   const { data: profitsData } = profitsQuery;
 
   const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
@@ -143,7 +143,7 @@ export default function ProfilePage() {
               Available Balance
             </h4>
             <p className="text-base sm:text-lg font-bold tracking-wide">
-              {tokensData
+              {assetsBalance
                 ?.reduce((acc, token) => acc + token.value, 0)
                 .toFixed(2)}
             </p>

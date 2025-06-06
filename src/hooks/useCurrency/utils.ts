@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { COINGECKO_IDS } from "@/constants/coins";
+import { COINGECKO_IDS, getTokenNameByCoingeckoId } from "@/constants/coins";
 import { Token } from "@/types";
 
 export async function fetchTokenPrice(token: Token) {
@@ -40,5 +40,11 @@ export async function fetchTokensPrices(tokens: Token[]) {
   );
 
   const prices = response.data as TokenPriceResponse;
-  return prices;
+
+  const res = Object.entries(prices).reduce((acc, [id, price]) => {
+    acc[getTokenNameByCoingeckoId(id)] = price.usd;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return res;
 }

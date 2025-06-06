@@ -51,10 +51,10 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const [selectedAsset, setSelectedAsset] = useState<Token>(token);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-  const { balance } = useCurrency(selectedAsset);
+  const { balance = BigInt(0) } = useCurrency(selectedAsset);
 
   const maxBalance = useMemo(() => {
-    return Number(formatUnits(balance.amount, selectedAsset.decimals));
+    return Number(formatUnits(balance, selectedAsset.decimals));
   }, [balance, selectedAsset.decimals]);
 
   const withdrawFormSchema = createWithdrawFormSchema(maxBalance);
@@ -106,7 +106,6 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
       {
         onSuccess: (tx) => {
           toast.success(`Withdrawal successful ${tx}`);
-          
         },
         onError: (error) => {
           console.log("error", error);
@@ -323,7 +322,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                         Fees
                       </p>
                       <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                        0.1%
+                        0.5%
                       </p>
                     </div>
 

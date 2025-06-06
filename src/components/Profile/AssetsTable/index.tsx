@@ -6,12 +6,20 @@ import { useAssets } from "@/contexts/AssetsContext";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { DepositDialog } from "@/components/DepositDialog";
 import { formatAmount } from "@/utils";
+import { formatUnits } from "viem";
 
 export default function AssetsTableComponent() {
-  const { tokensQuery } = useAssets();
-  const { data: tokensData, isError, error, isLoadingError } = tokensQuery;
+  const { tokensQuery, assetsBalance } = useAssets();
+  const { isError, error, isLoadingError } = tokensQuery;
   const [sortKey, setSortKey] = useState<"balance" | null>("balance");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const serializeBalance = useMemo(() => {
+    return assetsBalance?.map((t) => ({
+      ...t,
+      balance: Number(formatUnits(t.balance, t.token.decimals)),
+    }));
+  }, [assetsBalance]);
 
   const handleSort = () => {
     if (sortKey === "balance") {
@@ -23,14 +31,15 @@ export default function AssetsTableComponent() {
   };
 
   const sortedData = useMemo(() => {
-    return tokensData?.sort((a, b) => {
+    return serializeBalance?.sort((a, b) => {
       if (!sortKey) return 0;
       return sortDirection === "asc"
         ? a[sortKey] - b[sortKey]
         : b[sortKey] - a[sortKey];
     });
-  }, [tokensData, sortKey, sortDirection]);
+  }, [serializeBalance, sortKey, sortDirection]);
 
+  // TODO: 將 assetsBalance 跟 tokensQuery 並入同一個 hook，並將狀態做綁定
   useEffect(() => {
     if (isError && isLoadingError) {
       console.log(error);

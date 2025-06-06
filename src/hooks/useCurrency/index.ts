@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import { Token } from "@/types";
-import { useCurrencyPrice } from "./useCurrencyPrice";
 import { wagmiConfig as config } from "@/providers/config";
 
 async function fetchTokenBalance(
@@ -30,36 +29,33 @@ async function fetchTokenBalance(
 
 export default function useCurrency(token: Token) {
   const { client } = useSmartWallets();
-
   const chainId = useChainId();
-  const { data: price = 0 } = useCurrencyPrice(token);
+  const user = client?.account.address;
 
   // Fetch balance function to be used with useQuery
   const fetchBalance = useCallback(async () => {
-    const user = client?.account.address;
     if (!user) return;
 
     const { value: amount } = await fetchTokenBalance(token, user, chainId);
-    return { amount, price };
-  }, [client, token, chainId, price]);
+    return amount;
+  }, [user, token, chainId]);
 
   // Use React Query for fetching and caching the balance
   const {
-    data: balance = { amount: BigInt(0), price: 0 },
+    data: balance,
     isLoading: isLoadingBalance,
     refetch,
     isError,
     isLoadingError,
     error,
   } = useQuery({
-    queryKey: ["tokenBalance", token, chainId],
+    queryKey: ["tokenBalance", user, token.name, chainId],
     queryFn: fetchBalance,
-    enabled: !!client && !!price,
+    enabled: !!client,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
-    // refetchOnWindowFocus: true,
+    placeholderData: BigInt(0),
   });
 
-  // Log errors if any
   return {
     refetch,
     balance,

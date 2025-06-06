@@ -14,7 +14,7 @@ import {
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
-import { useCurrencyPrice } from "@/hooks/useCurrency/useCurrencyPrice";
+import { useTokenPrice } from "@/hooks/useCurrency/useTokenPrice";
 import { useProfit } from "./useProfit";
 import { Protocol, StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
@@ -31,7 +31,7 @@ export default function PositionTableRow({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = getTokenByName(position.tokenName);
 
-  const { data: price = 0, isLoading } = useCurrencyPrice(token);
+  const { data: price = 0, isLoading } = useTokenPrice(token.name);
   const { redeem, invest } = useStrategyExecutor();
   const chainId = useChainId();
   const { data: profit = 0 } = useProfit(position);

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { formatUnits } from "viem";
+import { useCallback } from "react";
 import { useChainId } from "wagmi";
 import { getBalance } from "@wagmi/core";
 import { useQuery } from "@tanstack/react-query";
@@ -7,151 +6,54 @@ import { useQuery } from "@tanstack/react-query";
 import { wagmiConfig as config } from "@/providers/config";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { Token } from "@/types";
-import { COINGECKO_IDS } from "@/constants/coins";
-import { fetchTokensPrices as fetchTokensPriceFromCoinGecko } from "../useCurrency/utils";
 
 export interface TokenData {
   token: Token;
-  balance: number;
-  value: number;
-  price: number;
+  balance: bigint;
 }
 
 export default function useCurrencies(tokens: Token[]) {
   const { client } = useSmartWallets();
   const chainId = useChainId();
 
-  // Initialize with empty data
-  const [initialTokensData, setInitialTokensData] = useState<TokenData[]>([]);
-  const [isPriceError, setIsPriceError] = useState(false);
+  const initialTokensData = tokens.map((token) => ({
+    token,
+    balance: BigInt(0),
+  }));
 
-  useEffect(() => {
-    if (tokens && tokens.length > 0) {
-      const emptyTokensData = tokens.map((token) => ({
-        token,
-        balance: 0,
-        price: 0,
-        value: 0,
-      }));
-      setInitialTokensData(emptyTokensData);
-    }
-  }, [tokens]);
-
-  // Function to fetch token prices
-  const fetchTokenPrices = useCallback(
+  const fetchBalances = useCallback(
     async (tokensData: TokenData[]): Promise<TokenData[]> => {
-      if (!tokens || tokens.length === 0) return tokensData;
-
-      try {
-        const pricesResponse = await fetchTokensPriceFromCoinGecko(tokens);
-        // Handle price fetch error
-
-        // Create a new array with updated prices
-        const updatedTokensData = tokensData.map((tokenData) => {
-          const id = COINGECKO_IDS[tokenData.token.name];
-          if (id && pricesResponse[id].usd) {
-            return {
-              ...tokenData,
-              price: pricesResponse[id].usd,
-            };
-          }
-          return tokenData;
-        });
-
-        return updatedTokensData;
-      } catch (error) {
-        console.warn("Error fetching token prices", error);
-        setIsPriceError(true);
-        return tokensData;
-      }
-    },
-    [tokens]
-  );
-
-  // Function to fetch token balances
-  const fetchTokenBalances = useCallback(
-    async (tokensData: TokenData[]): Promise<TokenData[]> => {
-      if (!client || !tokens || tokens.length === 0) {
-        return tokensData;
-      }
+      if (!client || !tokens || tokens.length === 0) return tokensData;
 
       await client.switchChain({ id: chainId });
       const user = client.account.address;
+      if (!user) return tokensData;
 
-      if (!user) {
-        return tokensData;
-      }
+      const balancePromises = tokensData.map(async (tokenData, index) => {
+        const token = tokenData.token;
 
-      // Create a copy of tokensData to update
-      const updatedTokensData = [...tokensData];
+        const params = {
+          address: user,
+          ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
+        };
 
-      // Fetch balances in parallel - use tokensData to match tokens with their TokenData objects
-      const balancePromises = updatedTokensData.map(
-        async (tokenData, index) => {
-          const token = tokenData.token;
-          const params = {
-            address: user,
-            ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
-          };
-
-          const { value, decimals } = await getBalance(config, params);
-          updatedTokensData[index].balance = Number(
-            formatUnits(value, decimals)
-          );
-
-          // Calculate value if price exists
-          if (updatedTokensData[index].price) {
-            updatedTokensData[index].value =
-              updatedTokensData[index].balance *
-              updatedTokensData[index].price!;
-          }
-        }
-      );
+        const { value } = await getBalance(config, params);
+        tokensData[index].balance = value;
+      });
 
       await Promise.all(balancePromises);
-
-      return updatedTokensData;
+      return tokensData;
     },
     [client, tokens, chainId]
   );
 
-  // Main function that handles fetching both balances and prices
-  const fetchTokenData = useCallback(async () => {
-    if (!tokens || tokens.length === 0) {
-      return [] as TokenData[];
-    }
-
-    // Step 1: Create initial tokens data
-    const tokensData: TokenData[] = tokens.map((token) => ({
-      token,
-      balance: 0,
-      price: 0,
-      value: 0,
-    }));
-
-    // Step 2: Fetch prices
-    const tokensWithPrices = await fetchTokenPrices(tokensData);
-
-    // Step 3: Fetch balances and calculate values
-    const tokensWithBalancesAndPrices = await fetchTokenBalances(
-      tokensWithPrices
-    );
-
-    return tokensWithBalancesAndPrices;
-  }, [tokens, fetchTokenPrices, fetchTokenBalances]);
-
   // Use a single React Query for fetching and caching all token data
-  const tokensQuery = useQuery({
+  return useQuery({
     queryKey: ["tokenData", chainId, tokens.map((t) => t.name).join(",")],
-    queryFn: fetchTokenData,
+    queryFn: () => fetchBalances(initialTokensData),
     enabled: tokens.length > 0 && !!client,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     placeholderData: initialTokensData,
     retry: 2,
   });
-
-  return {
-    tokensQuery,
-    isPriceError,
-  };
 }

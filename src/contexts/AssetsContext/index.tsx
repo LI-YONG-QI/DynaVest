@@ -1,5 +1,11 @@
 import React, { createContext, useContext, ReactNode, useMemo } from "react";
-import { Address, encodeFunctionData, Hash, parseUnits } from "viem";
+import {
+  Address,
+  encodeFunctionData,
+  formatUnits,
+  Hash,
+  parseUnits,
+} from "viem";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import axios from "axios";
@@ -19,6 +25,11 @@ import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
+import { useBatchTokenPrices } from "@/hooks/useCurrency/useBatchTokenPrices";
+
+type AssetBalance = TokenData & {
+  value: number;
+};
 
 interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
@@ -28,6 +39,8 @@ interface AssetsContextType {
   profitsQuery: UseQueryResult<number[], Error>;
   totalValue: number;
   isPriceError: boolean;
+  pricesQuery: UseQueryResult<Record<string, number>, Error>;
+  assetsBalance: AssetBalance[];
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -54,25 +67,48 @@ interface WithdrawAssetParams {
 export function AssetsProvider({ children }: AssetsProviderProps) {
   const chainId = useChainId() as SupportedChainIds;
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
+  const { client } = useSmartWallets();
+
+  const pricesQuery = useBatchTokenPrices(tokensWithChain);
   const positionsQuery = usePositions();
   const profitsQuery = useProfits(positionsQuery.data || []);
+  const tokensQuery = useCurrencies(tokensWithChain);
 
-  const { client } = useSmartWallets();
-  const { tokensQuery, isPriceError } = useCurrencies(tokensWithChain);
+  const { data: prices, isError: isPriceError } = pricesQuery;
 
-  const totalValue = useMemo(() => {
-    return tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
-  }, [tokensQuery]);
+  // const getTokenPrice = useMemo(() => {
+  //   return (tokenName: string): number => {
+  //     const token = tokensWithChain.find((t) => t.name === tokenName);
+  //     if (!token) return 0;
+
+  //     const id = Object.entries(COINGECKO_IDS).find(
+  //       ([name]) => name === tokenName
+  //     )?.[1];
+
+  //     if (!id) return 0;
+  //     return prices?.[id].usd;
+  //   };
+  // }, [prices, tokensWithChain]);
+
+  const assetsBalance: AssetBalance[] = useMemo(() => {
+    return (
+      tokensQuery.data?.map((t) => ({
+        ...t,
+        value:
+          Number(formatUnits(t.balance, t.token.decimals)) *
+          (prices?.[t.token.name] || 0),
+      })) || []
+    );
+  }, [tokensQuery, prices]);
+
+  const totalValue = assetsBalance.reduce((acc, t) => acc + t.value, 0);
 
   const updateTotalValue = useMutation({
     mutationFn: async () => {
       const user = client?.account.address;
 
       if (!user) throw new Error("User not found");
-      if (!tokensQuery.isPlaceholderData) {
-        const totalValue =
-          tokensQuery.data?.reduce((acc, token) => acc + token.value, 0) || 0;
-
+      if (tokensQuery.data) {
         await axios.patch<{ success: boolean }>(
           `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${user}`,
           {
@@ -142,6 +178,8 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     totalValue,
     updateTotalValue,
     isPriceError,
+    pricesQuery,
+    assetsBalance,
   };
 
   return (
