@@ -36,7 +36,8 @@ export default function ConnectWalletButton() {
       });
     },
     onError: (error) => {
-      toast.error(`Login failed: ${error}`);
+      console.error(error);
+      // toast.error(`Login failed: ${error}`);
     },
   });
 

@@ -49,6 +49,8 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const [showNetworkSelect, setShowNetworkSelect] = useState(false);
   const [showAssetSelect, setShowAssetSelect] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Token>(token);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+
   const { balance } = useCurrency(selectedAsset);
 
   const maxBalance = useMemo(() => {
@@ -93,6 +95,8 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const { total } = calculateFees(Number(form.watch("withdrawalAmount")));
 
   const onSubmit = async (values: WithdrawFormValues) => {
+    setIsWithdrawing(true);
+
     withdrawAsset.mutate(
       {
         asset: selectedAsset,
@@ -102,10 +106,14 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
       {
         onSuccess: (tx) => {
           toast.success(`Withdrawal successful ${tx}`);
+          
         },
         onError: (error) => {
           console.log("error", error);
           toast.error("Withdrawal failed");
+        },
+        onSettled: () => {
+          setIsWithdrawing(false);
         },
       }
     );
@@ -335,8 +343,9 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                 <button
                   type="submit"
                   className="w-full bg-[#5F79F1] text-white font-[Manrope] font-semibold text-[16px] leading-[1.5] py-3 px-4 rounded-xl hover:bg-[#4A6AE8] transition-colors"
+                  disabled={isWithdrawing}
                 >
-                  Continue
+                  {isWithdrawing ? "Withdrawing..." : "Continue"}
                 </button>
               </div>
             </div>

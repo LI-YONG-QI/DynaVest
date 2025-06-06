@@ -17,6 +17,8 @@ import { SUPPORTED_TOKENS } from "@/constants/profile";
 import type { SupportedChainIds } from "@/providers/config";
 import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
+import { addFeesCall, calculateFee } from "@/utils/fee";
+import { StrategyCall } from "@/classes/strategies/baseStrategy";
 
 interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
@@ -88,37 +90,44 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
       await client.switchChain({ id: chainId });
       const decimals = asset.decimals || 6;
       const amountInBaseUnits = parseUnits(amount, decimals);
+      const assetAddress = asset.chains?.[chainId] as Address;
 
-      let tx: Hash;
+      const { fee, amount: amountWithoutFee } = calculateFee(amountInBaseUnits);
+      const feeCall = addFeesCall(assetAddress, asset.isNativeToken, fee);
+      let calls: StrategyCall[] = [feeCall];
+
       if (asset.isNativeToken) {
-        tx = await client.sendTransaction(
+        calls = [
           {
             to,
-            value: amountInBaseUnits,
+            value: amountWithoutFee,
           },
-          {
-            uiOptions: {
-              showWalletUIs: false,
-            },
-          }
-        );
+          feeCall,
+        ];
       } else {
-        tx = await client.sendTransaction(
+        calls = [
           {
-            to: asset.chains?.[chainId],
+            to: assetAddress,
             data: encodeFunctionData({
               abi: ERC20_ABI,
               functionName: "transfer",
-              args: [to, amountInBaseUnits],
+              args: [to, amountWithoutFee],
             }),
           },
-          {
-            uiOptions: {
-              showWalletUIs: false,
-            },
-          }
-        );
+          feeCall,
+        ];
       }
+
+      const tx = await client.sendTransaction(
+        {
+          calls,
+        },
+        {
+          uiOptions: {
+            showWalletUIs: false,
+          },
+        }
+      );
 
       return tx;
     },

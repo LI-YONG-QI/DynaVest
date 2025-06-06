@@ -9,7 +9,7 @@ import { Position } from "@/types/position";
 
 export type StrategyCall = {
   to: Address;
-  data: `0x${string}`;
+  data?: `0x${string}`;
   value?: bigint;
 };
 
