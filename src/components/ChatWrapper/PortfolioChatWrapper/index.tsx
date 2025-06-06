@@ -32,6 +32,8 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
     message.strategies
   );
   const [isEdit, setIsEdit] = useState(true);
+
+  // TODO: hardcode USDC
   const { balance, isLoadingBalance } = useCurrency(USDC);
   const { multiInvest } = useStrategyExecutor();
 
@@ -49,6 +51,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
 
     if (action === "build") {
       if (
+        // TODO: hardcode USDC
         parseUnits(message.amount, USDC.decimals) >
         parseUnits(balance.toString(), USDC.decimals)
       ) {
