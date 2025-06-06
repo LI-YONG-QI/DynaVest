@@ -42,7 +42,7 @@ export default function useCurrency(token: Token) {
 
   // Use React Query for fetching and caching the balance
   const {
-    data: balance,
+    data: balance = BigInt(0),
     isLoading: isLoadingBalance,
     refetch,
     isError,

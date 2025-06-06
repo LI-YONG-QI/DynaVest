@@ -50,7 +50,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
     if (action === "build") {
       if (
         parseUnits(message.amount, USDC.decimals) >
-        parseUnits(balance.amount.toString(), USDC.decimals)
+        parseUnits(balance.toString(), USDC.decimals)
       ) {
         await addBotMessage(message.next("deposit"));
       } else {
