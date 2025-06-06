@@ -88,6 +88,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
       if (!client) throw new Error("Client not found");
 
       await client.switchChain({ id: chainId });
+
       const decimals = asset.decimals || 6;
       const amountInBaseUnits = parseUnits(amount, decimals);
       const assetAddress = asset.chains?.[chainId] as Address;

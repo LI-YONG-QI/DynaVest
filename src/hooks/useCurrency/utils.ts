@@ -29,8 +29,6 @@ type TokenPriceResponse = {
 export async function fetchTokensPrices(tokens: Token[]) {
   const ids = tokens.map((t) => COINGECKO_IDS[t.name]);
 
-  console.log("JJJJ");
-
   const response = await axios.get(
     "https://api.coingecko.com/api/v3/simple/price",
     {

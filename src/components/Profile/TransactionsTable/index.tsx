@@ -1,12 +1,18 @@
 import Image from "next/image";
 import { useTransaction, type GetTransactionResponse } from "./useTransaction";
 import { getProtocolMetadata } from "@/constants/protocols/metadata";
+import { useChainId } from "wagmi";
 
 const initialTransactions: GetTransactionResponse[] = [];
 
 export default function TransactionsTableComponent() {
   const { transactions: txs } = useTransaction();
+  const chainId = useChainId();
   const { data: transactions = initialTransactions } = txs;
+
+  const filteredTransactions = transactions.filter(
+    (transaction) => transaction.chain_id === chainId
+  );
 
   return (
     <div className="mx-4 w-[calc(100%-2rem)] h-[410px] flex flex-col">
@@ -25,7 +31,7 @@ export default function TransactionsTableComponent() {
       {/* Scrollable Content */}
       <div className="w-[100%] flex-1 overflow-y-auto px-3 py-1">
         <div className="space-y-3">
-          {transactions.map((transaction) => (
+          {filteredTransactions.map((transaction) => (
             <div
               onClick={() =>
                 window.open(

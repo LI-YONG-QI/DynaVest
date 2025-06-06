@@ -36,8 +36,6 @@ export default function PositionTableRow({
   const chainId = useChainId();
   const { data: profit = 0 } = useProfit(position);
 
-  console.log("Profit", profit);
-
   const strategyMetadata = getStrategyMetadata(
     position.strategy,
     position.chainId
@@ -123,7 +121,7 @@ export default function PositionTableRow({
             {isLoading ? "0.00" : Number(position.amount).toFixed(2)}
           </div>
           <div className="text-sm text-gray-500">
-            {isLoading ? "0.00" : formatAmount(position.amount * price)}
+            {`$ ${isLoading ? "0.00" : formatAmount(position.amount * price)}`}
           </div>
         </td>
 

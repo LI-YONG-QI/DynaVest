@@ -20,6 +20,7 @@ import {
   type PositionParams,
 } from "./utils";
 import { getTokenByName } from "@/constants/coins";
+import { addFeesCall, calculateFee } from "@/utils/fee";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocols>;
@@ -78,19 +79,16 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: singleStrategy.strategy.name,
       };
-      try {
-        await updatePosition(position);
-        await addTx.mutateAsync({
-          address: user,
-          chain_id: chainId,
-          strategy: singleStrategy.strategy.name,
-          hash: txHash,
-          amount: splitAmount,
-          token_name: tokenName,
-        });
-      } catch (error) {
-        console.error("Error adding position:", error);
-      }
+
+      await updatePosition(position);
+      await addTx.mutateAsync({
+        address: user,
+        chain_id: chainId,
+        strategy: singleStrategy.strategy.name,
+        hash: txHash,
+        amount: splitAmount,
+        token_name: tokenName,
+      });
     }
   }
 
@@ -140,13 +138,22 @@ export function useStrategyExecutor() {
     }: RedeemParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
+      const { fee, amount: amountWithoutFee } = calculateFee(amount);
       const calls = await getRedeemCalls(
         strategy,
-        amount,
+        amountWithoutFee,
         user,
         token,
         chainId
       );
+
+      const feeCall = addFeesCall(
+        token.chains?.[chainId] as Address,
+        token.isNativeToken,
+        fee
+      );
+      calls.push(feeCall);
+
       const txHash = await sendAndWaitTransaction(calls);
 
       // Update the status of position
@@ -162,7 +169,7 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
         hash: txHash,
-        amount: Number(formatUnits(amount, token.decimals)),
+        amount: Number(formatUnits(amountWithoutFee, token.decimals)),
         token_name: token.name,
       });
 
@@ -177,18 +184,26 @@ export function useStrategyExecutor() {
     mutationFn: async ({ strategy, amount, token }: InvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
+      const { fee, amount: amountWithoutFee } = calculateFee(amount);
       const calls = await getInvestCalls(
         strategy,
-        amount,
+        amountWithoutFee,
         user,
         token,
         chainId
       );
+
+      const feeCall = addFeesCall(
+        token.chains?.[chainId] as Address,
+        token.isNativeToken,
+        fee
+      );
+      calls.push(feeCall);
       const txHash = await sendAndWaitTransaction(calls);
 
       await updatePosition({
         address: user,
-        amount: Number(formatUnits(amount, token.decimals)),
+        amount: Number(formatUnits(amountWithoutFee, token.decimals)),
         token_name: token.name,
         chain_id: chainId,
         strategy: strategy.name,
@@ -198,12 +213,13 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
         hash: txHash,
-        amount: Number(formatUnits(amount, token.decimals)),
+        amount: Number(formatUnits(amountWithoutFee, token.decimals)),
         token_name: token.name,
       });
 
       return txHash;
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["positions", user] });
     },
@@ -213,23 +229,33 @@ export function useStrategyExecutor() {
     mutationFn: async ({ multiStrategy, amount, token }: MultiInvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
+      const { fee, amount: amountWithoutFee } = calculateFee(amount);
       const calls = await getInvestCalls(
         multiStrategy,
-        amount,
+        amountWithoutFee,
         user,
         token,
         chainId
       );
+
+      const feeCall = addFeesCall(
+        token.chains?.[chainId] as Address,
+        token.isNativeToken,
+        fee
+      );
+      calls.push(feeCall);
+
       const txHash = await sendAndWaitTransaction(calls);
 
       await updatePositions(
         txHash,
         multiStrategy,
-        amount,
+        amountWithoutFee,
         chainId,
         user,
         token.name
       );
+
       return txHash;
     },
   });
