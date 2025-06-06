@@ -3,17 +3,20 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Message } from "@/types/message";
-import useChatbot from "@/hooks/useChatbotResponse";
 import ChatBubble from "./ChatBubble";
 import { useChat } from "@/contexts/ChatContext";
 
 const Chatroom = () => {
-  const { showChat, messages, setMessages, isMinimized, toggleMinimize } =
-    useChat();
+  const {
+    showChat,
+    messages,
+    setMessages,
+    isMinimized,
+    toggleMinimize,
+    sendMessage,
+  } = useChat();
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
-    useChatbot();
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -42,7 +45,7 @@ const Chatroom = () => {
     setInputMessage("");
 
     try {
-      const botResponse = await sendMessage(inputMessage);
+      const botResponse = await sendMessage.mutateAsync(inputMessage);
       if (!botResponse || !botResponse.type) return;
 
       // Add bot response
@@ -71,6 +74,7 @@ const Chatroom = () => {
   {
     /* Minimized Chat - Floating Circle Button */
   }
+
   if (isMinimized) {
     return (
       <button
@@ -142,7 +146,7 @@ const Chatroom = () => {
                 <ChatBubble key={message.id} message={message} />
               ))}
               {/* Render loading chat when waiting for bot response */}
-              {loadingBotResponse && (
+              {sendMessage.isPending && (
                 <ChatBubble
                   message={{
                     id: (Date.now() + 1).toString(),

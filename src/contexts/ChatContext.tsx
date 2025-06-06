@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 
-import { Message } from "@/types";
+import { Message, BotResponse } from "@/types";
 
 interface ChatContextType {
   showChat: boolean;
@@ -12,23 +13,33 @@ interface ChatContextType {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   isMinimized: boolean;
   toggleMinimize: () => void;
+  sendMessage: UseMutationResult<BotResponse, Error, string>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "Hello! How can I help you with your DeFi investments today?",
-      sender: "bot",
-      timestamp: new Date(),
-      type: "Text",
-    },
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // 聊天機器人響應 mutation
+  const sendMessage = useMutation({
+    mutationFn: async (message: string): Promise<BotResponse> => {
+      console.log("CHATBOT MESSAGE", message);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHATBOT_URL}/defiInfo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: JSON.stringify({ input_text: message }),
+        }
+      );
+      return res.json();
+    },
+  });
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -37,6 +48,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const openChat = (firstMessage?: string | Message) => {
     setShowChat(true);
     setIsMinimized(false);
+
     if (firstMessage) {
       const msgObj: Message =
         typeof firstMessage === "string"
@@ -49,16 +61,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             }
           : firstMessage;
       setMessages([msgObj]);
-    } else {
-      setMessages([
-        {
-          id: "1",
-          text: "Hello! How can I help you with your DeFi investments today?",
-          sender: "bot",
-          timestamp: new Date(),
-          type: "Text",
-        },
-      ]);
     }
   };
 
@@ -76,6 +78,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         setMessages,
         isMinimized,
         toggleMinimize,
+        sendMessage,
       }}
     >
       {children}

@@ -8,7 +8,12 @@ import { Tooltip } from "@/components/Tooltip";
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { RiskLevel, StrategyMetadata } from "@/types";
+import type {
+  BotResponse,
+  Message,
+  RiskLevel,
+  StrategyMetadata,
+} from "@/types";
 
 function getRiskLevelLabel(risk: RiskLevel) {
   switch (risk) {
@@ -42,8 +47,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
   // Extract the base description without "Learn More" text
   const baseDescription = description.replace(/\s*Learn More\s*$/, "");
 
-  const { openChat } = useChat();
-
+  const { openChat, setMessages, sendMessage } = useChat();
   const router = useRouter();
 
   const handleCardClick = (e: MouseEvent) => {
@@ -54,6 +58,48 @@ export default function StrategyCard(strategy: StrategyMetadata) {
       return;
     }
     router.push(`/strategies/${id}`);
+  };
+
+  const handleBotClick = async () => {
+    const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: prompt,
+      sender: "user",
+      timestamp: new Date(),
+      type: "Text",
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    openChat();
+
+    sendMessage.mutate(prompt, {
+      onSuccess: (data: BotResponse) => {
+        if (data.type === "question") {
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: data.data?.answer ?? "",
+            sender: "bot",
+            timestamp: new Date(),
+            type: "Text",
+          };
+
+          setMessages((prev) => [...prev, botMessage]);
+        }
+      },
+      onError: (error) => {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: error.message ?? "",
+          sender: "bot",
+          timestamp: new Date(),
+          type: "Text",
+        };
+
+        setMessages((prev) => [...prev, botMessage]);
+      },
+    });
   };
 
   return (
@@ -182,11 +228,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
           >
             Invest
           </button>
-          <button
-            onClick={() =>
-              openChat(`Hello. Do you want to ask anything about ${title}?`)
-            }
-          >
+          <button onClick={handleBotClick}>
             <Image src="/bot-icon-blue.svg" alt="bot" width={30} height={30} />
           </button>
         </div>

@@ -49,7 +49,7 @@ interface AssetsContextType {
   totalValue: number;
   isPriceError: boolean;
   pricesQuery: UseQueryResult<Record<string, number>, Error>;
-  assetsBalance: AssetsBalanceQuery; // 改為包含狀態的對象
+  assetsBalance: AssetsBalanceQuery;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);

@@ -16,7 +16,6 @@ import {
   FindStrategiesMessage,
   StrategiesCardsMessage,
 } from "@/classes/message";
-import useChatbot from "@/hooks/useChatbotResponse";
 import { useChat } from "@/contexts/ChatContext";
 import {
   PortfolioChatWrapper,
@@ -45,9 +44,9 @@ export default function Home() {
   const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { closeChat } = useChat();
-  const { mutateAsync: sendMessage, isPending: loadingBotResponse } =
-    useChatbot();
+  const { closeChat, sendMessage } = useChat();
+  const loadingBotResponse = sendMessage.isPending;
+
   const { totalValue, tokensQuery, isPriceError } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
@@ -192,7 +191,7 @@ export default function Home() {
     addUserMessage(userInput);
 
     try {
-      const botResponse = await sendMessage(userInput);
+      const botResponse = await sendMessage.mutateAsync(userInput);
       const nextMessage = parseBotResponse(botResponse);
 
       await handleTypingText(nextMessage);
