@@ -12,6 +12,7 @@ import { formatAmount } from "@/utils";
 import { DepositDialog } from "@/components/DepositDialog";
 import { USDC } from "@/constants/coins";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
+import { usePrivy } from "@privy-io/react-auth";
 
 const PROFILE_TABS = [
   {
@@ -43,6 +44,7 @@ function getTabComponent(tab: string) {
 
 export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
+  const { user: privyUser } = usePrivy();
 
   const { client } = useSmartWallets();
   const { profitsQuery, updateTotalValue, assetsBalance } = useAssets();
@@ -83,36 +85,8 @@ export default function ProfilePage() {
             <div>
               <div className="flex gap-2 items-center">
                 <h1 className="text-[#141A21] font-bold text-xl sm:text-2xl">
-                  Alison
+                  {privyUser?.google?.name}
                 </h1>
-                <button className="border border-solid border-black rounded-sm h-5 w-5 flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    x="0px"
-                    y="0px"
-                    width="100"
-                    height="100"
-                    viewBox="0 0 32 32"
-                    className="h-4 w-4"
-                  >
-                    <path d="M 4.0175781 4 L 13.091797 17.609375 L 4.3359375 28 L 6.9511719 28 L 14.246094 19.34375 L 20.017578 28 L 20.552734 28 L 28.015625 28 L 18.712891 14.042969 L 27.175781 4 L 24.560547 4 L 17.558594 12.310547 L 12.017578 4 L 4.0175781 4 z M 7.7558594 6 L 10.947266 6 L 24.279297 26 L 21.087891 26 L 7.7558594 6 z"></path>
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 sm:gap-5 mt-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-400 text-xs sm:text-sm">
-                    User Id
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold">82874</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-400 text-xs sm:text-sm">
-                    Joined
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold">7231</span>
-                </div>
               </div>
             </div>
           </div>
