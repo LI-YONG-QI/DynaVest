@@ -44,7 +44,7 @@ export const entryPoint = getEntryPoint("0.7");
  * PrivyAccountProvider is a React component that manages authentication and wallet functionality
  * using Privy's authentication system. It handles wallet creation, kernel account setup,
  * and provides authentication UI components.
- *
+ * @deprecated
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components to be wrapped
  * @returns {JSX.Element} The provider component with authentication functionality
