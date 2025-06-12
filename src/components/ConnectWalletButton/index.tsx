@@ -98,8 +98,8 @@ export default function ConnectWalletButton() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
-    setAddress(user.smartWallet?.address || null); // TODO: assertion
+    if (!user?.smartWallet?.address) return;
+    setAddress(user.smartWallet.address);
   }, [user]);
 
   const backgroundStyle = {
