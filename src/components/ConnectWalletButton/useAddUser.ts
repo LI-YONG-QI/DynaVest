@@ -8,6 +8,9 @@ import { useMutation } from "@tanstack/react-query";
 
 import { useDeploySmartWallet } from "./useDeploySmartWallet";
 
+/**
+ * Copy from @privy-io/react-auth/types.ts
+ */
 type LoginMethod =
   | "email"
   | "sms"
@@ -21,6 +24,9 @@ type LoginMethod =
   | `privy:${string}`
   | "guest";
 
+/**
+ * Copy from @privy-io/react-auth/types.ts
+ */
 type LoginResponse = {
   user: User;
   isNewUser: boolean;
