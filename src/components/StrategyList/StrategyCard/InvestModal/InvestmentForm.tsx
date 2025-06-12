@@ -7,7 +7,7 @@ import { parseUnits, formatUnits } from "viem";
 
 import useCurrency from "@/hooks/useCurrency";
 
-import { InvestmentFormMode, InvestStrategy, Token } from "@/types";
+import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { getStrategy } from "@/utils/strategies";
 import { useStrategy } from "@/hooks/useStrategy";
@@ -18,7 +18,7 @@ import { useWallets } from "@privy-io/react-auth";
 // TODO: refactor
 // TODO: split responsibilities of the AmountInput (avoid props drilling)
 interface InvestmentFormProps {
-  strategy: InvestStrategy;
+  strategy: StrategyMetadata;
   mode?: InvestmentFormMode;
   handleClose?: () => void;
   handlePortfolio?: (amount: string) => void;
@@ -333,7 +333,7 @@ interface AmountInputProps {
   setCurrency: (currency: Token) => void;
   showCurrencyDropdown: boolean;
   setShowCurrencyDropdown: (show: boolean) => void;
-  strategy: InvestStrategy;
+  strategy: StrategyMetadata;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
   maxBalance: bigint;

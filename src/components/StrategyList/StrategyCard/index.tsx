@@ -39,7 +39,6 @@ export default function StrategyCard(strategy: StrategyMetadata) {
     externalLink,
     tokens,
     chainId,
-    displayInsufficientBalance = false,
   } = strategy;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -238,7 +237,6 @@ export default function StrategyCard(strategy: StrategyMetadata) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         strategy={strategy}
-        displayInsufficientBalance={displayInsufficientBalance}
       />
     </>
   );

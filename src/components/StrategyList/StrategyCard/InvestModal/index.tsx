@@ -9,14 +9,12 @@ interface InvestModalProps {
   isOpen: boolean;
   onClose: () => void;
   strategy: StrategyMetadata;
-  displayInsufficientBalance?: boolean;
 }
 
 export default function InvestModal({
   isOpen,
   onClose,
   strategy,
-  displayInsufficientBalance = true, // todo: dynamic
 }: InvestModalProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -156,39 +154,7 @@ export default function InvestModal({
             </div>
             {/* Invest modal content */}
             <div>
-              {displayInsufficientBalance ? (
-                <div>
-                  {/* Insufficient balance - swap view */}
-                  <div className="mb-6">
-                    <h3>Insufficient Balance!!!</h3>
-
-                    <p>Do you want to swap USDC from ETHEREUM to BASE</p>
-                  </div>
-                  {/* Confirm Swap button */}
-                  <button
-                    type="button"
-                    onClick={handleSwap}
-                    disabled={isLoading}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-[#5F79F1] hover:bg-[#4A64DC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                  >
-                    {isLoading ? "Processing..." : "Confirm Swap"}
-                  </button>
-
-                  {isSuccess && (
-                    <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md">
-                      Order placed successfully! Order hash: {orderHash}
-                    </div>
-                  )}
-
-                  {swapError && (
-                    <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-md">
-                      {swapError}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <InvestmentForm strategy={strategy} handleClose={handleClose} />
-              )}
+              <InvestmentForm strategy={strategy} handleClose={handleClose} />
             </div>
           </div>
         </div>

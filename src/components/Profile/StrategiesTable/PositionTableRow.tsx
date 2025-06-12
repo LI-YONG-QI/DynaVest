@@ -164,7 +164,6 @@ export default function PositionTableRow({
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             strategy={strategyMetadata as StrategyMetadata}
-            displayInsufficientBalance={false}
           />,
           document.body
         )}

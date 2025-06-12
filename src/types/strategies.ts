@@ -11,11 +11,7 @@ export type ProtocolContracts<T extends Protocols> = keyof T[keyof T];
 
 export type Protocol = (typeof PROTOCOLS)[number];
 
-export type StrategyMetadata = InvestStrategy & {
-  displayInsufficientBalance?: boolean;
-};
-
-export type InvestStrategy = {
+export type StrategyMetadata = {
   title: string;
   id: string;
   apy: number;
