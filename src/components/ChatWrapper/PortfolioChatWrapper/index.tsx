@@ -14,7 +14,7 @@ import { USDC } from "@/constants/coins";
 import useCurrency from "@/hooks/useCurrency";
 import { getStrategy } from "@/utils/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -35,7 +35,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
 
   // TODO: hardcode USDC
   const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { multiInvest } = useStrategyExecutor();
+  const { multiInvest } = useStrategy();
 
   const totalAPY = strategies.reduce((acc, strategy) => {
     return acc + (strategy.apy * strategy.allocation) / 100;

@@ -42,9 +42,7 @@ type MultiInvestParams = {
   positionId?: string;
 };
 
-// TODO: rename, and encapsulate logic of strategy
-// TODO: useStrategy(strategyName: Protocol)
-export function useStrategyExecutor() {
+export function useStrategy() {
   const { client } = useSmartWallets();
   const chainId = useChainId();
   const publicClient = useClient();
@@ -198,6 +196,7 @@ export function useStrategyExecutor() {
         token.isNativeToken,
         fee
       );
+
       calls.push(feeCall);
       const txHash = await sendAndWaitTransaction(calls);
 

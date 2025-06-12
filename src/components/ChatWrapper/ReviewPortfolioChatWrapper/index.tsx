@@ -13,7 +13,7 @@ import useCurrency from "@/hooks/useCurrency";
 import { USDC } from "@/constants/coins";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { getStrategy } from "@/utils/strategies";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
 
 interface ReviewPortfolioChatWrapperProps {
   message: ReviewPortfolioMessage;
@@ -26,7 +26,7 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
 }) => {
   const [isEdit, setIsEdit] = useState(true);
   const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { multiInvest } = useStrategyExecutor();
+  const { multiInvest } = useStrategy();
 
   const strategies = message.strategies;
   const totalAPY = strategies.reduce((acc, strategy) => {

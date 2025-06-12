@@ -11,7 +11,7 @@ import {
   getProtocolMetadata,
   STRATEGIES_PROTOCOLS_MAPPING,
 } from "@/constants/protocols/metadata";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
 import { useProfit } from "./useProfit";
@@ -33,7 +33,7 @@ export default function PositionTableRow({
 
   const { pricesQuery } = useAssets();
   const { data: profit = 0 } = useProfit(position);
-  const { redeem, invest } = useStrategyExecutor();
+  const { redeem, invest } = useStrategy();
   const chainId = useChainId();
 
   const price = pricesQuery.data?.[token.name] || 0;

@@ -68,7 +68,6 @@ export async function getInvestCalls(
  */
 export async function updatePosition(positionParams: PositionParams) {
   // TODO: refactor with backend
-
   let res: AxiosResponse;
   try {
     res = await axios.get(
