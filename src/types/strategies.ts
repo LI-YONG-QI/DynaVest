@@ -4,9 +4,17 @@ import type { STRATEGIES } from "@/constants";
 import { RISK_OPTIONS } from "@/constants/risk";
 import { Token } from "./blockchain";
 
-export type Protocol = Record<number, Record<string, Address>>;
-export type ProtocolChains<T extends Protocol> = keyof T;
-export type ProtocolContracts<T extends Protocol> = keyof T[keyof T];
+export type Protocol = {
+  name: string;
+  description: string;
+  icon: string;
+  link: string;
+  contracts: ProtocolAddresses;
+};
+
+export type ProtocolAddresses = Record<number, Record<string, Address>>;
+export type ProtocolChains<T extends ProtocolAddresses> = keyof T;
+export type ProtocolContracts<T extends ProtocolAddresses> = keyof T[keyof T];
 
 export type Strategy = (typeof STRATEGIES)[number];
 

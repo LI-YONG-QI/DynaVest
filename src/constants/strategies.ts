@@ -1,22 +1,26 @@
 import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
 import type { StrategyMetadata } from "@/types";
-import { USDC, CELO, FLOW, cEUR, ETH, BNB } from "@/constants/coins";
-import {
-  AAVE_CONTRACTS,
-  CAMELOT_CONTRACTS,
-  UNISWAP_CONTRACTS,
-  MORPHO_CONTRACTS,
-  GMX_CONTRACTS,
-  ST_CELO_CONTRACTS,
-} from "./protocols";
+import { USDC, CELO, FLOW, cEUR, BNB } from "@/constants/coins";
+import { AAVE, UNISWAP, MORPHO } from "./protocols";
+
+export const STRATEGIES = [
+  "AaveV3Supply",
+  "StCeloStaking",
+  "MorphoSupply",
+  "UniswapV3AddLiquidity",
+  "UniswapV3SwapLST",
+  "CamelotStaking",
+  "GMXDeposit",
+  "MultiStrategy",
+] as const;
 
 export const BOT_STRATEGY: StrategyMetadata = {
   title: "Bot Strategy",
   id: "AaveV3Supply",
   apy: 0,
   risk: "low",
-  protocol: AAVE_CONTRACTS,
+  protocol: AAVE,
   description: "Deposit USDC to multi strategies",
   externalLink: "",
   learnMoreLink: "",
@@ -25,25 +29,25 @@ export const BOT_STRATEGY: StrategyMetadata = {
 };
 
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
-  {
-    title: "GMX Strategy",
-    id: "GMXDeposit",
-    apy: 214.47,
-    risk: "high",
-    protocol: GMX_CONTRACTS,
-    description:
-      "Leveraged Beefy Vault on GMX, GMX is staked to earn ETH and esGMX. This ETH is compounded to more GMX",
-    externalLink: "https://app.beefy.com/vault/gmx-arb-gmx",
-    learnMoreLink: "https://app.beefy.com/vault/gmx-arb-gmx",
-    tokens: [ETH],
-    chainId: arbitrum.id,
-  },
+  // {
+  //   title: "GMX Strategy",
+  //   id: "GMXDeposit",
+  //   apy: 214.47,
+  //   risk: "high",
+  //   protocol: AAV,
+  //   description:
+  //     "Leveraged Beefy Vault on GMX, GMX is staked to earn ETH and esGMX. This ETH is compounded to more GMX",
+  //   externalLink: "https://app.beefy.com/vault/gmx-arb-gmx",
+  //   learnMoreLink: "https://app.beefy.com/vault/gmx-arb-gmx",
+  //   tokens: [ETH],
+  //   chainId: arbitrum.id,
+  // },
   {
     title: "AAVE Lending",
     id: "AaveV3Supply",
     apy: 4.5,
     risk: "medium",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -58,7 +62,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 35.4,
     risk: "high",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
     externalLink:
@@ -73,7 +77,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     externalLink: "https://lido.fi/",
@@ -81,24 +85,24 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     tokens: [USDC],
     chainId: arbitrum.id,
   },
-  {
-    title: "Camelot Staking",
-    id: "CamelotStaking",
-    apy: 17.54,
-    risk: "medium",
-    protocol: CAMELOT_CONTRACTS,
-    description: "Swap ETH to xGRAIL and stake it to Camelot to earn yield.",
-    externalLink: "https://app.camelot.exchange/xgrail/staking",
-    learnMoreLink: "https://app.camelot.exchange/xgrail/staking",
-    tokens: [ETH],
-    chainId: arbitrum.id,
-  },
+  // {
+  //   title: "Camelot Staking",
+  //   id: "CamelotStaking",
+  //   apy: 17.54,
+  //   risk: "medium",
+  //   protocol: CAMELOT_CONTRACTS,
+  //   description: "Swap ETH to xGRAIL and stake it to Camelot to earn yield.",
+  //   externalLink: "https://app.camelot.exchange/xgrail/staking",
+  //   learnMoreLink: "https://app.camelot.exchange/xgrail/staking",
+  //   tokens: [ETH],
+  //   chainId: arbitrum.id,
+  // },
   {
     title: "Morpho Supplying",
     id: "MorphoSupply",
     apy: 6.7,
     risk: "medium",
-    protocol: MORPHO_CONTRACTS,
+    protocol: MORPHO,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -113,7 +117,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 6.1,
     risk: "medium",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -128,7 +132,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 32.5,
     risk: "high",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
     externalLink:
@@ -143,7 +147,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     externalLink: "https://lido.fi/",
@@ -156,7 +160,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 4.3,
     risk: "medium",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -171,7 +175,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 39.1,
     risk: "high",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
     externalLink:
@@ -186,7 +190,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     externalLink: "https://lido.fi/",
@@ -194,25 +198,25 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     tokens: [BNB],
     chainId: bsc.id,
   },
-  {
-    title: "stCelo Staking",
-    id: "StCeloStaking",
-    apy: 2.8,
-    risk: "low",
-    protocol: ST_CELO_CONTRACTS,
-    description:
-      "Staking CELO to operate network nodes helps to maintain security on the blockchain.",
-    externalLink: "https://stcelo.com",
-    learnMoreLink: "https://stcelo.com",
-    tokens: [CELO],
-    chainId: celo.id,
-  },
+  // {
+  //   title: "stCelo Staking",
+  //   id: "StCeloStaking",
+  //   apy: 2.8,
+  //   risk: "low",
+  //   protocol: ST_CELO_CONTRACTS,
+  //   description:
+  //     "Staking CELO to operate network nodes helps to maintain security on the blockchain.",
+  //   externalLink: "https://stcelo.com",
+  //   learnMoreLink: "https://stcelo.com",
+  //   tokens: [CELO],
+  //   chainId: celo.id,
+  // },
   {
     title: "Uniswap Liquidity Stablecoin Pool",
     id: "UniswapV3AddLiquidity",
     apy: 69.405,
     risk: "high",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Adding CELO and cEUR to the Uniswap v3 CELO/cEUR 1% pool enables users to earn swap fees by providing liquidity for trading",
     externalLink:
@@ -227,7 +231,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 45.15,
     risk: "high",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Adding CELO and stCelo to the Uniswap v3 CELO/stCelo 0.01% pool to earn swap fees and liquid staking rewards",
     externalLink:
@@ -242,7 +246,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 5.7,
     risk: "medium",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying cEUR to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -257,7 +261,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 32.15,
     risk: "high",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Looping is a recursive DeFi strategy of supplying and borrowing cEUR in repeated cycles to compound interest and token incentives",
     externalLink:
@@ -272,7 +276,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "MorphoSupply",
     apy: 4.3,
     risk: "low",
-    protocol: MORPHO_CONTRACTS,
+    protocol: MORPHO,
     description:
       "Lending protocol that allows anyone to deposit and earn yield. Learn More",
     externalLink: "https://kitty.com",
@@ -280,25 +284,25 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     tokens: [FLOW],
     chainId: flowMainnet.id,
   },
-  {
-    title: "Flow Yield",
-    id: "CamelotStaking",
-    apy: 34.0,
-    risk: "high",
-    protocol: CAMELOT_CONTRACTS,
-    description:
-      "Providing ankrFlow tokens as liquidity to KittyStable allows you to earn both liquid staking rewards and swap fees.",
-    externalLink: "https://flow.com",
-    learnMoreLink: "https://flow.com",
-    tokens: [FLOW],
-    chainId: flowMainnet.id,
-  },
+  // {
+  //   title: "Flow Yield",
+  //   id: "CamelotStaking",
+  //   apy: 34.0,
+  //   risk: "high",
+  //   protocol: CAMELOT_CONTRACTS,
+  //   description:
+  //     "Providing ankrFlow tokens as liquidity to KittyStable allows you to earn both liquid staking rewards and swap fees.",
+  //   externalLink: "https://flow.com",
+  //   learnMoreLink: "https://flow.com",
+  //   tokens: [FLOW],
+  //   chainId: flowMainnet.id,
+  // },
   {
     title: "AAVE Lending Strategy",
     id: "AaveV3Supply",
     apy: 5.1,
     risk: "medium",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -314,7 +318,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 10.1,
     risk: "low",
-    protocol: AAVE_CONTRACTS,
+    protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:
@@ -329,7 +333,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 10.1,
     risk: "low",
-    protocol: UNISWAP_CONTRACTS,
+    protocol: UNISWAP,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
     externalLink:

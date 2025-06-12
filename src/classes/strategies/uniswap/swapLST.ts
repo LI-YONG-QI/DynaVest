@@ -3,7 +3,7 @@ import { readContract } from "@wagmi/core";
 
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { ERC20_ABI, V3_SWAP_ROUTER_ABI } from "@/constants/abis";
-import { UNISWAP_CONTRACTS } from "@/constants/protocols/uniswap";
+import { UNISWAP } from "@/constants/protocols/uniswap";
 import { Token } from "@/types/blockchain";
 import { wagmiConfig } from "@/providers/config";
 import { Position } from "@/types/position";
@@ -13,13 +13,13 @@ import { Position } from "@/types/position";
  * @notice Ethereum: ETH -> wstETH
  * @notice BSC: BNB -> wbETH
  */
-export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP_CONTRACTS> {
+export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP.contracts> {
   constructor(
     chainId: number,
     public readonly nativeToken: Token,
     public readonly lstToken: Token
   ) {
-    super(chainId, UNISWAP_CONTRACTS, "UniswapV3SwapLST");
+    super(chainId, UNISWAP, "UniswapV3SwapLST");
   }
 
   async investCalls(

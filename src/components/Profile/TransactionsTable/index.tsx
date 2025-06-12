@@ -56,7 +56,7 @@ export default function TransactionsTableComponent() {
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
                       <Image
                         src={getProtocolMetadata(transaction.strategy).icon}
-                        alt={"crypto-icons/aave.svg"}
+                        alt={"crypto-icons/protocol/aave.svg"}
                         width={24}
                         height={24}
                         className="object-contain"

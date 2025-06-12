@@ -5,13 +5,13 @@ import { readContract } from "@wagmi/core";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
-import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
+import { AAVE } from "@/constants/protocols/aave";
 import { wagmiConfig } from "@/providers/config";
 import { getTokenByName } from "@/utils/coins";
 
-export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
+export class AaveV3Supply extends BaseStrategy<typeof AAVE.contracts> {
   constructor(chainId: number) {
-    super(chainId, AAVE_CONTRACTS, "AaveV3Supply");
+    super(chainId, AAVE, "AaveV3Supply");
   }
 
   async investCalls(
