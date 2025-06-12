@@ -233,7 +233,8 @@ export default function Home() {
     if (
       !tokensQuery.isPlaceholderData &&
       !tokensQuery.isError &&
-      !isPriceError
+      !isPriceError &&
+      localStorage.getItem("onboarding-dialog-shown") !== "true"
     ) {
       setIsOnboardingOpen(totalValue === 0);
     }

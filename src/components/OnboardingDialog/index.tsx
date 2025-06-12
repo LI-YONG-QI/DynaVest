@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { DepositDialog } from "@/components/DepositDialog";
 import { USDC } from "@/constants/coins";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 interface OnboardingDialogProps {
   trigger?: React.ReactNode;
@@ -26,6 +29,14 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
 }) => {
   const handleSkip = () => {
     onOpenChange?.(false);
+  };
+
+  const handleCheckboxChange = (state: CheckedState) => {
+    if (state) {
+      localStorage.setItem("onboarding-dialog-shown", "true");
+    } else {
+      localStorage.setItem("onboarding-dialog-shown", "false");
+    }
   };
 
   return (
@@ -71,13 +82,17 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                 textClassName="w-full bg-[#5F79F1] text-white rounded-[8px] py-[14px] px-[20px] flex justify-center items-center hover:bg-[#5F79F1]/90 transition-all duration-200"
               />
 
-              <div className="flex justify-center">
+              <div className="flex flex-col gap-2 justify-center">
                 <button
                   onClick={handleSkip}
                   className="font-[Manrope] font-semibold text-[16px] leading-[1em] text-[#5F79F1] hover:text-[#5F79F1]/80 transition-colors"
                 >
                   Skip for now
                 </button>
+                <div className="flex flex-row justify-center items-center gap-2">
+                  <Checkbox onCheckedChange={handleCheckboxChange} />
+                  <Label htmlFor="email">Don&apos;t show this again</Label>
+                </div>
               </div>
             </div>
           </div>
