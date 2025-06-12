@@ -6,11 +6,12 @@ import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 
 import useCurrency from "@/hooks/useCurrency";
-import useSwitchChain from "@/hooks/useSwitchChain";
+
 import { InvestmentFormMode, InvestStrategy, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { getStrategy } from "@/utils/strategies";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
+import { useWallets } from "@privy-io/react-auth";
 
 // Props interface
 
@@ -62,13 +63,12 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isSupportedChain, ready: isWalletReady } = useSwitchChain(
-    strategy.chainId
-  );
+  const chainId = useChainId();
+  const isSupportedChain = chainId === strategy.chainId;
+  const { ready: isWalletReady } = useWallets();
   const { switchChainAsync } = useWagmiSwitchChain();
 
-  const chainId = useChainId();
-  const { invest: investStrategy } = useStrategyExecutor();
+  const { invest: investStrategy } = useStrategy();
 
   // Advanced settings state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -195,7 +195,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     <form onSubmit={handleSubmit}>
       {/* Amount input */}
       <AmountInput
-        inputName="amount"
         amount={amount}
         setAmount={setAmount}
         currency={currency}
@@ -211,7 +210,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
 
       {mode == "lp" && (
         <AmountInput
-          inputName="secondAmount"
           amount={secondAmount}
           setAmount={setSecondAmount}
           currency={secondCurrency}
@@ -329,7 +327,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
 };
 
 interface AmountInputProps {
-  inputName?: string;
   amount: string;
   setAmount: (amount: string) => void;
   currency: Token;
@@ -344,7 +341,6 @@ interface AmountInputProps {
 }
 
 const AmountInput = ({
-  inputName = "amount",
   amount,
   setAmount,
   currency,
@@ -362,8 +358,8 @@ const AmountInput = ({
       <div className="flex items-center w-full gap-2">
         <input
           type="text"
-          name={inputName}
-          id={inputName}
+          name="amount"
+          id="amount"
           className="flex-1 min-w-0 bg-transparent text-gray-500 block px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-0 focus:border-0 placeholder:text-gray-500"
           placeholder="0.00"
           value={amount}
