@@ -20,10 +20,4 @@ export type Token = {
   };
 };
 
-export type Chain = {
-  name: string;
-  id: number;
-  icon: string;
-};
-
 export type DepositAction = "Deposit" | "Change Amount";

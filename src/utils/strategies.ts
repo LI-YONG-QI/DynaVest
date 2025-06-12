@@ -1,6 +1,6 @@
 import { bsc } from "viem/chains";
 
-import { Protocol, Protocols, StrategyMetadata } from "@/types";
+import { Protocol, type Strategy, StrategyMetadata } from "@/types";
 import {
   BNB,
   ETH,
@@ -22,12 +22,12 @@ export function getDeadline(): bigint {
 }
 
 export function getStrategy(
-  protocol: Protocol,
+  strategy: Strategy,
   chainId: number
-): BaseStrategy<Protocols> {
+): BaseStrategy<Protocol> {
   // The type casting here is safe because we've already verified the chainId is supported
   // for the specific protocol with isChainIdSupported
-  switch (protocol) {
+  switch (strategy) {
     case "MorphoSupply":
       return new MorphoSupply(chainId);
     case "AaveV3Supply":
@@ -45,11 +45,11 @@ export function getStrategy(
 }
 
 export function getStrategyMetadata(
-  protocol: string,
+  strategy: Strategy,
   chainId: number
 ): StrategyMetadata {
   const strategyMetadata = STRATEGIES_METADATA.find(
-    (s) => s.protocol === protocol && s.chainId === chainId
+    (s) => s.id === strategy && s.chainId === chainId
   );
 
   if (!strategyMetadata) throw new Error("Strategy metadata not found");

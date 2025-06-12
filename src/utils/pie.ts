@@ -33,7 +33,7 @@ export const createPieChartStrategies = (
     color: COLORS[index],
     name: strategy.title,
     apy: `APY ${strategy.apy}%`,
-    risk: `${strategy.risk.level} Risk`,
+    risk: `${strategy.risk} Risk`,
     allocation: strategy.allocation,
   }));
 };

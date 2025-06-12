@@ -2,19 +2,22 @@ import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
 import type { StrategyMetadata } from "@/types";
 import { USDC, CELO, FLOW, cEUR, ETH, BNB } from "@/constants/coins";
+import {
+  AAVE_CONTRACTS,
+  CAMELOT_CONTRACTS,
+  UNISWAP_CONTRACTS,
+  MORPHO_CONTRACTS,
+  GMX_CONTRACTS,
+  ST_CELO_CONTRACTS,
+} from "./protocols";
 
 export const BOT_STRATEGY: StrategyMetadata = {
   title: "Bot Strategy",
-  id: "bot-strategy",
+  id: "AaveV3Supply",
   apy: 0,
-  risk: {
-    level: "low" as const,
-    color: "",
-    bgColor: "",
-  },
-  protocol: "AaveV3Supply",
+  risk: "low",
+  protocol: AAVE_CONTRACTS,
   description: "Deposit USDC to multi strategies",
-  image: "",
   externalLink: "",
   learnMoreLink: "",
   tokens: [USDC],
@@ -24,17 +27,12 @@ export const BOT_STRATEGY: StrategyMetadata = {
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
   {
     title: "GMX Strategy",
-    id: "gmx-strategy",
+    id: "GMXDeposit",
     apy: 214.47,
-    risk: {
-      level: "high" as const,
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "GMXDeposit",
+    risk: "high",
+    protocol: GMX_CONTRACTS,
     description:
       "Leveraged Beefy Vault on GMX, GMX is staked to earn ETH and esGMX. This ETH is compounded to more GMX",
-    image: "/crypto-icons/arb.svg",
     externalLink: "https://app.beefy.com/vault/gmx-arb-gmx",
     learnMoreLink: "https://app.beefy.com/vault/gmx-arb-gmx",
     tokens: [ETH],
@@ -42,17 +40,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending",
-    id: "aave-lending",
+    id: "AaveV3Supply",
     apy: 4.5,
-    risk: {
-      level: "medium" as const,
-      color: "#B9AB15",
-      bgColor: "rgba(230, 212, 9, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "medium",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/arb.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0xaf88d065e77c8cc2239327c5edb3a432268e5831&marketName=proto_arbitrum_v3",
     learnMoreLink:
@@ -62,17 +55,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity",
-    id: "uniswap-liquidity",
+    id: "UniswapV3AddLiquidity",
     apy: 35.4,
-    risk: {
-      level: "high" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3AddLiquidity",
+    risk: "high",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
-    image: "/crypto-icons/arb.svg",
     externalLink:
       "https://app.uniswap.org/explore/pools/arbitrum/0xbE3aD6a5669Dc0B8b12FeBC03608860C31E2eef6",
     learnMoreLink:
@@ -82,17 +70,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Liquid Staking",
-    id: "liquid-staking",
+    id: "UniswapV3SwapLST",
     apy: 2.8,
-    risk: {
-      level: "low" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3SwapLST",
+    risk: "low",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
-    image: "/crypto-icons/arb.svg",
     externalLink: "https://lido.fi/",
     learnMoreLink: "https://lido.fi/",
     tokens: [USDC],
@@ -100,16 +83,11 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Camelot Staking",
-    id: "camelot-staking",
+    id: "CamelotStaking",
     apy: 17.54,
-    risk: {
-      level: "medium" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "CamelotStaking",
+    risk: "medium",
+    protocol: CAMELOT_CONTRACTS,
     description: "Swap ETH to xGRAIL and stake it to Camelot to earn yield.",
-    image: "/crypto-icons/arb.svg",
     externalLink: "https://app.camelot.exchange/xgrail/staking",
     learnMoreLink: "https://app.camelot.exchange/xgrail/staking",
     tokens: [ETH],
@@ -117,17 +95,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Morpho Supplying",
-    id: "morpho-supplying",
+    id: "MorphoSupply",
     apy: 6.7,
-    risk: {
-      level: "medium" as const,
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.3)",
-    },
-    protocol: "MorphoSupply",
+    risk: "medium",
+    protocol: MORPHO_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/base.png",
     externalLink:
       "https://app.morpho.org/base/market/0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda/weth-usdc",
     learnMoreLink:
@@ -137,17 +110,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
-    id: "aave-lending-strategy",
+    id: "AaveV3Supply",
     apy: 6.1,
-    risk: {
-      level: "medium" as const,
-      color: "#B9AB15",
-      bgColor: "rgba(230, 212, 9, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "medium",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/base.png",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913&marketName=proto_base_v3",
     learnMoreLink:
@@ -157,17 +125,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Narrow Range",
-    id: "uniswap-liquidity-narrow-range",
+    id: "UniswapV3AddLiquidity",
     apy: 32.5,
-    risk: {
-      level: "high" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3AddLiquidity",
+    risk: "high",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
-    image: "/crypto-icons/base.png",
     externalLink:
       "https://app.uniswap.org/explore/pools/base/0xD56da2B74bA826f19015E6B7Dd9Dae1903E85DA1",
     learnMoreLink:
@@ -177,17 +140,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Liquid Staking",
-    id: "liquid-staking",
+    id: "UniswapV3SwapLST",
     apy: 2.8,
-    risk: {
-      level: "low" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3SwapLST",
+    risk: "low",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
-    image: "/crypto-icons/base.png",
     externalLink: "https://lido.fi/",
     learnMoreLink: "https://lido.fi/",
     tokens: [USDC],
@@ -195,17 +153,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
-    id: "aave-lending-strategy",
+    id: "AaveV3Supply",
     apy: 4.3,
-    risk: {
-      level: "medium" as const,
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "medium",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/bnb.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d&marketName=proto_bnb_v3",
     learnMoreLink:
@@ -215,17 +168,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity",
-    id: "uniswap-liquidity",
+    id: "UniswapV3AddLiquidity",
     apy: 39.1,
-    risk: {
-      level: "high" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3AddLiquidity",
+    risk: "high",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
-    image: "/crypto-icons/bnb.svg",
     externalLink:
       "https://app.uniswap.org/explore/pools/bnb/0x2C3c320D49019D4f9A92352e947c7e5AcFE47D68",
     learnMoreLink:
@@ -235,17 +183,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Binance Liquid Staking",
-    id: "binance-liquid-staking",
+    id: "UniswapV3SwapLST",
     apy: 2.8,
-    risk: {
-      level: "low" as const,
-      color: "",
-      bgColor: "",
-    },
-    protocol: "UniswapV3SwapLST",
+    risk: "low",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
-    image: "/crypto-icons/bnb.svg",
     externalLink: "https://lido.fi/",
     learnMoreLink: "https://lido.fi/",
     tokens: [BNB],
@@ -253,17 +196,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "stCelo Staking",
-    id: "stcelo-staking",
+    id: "StCeloStaking",
     apy: 2.8,
-    risk: {
-      level: "low" as const,
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "StCeloStaking",
+    risk: "low",
+    protocol: ST_CELO_CONTRACTS,
     description:
       "Staking CELO to operate network nodes helps to maintain security on the blockchain.",
-    image: "/crypto-icons/celo.svg",
     externalLink: "https://stcelo.com",
     learnMoreLink: "https://stcelo.com",
     tokens: [CELO],
@@ -271,17 +209,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Stablecoin Pool",
-    id: "uniswap-liquidity-stablecoin-pool",
+    id: "UniswapV3AddLiquidity",
     apy: 69.405,
-    risk: {
-      level: "high",
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "UniswapV3AddLiquidity",
+    risk: "high",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Adding CELO and cEUR to the Uniswap v3 CELO/cEUR 1% pool enables users to earn swap fees by providing liquidity for trading",
-    image: "/crypto-icons/celo.svg",
     externalLink:
       "https://app.uniswap.org/explore/pools/celo/0x978799F1845C00c9A4d9fd2629B9Ce18Df66e488",
     learnMoreLink:
@@ -291,17 +224,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity + Liquid Staking",
-    id: "uniswap-liquidity-liquid-staking",
+    id: "UniswapV3AddLiquidity",
     apy: 45.15,
-    risk: {
-      level: "high" as const,
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "UniswapV3AddLiquidity",
+    risk: "high",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Adding CELO and stCelo to the Uniswap v3 CELO/stCelo 0.01% pool to earn swap fees and liquid staking rewards",
-    image: "/crypto-icons/celo.svg",
     externalLink:
       "https://app.uniswap.org/explore/pools/celo/0x60Ac25Da2ADA3be14a2a8C04e45b072BEd965966",
     learnMoreLink:
@@ -311,17 +239,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Supplying",
-    id: "aave-supplying",
+    id: "AaveV3Supply",
     apy: 5.7,
-    risk: {
-      level: "medium" as const,
-      color: "#B9AB15",
-      bgColor: "rgba(230, 212, 9, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "medium",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying cEUR to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/celo.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0xd8763cba276a3738e6de85b4b3bf5fded6d6ca73&marketName=proto_celo_v3",
     learnMoreLink:
@@ -331,17 +254,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Looping",
-    id: "aave-looping",
+    id: "AaveV3Supply",
     apy: 32.15,
-    risk: {
-      level: "high" as const,
-      color: "#B9AB15",
-      bgColor: "rgba(230, 212, 9, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "high",
+    protocol: AAVE_CONTRACTS,
     description:
       "Looping is a recursive DeFi strategy of supplying and borrowing cEUR in repeated cycles to compound interest and token incentives",
-    image: "/crypto-icons/celo.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0xd8763cba276a3738e6de85b4b3bf5fded6d6ca73&marketName=proto_celo_v3",
     learnMoreLink:
@@ -351,17 +269,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Kitty",
-    id: "kitty",
+    id: "MorphoSupply",
     apy: 4.3,
-    risk: {
-      level: "low" as const,
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.3)",
-    },
-    protocol: "MorphoSupply",
+    risk: "low",
+    protocol: MORPHO_CONTRACTS,
     description:
       "Lending protocol that allows anyone to deposit and earn yield. Learn More",
-    image: "/crypto-icons/flow.svg",
     externalLink: "https://kitty.com",
     learnMoreLink: "https://kitty.com",
     tokens: [FLOW],
@@ -369,17 +282,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Flow Yield",
-    id: "flow-yield",
+    id: "CamelotStaking",
     apy: 34.0,
-    risk: {
-      level: "high" as const,
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.3)",
-    },
-    protocol: "CamelotStaking",
+    risk: "high",
+    protocol: CAMELOT_CONTRACTS,
     description:
       "Providing ankrFlow tokens as liquidity to KittyStable allows you to earn both liquid staking rewards and swap fees.",
-    image: "/crypto-icons/flow.svg",
     externalLink: "https://flow.com",
     learnMoreLink: "https://flow.com",
     tokens: [FLOW],
@@ -387,17 +295,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "AAVE Lending Strategy",
-    id: "aave-lending-strategy",
+    id: "AaveV3Supply",
     apy: 5.1,
-    risk: {
-      level: "medium" as const,
-      color: "#B9AB15",
-      bgColor: "rgba(230, 212, 9, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "medium",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/polygon.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
     learnMoreLink:
@@ -408,17 +311,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   // TODO: mock for demo
   {
     title: "Aave Lending Leverage",
-    id: "aave-lending-leverage",
+    id: "AaveV3Supply",
     apy: 10.1,
-    risk: {
-      level: "low" as const,
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "low",
+    protocol: AAVE_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/polygon.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
     learnMoreLink:
@@ -428,17 +326,12 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   },
   {
     title: "Uniswap Liquidity Full Range",
-    id: "uniswap-liquidity-full-range",
+    id: "UniswapV3AddLiquidity",
     apy: 10.1,
-    risk: {
-      level: "low" as const,
-      color: "#E83033",
-      bgColor: "rgba(232, 48, 51, 0.3)",
-    },
-    protocol: "AaveV3Supply",
+    risk: "low",
+    protocol: UNISWAP_CONTRACTS,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
-    image: "/crypto-icons/polygon.svg",
     externalLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
     learnMoreLink:

@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { Address } from "viem";
 
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
-import { Protocols } from "@/types/strategies";
+import { Protocol } from "@/types/strategies";
 import { getTokenAddress } from "@/utils/coins";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
@@ -25,7 +25,7 @@ type PositionResponse = {
 };
 
 export async function getRedeemCalls(
-  strategy: BaseStrategy<Protocols> | MultiStrategy,
+  strategy: BaseStrategy<Protocol> | MultiStrategy,
   amount: bigint,
   user: Address,
   token: Token,
@@ -48,7 +48,7 @@ export async function getRedeemCalls(
 }
 
 export async function getInvestCalls(
-  strategy: BaseStrategy<Protocols> | MultiStrategy,
+  strategy: BaseStrategy<Protocol> | MultiStrategy,
   amount: bigint,
   user: Address,
   token: Token,

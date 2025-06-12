@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 
 import {
-  Protocols,
+  Protocol,
   ProtocolChains,
   ProtocolContracts,
 } from "@/types/strategies";
@@ -13,14 +13,7 @@ export type StrategyCall = {
   value?: bigint;
 };
 
-export type BaseStrategyMetadata = {
-  name: string;
-  protocol: string;
-  type: "Lending" | "Trading" | "Staking" | "Yield" | "Other";
-  description: string;
-};
-
-export abstract class BaseStrategy<T extends Protocols> {
+export abstract class BaseStrategy<T extends Protocol> {
   public readonly chainId: ProtocolChains<T>;
 
   constructor(

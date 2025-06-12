@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { Token } from "@/types";
-import { fetchTokensPrices } from "../../hooks/useCurrency/utils";
+import { fetchTokensPrices } from "../../hooks/useBalance/utils";
 
 export function useBatchTokenPrices(tokens: Token[]) {
   return useQuery({

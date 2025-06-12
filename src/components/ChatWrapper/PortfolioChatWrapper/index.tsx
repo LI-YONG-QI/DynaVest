@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MoveUpRight, Percent } from "lucide-react";
 import { parseUnits } from "viem";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 import { RiskLevel, RiskPortfolioStrategies } from "@/types";
 import type { Message, PortfolioMessage } from "@/classes/message";
@@ -11,12 +13,10 @@ import { PortfolioPieChart } from "../../RiskPortfolio/PieChart";
 import { RiskBadgeList } from "../../RiskBadgeList";
 import Button from "@/components/Button";
 import { USDC } from "@/constants/coins";
-import useCurrency from "@/hooks/useCurrency";
+import useBalance from "@/hooks/useBalance";
 import { getStrategy } from "@/utils/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { useStrategy } from "@/hooks/useStrategy";
-import { toast } from "react-toastify";
-import axios from "axios";
 
 interface PortfolioChatWrapperProps {
   message: PortfolioMessage;
@@ -34,7 +34,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
   const [isEdit, setIsEdit] = useState(true);
 
   // TODO: hardcode USDC
-  const { balance, isLoadingBalance } = useCurrency(USDC);
+  const { balance, isLoadingBalance } = useBalance(USDC);
   const { multiInvest } = useStrategy();
 
   const totalAPY = strategies.reduce((acc, strategy) => {
@@ -66,7 +66,7 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
 
   async function executeMultiStrategy() {
     const strategiesHandlers = strategies.map((strategy) => ({
-      strategy: getStrategy(strategy.protocol, strategy.chainId),
+      strategy: getStrategy(strategy.id, strategy.chainId),
       allocation: strategy.allocation,
     }));
     const multiStrategy = new MultiStrategy(strategiesHandlers);

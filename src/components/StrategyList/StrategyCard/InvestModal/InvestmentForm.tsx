@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 
-import useCurrency from "@/hooks/useCurrency";
+import useBalance from "@/hooks/useBalance";
 
 import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
@@ -43,7 +43,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [currency, setCurrency] = useState<Token>(strategy.tokens[0]);
   const { balance: maxBalance = BigInt(0), isLoadingBalance } =
-    useCurrency(currency);
+    useBalance(currency);
 
   // second token input - for LP
   const [secondAmount, setSecondAmount] = useState<string>("");
@@ -55,7 +55,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const {
     balance: secondMaxBalance = BigInt(0),
     isLoadingBalance: isLoadingSecondBalance,
-  } = useCurrency(secondCurrency);
+  } = useBalance(secondCurrency);
 
   const [buttonState, setButtonState] = useState<ButtonState>(
     ButtonState.Pending

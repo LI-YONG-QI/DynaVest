@@ -5,6 +5,7 @@ import { MORPHO_CONTRACTS, ERC20_ABI, MORPHO_ABI } from "@/constants";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { Position } from "@/types/position";
 import { wagmiConfig as config } from "@/providers/config";
+import { base } from "viem/chains";
 
 /**
  * @notice MorphoSupply is a strategy that allows users to supply their assets to Morpho

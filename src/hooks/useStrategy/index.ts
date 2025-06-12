@@ -7,7 +7,7 @@ import { waitForTransactionReceipt } from "viem/actions";
 import { useMutation } from "@tanstack/react-query";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
-import { Protocols } from "@/types/strategies";
+import { Protocol } from "@/types/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
@@ -23,14 +23,14 @@ import { addFeesCall, calculateFee } from "@/utils/fee";
 import { getTokenAddress, getTokenByName } from "@/utils/coins";
 
 type RedeemParams = {
-  strategy: BaseStrategy<Protocols>;
+  strategy: BaseStrategy<Protocol>;
   amount: bigint;
   token: Token;
   positionId: string;
 };
 
 type InvestParams = {
-  strategy: BaseStrategy<Protocols>;
+  strategy: BaseStrategy<Protocol>;
   amount: bigint;
   token: Token;
 };

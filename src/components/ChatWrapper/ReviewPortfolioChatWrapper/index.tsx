@@ -9,7 +9,7 @@ import axios from "axios";
 
 import Button from "@/components/Button";
 import { PortfolioPieChart } from "../../RiskPortfolio/PieChart";
-import useCurrency from "@/hooks/useCurrency";
+import useBalance from "@/hooks/useBalance";
 import { USDC } from "@/constants/coins";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { getStrategy } from "@/utils/strategies";
@@ -25,7 +25,7 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
   addBotMessage,
 }) => {
   const [isEdit, setIsEdit] = useState(true);
-  const { balance, isLoadingBalance } = useCurrency(USDC);
+  const { balance, isLoadingBalance } = useBalance(USDC);
   const { multiInvest } = useStrategy();
 
   const strategies = message.strategies;

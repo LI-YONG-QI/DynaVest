@@ -8,7 +8,7 @@ export * from "./camelot";
 export * from "./uniswap";
 export * from "./gmx";
 
-export const PROTOCOLS = [
+export const STRATEGIES = [
   "AaveV3Supply",
   "StCeloStaking",
   "MorphoSupply",
@@ -16,4 +16,5 @@ export const PROTOCOLS = [
   "UniswapV3SwapLST",
   "CamelotStaking",
   "GMXDeposit",
+  "MultiStrategy",
 ] as const;
