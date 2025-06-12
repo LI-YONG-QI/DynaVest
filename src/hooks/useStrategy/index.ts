@@ -19,8 +19,8 @@ import {
   updatePosition,
   type PositionParams,
 } from "./utils";
-import { getTokenByName } from "@/constants/coins";
 import { addFeesCall, calculateFee } from "@/utils/fee";
+import { getTokenAddress, getTokenByName } from "@/utils/coins";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocols>;
@@ -146,7 +146,7 @@ export function useStrategy() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );
@@ -192,7 +192,7 @@ export function useStrategy() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );
@@ -238,7 +238,7 @@ export function useStrategy() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );

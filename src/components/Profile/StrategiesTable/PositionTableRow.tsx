@@ -6,7 +6,7 @@ import { formatAmount } from "@/utils";
 import { toast } from "react-toastify";
 import { parseUnits } from "viem";
 
-import { getTokenByName } from "@/constants/coins";
+import { getTokenByName } from "@/utils/coins";
 import {
   getProtocolMetadata,
   STRATEGIES_PROTOCOLS_MAPPING,

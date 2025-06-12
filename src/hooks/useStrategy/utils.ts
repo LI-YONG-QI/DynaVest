@@ -3,6 +3,7 @@ import { Address } from "viem";
 
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { Protocols } from "@/types/strategies";
+import { getTokenAddress } from "@/utils/coins";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
@@ -35,7 +36,11 @@ export async function getRedeemCalls(
   if (token.isNativeToken) {
     calls = await strategy.redeemCalls(amount, user);
   } else {
-    calls = await strategy.redeemCalls(amount, user, token.chains?.[chainId]);
+    calls = await strategy.redeemCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId)
+    );
   }
 
   if (calls.length === 0) throw new Error("No calls found");
@@ -54,7 +59,11 @@ export async function getInvestCalls(
   if (token.isNativeToken) {
     calls = await strategy.investCalls(amount, user);
   } else {
-    calls = await strategy.investCalls(amount, user, token.chains?.[chainId]);
+    calls = await strategy.investCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId)
+    );
   }
 
   if (calls.length === 0) throw new Error("No calls found");

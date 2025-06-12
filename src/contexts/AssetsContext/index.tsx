@@ -26,6 +26,7 @@ import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { useBatchTokenPrices } from "@/contexts/AssetsContext/useBatchTokenPrices";
+import { getTokenAddress } from "@/utils/coins";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -141,7 +142,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
       const decimals = asset.decimals || 6;
       const amountInBaseUnits = parseUnits(amount, decimals);
-      const assetAddress = asset.chains?.[chainId] as Address;
+      const assetAddress = getTokenAddress(asset, chainId);
 
       const { fee, amount: amountWithoutFee } = calculateFee(amountInBaseUnits);
       const feeCall = addFeesCall(assetAddress, asset.isNativeToken, fee);

@@ -1,6 +1,10 @@
 import axios from "axios";
 
-import { COINGECKO_IDS, getTokenNameByCoingeckoId } from "@/constants/coins";
+import {
+  COINGECKO_IDS,
+  getTokenAddress,
+  getTokenNameByCoingeckoId,
+} from "@/utils/coins";
 import { Token } from "@/types";
 import { base } from "viem/chains";
 import { Address } from "viem";
@@ -35,13 +39,10 @@ export async function fetchTokenBalance(
   user: Address,
   chainId: number = base.id
 ) {
-  if (!token.chains?.[chainId] && !token.isNativeToken) {
-    throw new Error("Token not supported on this chain");
-  }
-
+  const tokenAddr = getTokenAddress(token, chainId);
   const params = {
     address: user,
-    ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
+    ...(token.isNativeToken ? {} : { token: tokenAddr }),
   };
 
   const balance = await getBalance(config, params);
