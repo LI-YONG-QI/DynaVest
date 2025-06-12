@@ -25,7 +25,7 @@ import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
-import { useBatchTokenPrices } from "@/hooks/useCurrency/useBatchTokenPrices";
+import { useBatchTokenPrices } from "@/contexts/AssetsContext/useBatchTokenPrices";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -50,6 +50,7 @@ interface AssetsContextType {
   isPriceError: boolean;
   pricesQuery: UseQueryResult<Record<string, number>, Error>;
   assetsBalance: AssetsBalanceQuery;
+  smartWallet: Address | null;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -83,6 +84,10 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const profitsQuery = useProfits(positionsQuery.data || []);
   const tokensQuery = useCurrencies(tokensWithChain);
 
+  const smartWallet = useMemo(() => {
+    return client?.account?.address || null;
+  }, [client?.account?.address]);
+
   const { data: prices, isError: isPriceError } = pricesQuery;
 
   const assetsBalanceData: AssetBalance[] = useMemo(() => {
@@ -115,12 +120,11 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
   const updateTotalValue = useMutation({
     mutationFn: async () => {
-      const user = client?.account.address;
+      if (!smartWallet) throw new Error("User not found");
 
-      if (!user) throw new Error("User not found");
       if (tokensQuery.data) {
         await axios.patch<{ success: boolean }>(
-          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${user}`,
+          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${smartWalletAddress}`,
           {
             total_value: totalValue,
           }
@@ -190,6 +194,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     isPriceError,
     pricesQuery,
     assetsBalance,
+    smartWallet,
   };
 
   return (

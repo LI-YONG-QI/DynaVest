@@ -1,44 +1,34 @@
 import { useCallback } from "react";
-import { getBalance } from "@wagmi/core";
 import { useChainId } from "wagmi";
-import { Address } from "viem";
-import { base } from "viem/chains";
 import { useQuery } from "@tanstack/react-query";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import { Token } from "@/types";
-import { wagmiConfig as config } from "@/providers/config";
+import { useAssets } from "@/contexts/AssetsContext";
+import { fetchTokenBalance } from "./utils";
 
-async function fetchTokenBalance(
-  token: Token,
-  user: Address,
-  chainId: number = base.id
-) {
-  if (!token.chains?.[chainId] && !token.isNativeToken) {
-    throw new Error("Token not supported on this chain");
-  }
-
-  const params = {
-    address: user,
-    ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
-  };
-
-  const balance = await getBalance(config, params);
-  return balance;
-}
-
-export default function useCurrency(token: Token) {
+/**
+ * @notice fetch smart wallet balance of the token in current chain
+ * @param token
+ * @returns balance of the token
+ */
+export default function useBalance(token: Token) {
   const { client } = useSmartWallets();
+  const { smartWallet } = useAssets();
+
   const chainId = useChainId();
-  const user = client?.account.address;
 
   // Fetch balance function to be used with useQuery
   const fetchBalance = useCallback(async () => {
-    if (!user) return;
+    if (!smartWallet) return;
 
-    const { value: amount } = await fetchTokenBalance(token, user, chainId);
+    const { value: amount } = await fetchTokenBalance(
+      token,
+      smartWallet,
+      chainId
+    );
     return amount;
-  }, [user, token, chainId]);
+  }, [smartWallet, token, chainId]);
 
   // Use React Query for fetching and caching the balance
   const {
@@ -49,7 +39,7 @@ export default function useCurrency(token: Token) {
     isLoadingError,
     error,
   } = useQuery({
-    queryKey: ["tokenBalance", user, token.name, chainId],
+    queryKey: ["tokenBalance", smartWallet, token.name, chainId],
     queryFn: fetchBalance,
     enabled: !!client,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
