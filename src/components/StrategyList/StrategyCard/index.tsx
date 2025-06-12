@@ -29,17 +29,8 @@ function getRiskLevelLabel(risk: RiskLevel) {
 }
 
 export default function StrategyCard(strategy: StrategyMetadata) {
-  const {
-    title,
-    id,
-    apy,
-    risk,
-    protocol,
-    description,
-    externalLink,
-    tokens,
-    chainId,
-  } = strategy;
+  const { title, id, apy, risk, description, externalLink, tokens, chainId } =
+    strategy;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -132,13 +123,13 @@ export default function StrategyCard(strategy: StrategyMetadata) {
               </span>
               <div
                 className="flex justify-center items-center px-2 py-1 rounded-lg"
-                style={{ backgroundColor: getRiskColor(risk)?.bg || "#E5E7EB" }}
+                style={{ backgroundColor: getRiskColor(risk).bg }}
               >
                 <span
                   className="text-xs font-medium"
-                  style={{ color: getRiskColor(risk)?.text || "#6B7280" }}
+                  style={{ color: getRiskColor(risk).text }}
                 >
-                  {getRiskLevelLabel(risk.level)}
+                  {getRiskLevelLabel(risk)}
                 </span>
               </div>
             </div>
@@ -157,7 +148,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                 <div className="col-span-7 space-y-1">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-medium text-gray-900 truncate">
-                      {protocol}
+                      {id}
                     </span>
                     {externalLink && (
                       <Link

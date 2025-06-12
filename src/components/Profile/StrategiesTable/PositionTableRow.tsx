@@ -15,7 +15,7 @@ import { useStrategy } from "@/hooks/useStrategy";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
 import { useProfit } from "./useProfit";
-import { Protocol, StrategyMetadata } from "@/types";
+import type { StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
 import { useAssets } from "@/contexts/AssetsContext";
 
@@ -46,7 +46,7 @@ export default function PositionTableRow({
   );
 
   const handleRedeem = () => {
-    const strategy = getStrategy(position.strategy as Protocol, chainId);
+    const strategy = getStrategy(position.strategy, chainId);
     const token = getTokenByName(position.tokenName);
 
     redeem.mutate(

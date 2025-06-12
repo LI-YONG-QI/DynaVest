@@ -119,7 +119,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const executeStrategy = async () => {
     setIsLoading(true);
 
-    const strategyHandler = getStrategy(strategy.protocol, chainId);
+    const strategyHandler = getStrategy(strategy.id, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
 
     investStrategy.mutate(

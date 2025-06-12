@@ -17,10 +17,6 @@ export default function InvestModal({
   strategy,
 }: InvestModalProps) {
   const [isClosing, setIsClosing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [orderHash, setOrderHash] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [swapError, setSwapError] = useState<string | null>(null);
 
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,40 +34,6 @@ export default function InvestModal({
       onClose();
       setIsClosing(false);
     }, 300); // Match this with the CSS transition duration
-  };
-
-  // Handle swap submission
-  const handleSwap = async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await fetch("/api/createOrder", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: "1000000",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to place order");
-      }
-
-      console.log("Order placed successfully:", data.orderHash);
-      setOrderHash(data.orderHash);
-      setIsSuccess(true);
-    } catch (error) {
-      console.error("Error during swap:", error);
-      setSwapError(
-        error instanceof Error ? error.message : "Unknown error occurred"
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   if (!isOpen) return null;
@@ -147,7 +109,7 @@ export default function InvestModal({
                       color: getRiskColor(strategy.risk).text,
                     }}
                   >
-                    {strategy.risk.level} Risk
+                    {strategy.risk} Risk
                   </div>
                 </div>
               </div>

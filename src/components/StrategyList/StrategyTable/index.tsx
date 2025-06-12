@@ -4,22 +4,9 @@ import { useState } from "react";
 
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { RiskLevel } from "@/types";
+import type { RiskLevel, StrategyMetadata } from "@/types";
 interface StrategyTableProps {
-  strategies: Array<{
-    title: string;
-    apy: number;
-    risk: {
-      level: RiskLevel;
-      color: string;
-      bgColor: string;
-    };
-    protocol: string;
-    description: string;
-    image: string;
-    externalLink?: string;
-    learnMoreLink?: string;
-  }>;
+  strategies: Array<StrategyMetadata>;
 }
 
 function getRiskLevelLabel(risk: RiskLevel) {
@@ -147,7 +134,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                     className="font-medium"
                     style={{ color: getRiskColor(strategy.risk).text }}
                   >
-                    {getRiskLevelLabel(strategy.risk.level)}
+                    {getRiskLevelLabel(strategy.risk)}
                   </span>
                 </div>
               </td>
@@ -174,7 +161,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                       width={24}
                       height={24}
                     />
-                    {strategy.protocol}
+                    {strategy.id}
                     {strategy.externalLink && (
                       <Link
                         href={strategy.externalLink}

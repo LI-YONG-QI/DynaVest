@@ -55,7 +55,7 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
 
   async function executeMultiStrategy() {
     const strategiesHandlers = strategies.map((strategy) => ({
-      strategy: getStrategy(strategy.protocol, strategy.chainId),
+      strategy: getStrategy(strategy.id, strategy.chainId),
       allocation: strategy.allocation,
     }));
     const multiStrategy = new MultiStrategy(strategiesHandlers);
