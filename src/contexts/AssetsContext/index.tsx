@@ -124,7 +124,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
       if (tokensQuery.data) {
         await axios.patch<{ success: boolean }>(
-          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${smartWalletAddress}`,
+          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${smartWallet}`,
           {
             total_value: totalValue,
           }
