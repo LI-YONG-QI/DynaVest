@@ -1,6 +1,6 @@
 import { bsc } from "viem/chains";
 
-import { Protocol, type Strategy, StrategyMetadata } from "@/types";
+import { type Strategy, StrategyMetadata } from "@/types";
 import {
   BNB,
   ETH,
@@ -15,23 +15,24 @@ import {
   UniswapV3SwapLST,
   AaveV3Supply,
 } from "@/classes/strategies";
+import { AAVE, isChainSupported } from "@/constants/protocols/aave";
 
 export function getDeadline(): bigint {
   const timestampInSeconds = Math.floor(Date.now() / 1000);
   return BigInt(timestampInSeconds) + BigInt(PERMIT_EXPIRY);
 }
 
-export function getStrategy(
-  strategy: Strategy,
-  chainId: number
-): BaseStrategy<Protocol> {
+export function getStrategy(strategy: Strategy, chainId: number): BaseStrategy {
   // The type casting here is safe because we've already verified the chainId is supported
   // for the specific protocol with isChainIdSupported
   switch (strategy) {
     case "MorphoSupply":
       return new MorphoSupply(chainId);
     case "AaveV3Supply":
-      return new AaveV3Supply(chainId);
+      if (isChainSupported(AAVE, chainId)) {
+        return new AaveV3Supply(chainId);
+      }
+      throw new Error("Unsupported chain");
     case "UniswapV3SwapLST": {
       if (chainId === bsc.id) {
         return new UniswapV3SwapLST(chainId, BNB, wbETH);

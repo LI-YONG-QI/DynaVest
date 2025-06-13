@@ -13,7 +13,7 @@ import { Position } from "@/types/position";
  * @notice Ethereum: ETH -> wstETH
  * @notice BSC: BNB -> wbETH
  */
-export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP.contracts> {
+export class UniswapV3SwapLST extends BaseStrategy {
   constructor(
     chainId: number,
     public readonly nativeToken: Token,

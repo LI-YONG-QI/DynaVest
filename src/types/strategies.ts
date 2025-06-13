@@ -9,12 +9,13 @@ export type Protocol = {
   description: string;
   icon: string;
   link: string;
-  contracts: ProtocolAddresses;
+  contracts: Record<number, Record<string, Address>>;
 };
 
-export type ProtocolAddresses = Record<number, Record<string, Address>>;
-export type ProtocolChains<T extends ProtocolAddresses> = keyof T;
-export type ProtocolContracts<T extends ProtocolAddresses> = keyof T[keyof T];
+export type ProtocolAddresses<T extends Protocol> = T["contracts"];
+export type ProtocolChains<T extends Protocol> = keyof T["contracts"];
+export type ProtocolContracts<T extends Protocol> =
+  keyof T["contracts"][keyof T["contracts"]];
 
 export type Strategy = (typeof STRATEGIES)[number];
 

@@ -2,15 +2,17 @@ import { Position } from "@/types/position";
 import type { Address } from "viem";
 import { encodeFunctionData, formatUnits } from "viem";
 import { readContract } from "@wagmi/core";
+import { base, celo } from "viem/chains";
+import { Protocol } from "@/types/strategies";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
-import { AAVE } from "@/constants/protocols/aave";
+import { AAVE, AAVE_CONTRACTS } from "@/constants/protocols/aave";
 import { wagmiConfig } from "@/providers/config";
 import { getTokenByName } from "@/utils/coins";
 
-export class AaveV3Supply extends BaseStrategy<typeof AAVE.contracts> {
-  constructor(chainId: number) {
+export class AaveV3Supply extends BaseStrategy {
+  constructor(chainId: AaveV3SupplyChainId) {
     super(chainId, AAVE, "AaveV3Supply");
   }
 
@@ -101,4 +103,31 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE.contracts> {
 
     return Number(formatUnits(aTokenBalance, 6)) - amount;
   }
+
+  getAddress(contract: "pool") {
+    return AAVE_CONTRACTS[this.chainId][contract];
+  }
+}
+
+/**
+ * 類型守護函數：檢查 chainId 是否為支持的 Aave V3 Supply 鏈
+ * @param chainId - 要檢查的鏈ID
+ * @returns boolean - 如果是支持的鏈則返回 true
+ */
+export function isSupplyChainId(
+  protocol: Protocol,
+  chainId: number
+): chainId is AaveV3SupplyChainId {
+  return (
+    AAVE_CHAINS.includes(chainId as AaveV3SupplyChainId) && protocol === AAVE
+  );
+}
+
+const chain = 1;
+
+if (isSupplyChainId(AAVE, chain)) {
+  console.log("chain is supported", chain);
+  const aave = new AaveV3Supply(chain);
+} else {
+  console.log("chain is not supported");
 }
