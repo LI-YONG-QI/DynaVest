@@ -21,6 +21,7 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { usePrivy } from "@privy-io/react-auth";
+import { toast } from "react-toastify";
 
 import useCurrencies, { TokenData } from "@/hooks/useCurrencies";
 import { Token } from "@/types";
@@ -201,9 +202,13 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
         params.address = user?.smartWallet?.address; // update user address
 
         addUser(params, {
-          onSuccess: () => {
+          onSuccess: (address) => {
             localStorage.removeItem("isNewUser");
             localStorage.removeItem("addUserParams");
+            toast.success(`Login Successfully: ${address}`);
+          },
+          onError: (error) => {
+            toast.error(`Login Failed: ${error}`);
           },
         });
       }
