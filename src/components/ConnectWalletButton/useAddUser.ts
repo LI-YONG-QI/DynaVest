@@ -12,13 +12,29 @@ export type AddUserParams = {
 export const useAddUser = () => {
   return useMutation({
     mutationFn: async (params: AddUserParams) => {
-      await fetch(process.env.NEXT_PUBLIC_CHATBOT_URL + "/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_CHATBOT_URL}/user/${params.address}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+
+      // Check the address if exist before adding user
+      if (data.details === "User not found") {
+        await fetch(process.env.NEXT_PUBLIC_CHATBOT_URL + "/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        });
+      }
+
+      return params.address;
     },
   });
 };

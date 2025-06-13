@@ -76,7 +76,7 @@ export async function updatePosition(positionParams: PositionParams) {
     );
   } catch {
     return await axios.post(
-      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/position`,
       positionParams
     );
   }
@@ -87,7 +87,7 @@ export async function updatePosition(positionParams: PositionParams) {
   );
   if (!position) {
     return await axios.post(
-      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/addPosition`,
+      `${process.env.NEXT_PUBLIC_CHATBOT_URL}/position`,
       positionParams
     );
   } else {

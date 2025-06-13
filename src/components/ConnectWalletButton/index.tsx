@@ -53,8 +53,8 @@ export default function ConnectWalletButton() {
       }
 
       addUser(params, {
-        onSuccess: (tx) => {
-          toast.success(`Wallet created successfully: ${tx}`);
+        onSuccess: (address) => {
+          toast.success(`Login Successfully: ${address}`);
         },
         onError: (error) => {
           console.error(error);
