@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import ChainSelector from "../ChainSelector";
 import { useAddUser } from "./useAddUser";
 import CopyButton from "../CopyButton";
+import { getLoginId, LoginResponse, AddUserParams } from "./utilts";
 
 export default function ConnectWalletButton() {
   const {
@@ -23,11 +24,37 @@ export default function ConnectWalletButton() {
   const [address, setAddress] = useState<string | null>(null);
   const { mutate: addUser } = useAddUser();
 
+  const handleLoginComplete = (loginResponse: LoginResponse) => {
+    const { user, loginMethod } = loginResponse;
+
+    if (!loginMethod) throw new Error("AddUserError: login method not found");
+    const loginId = getLoginId(loginResponse);
+    const params: AddUserParams = {
+      privy_id: user.id,
+      address: user?.smartWallet?.address || "",
+      total_value: 0,
+      login_type: loginMethod,
+      login_id: loginId,
+    };
+
+    return params;
+  };
+
   const { login } = useLogin({
     onComplete: async (loginResponse) => {
-      addUser(loginResponse, {
+      const { wasAlreadyAuthenticated, isNewUser, loginMethod } = loginResponse;
+      if (wasAlreadyAuthenticated || !loginMethod) return;
+
+      const params = handleLoginComplete(loginResponse);
+      if (isNewUser) {
+        localStorage.setItem("isNewUser", "true");
+        localStorage.setItem("addUserParams", JSON.stringify(params));
+        return;
+      }
+
+      addUser(params, {
         onSuccess: (tx) => {
-          if (tx) toast.success(`Wallet created successfully: ${tx}`);
+          toast.success(`Wallet created successfully: ${tx}`);
         },
         onError: (error) => {
           console.error(error);
@@ -37,7 +64,6 @@ export default function ConnectWalletButton() {
     },
     onError: (error) => {
       console.error(error);
-      // toast.error(`Login failed: ${error}`);
     },
   });
 
