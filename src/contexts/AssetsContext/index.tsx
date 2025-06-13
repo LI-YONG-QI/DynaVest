@@ -1,4 +1,10 @@
-import React, { createContext, useContext, ReactNode, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   Address,
   encodeFunctionData,
@@ -14,6 +20,7 @@ import {
   UseMutationResult,
   UseQueryResult,
 } from "@tanstack/react-query";
+import { usePrivy } from "@privy-io/react-auth";
 
 import useCurrencies, { TokenData } from "@/hooks/useCurrencies";
 import { Token } from "@/types";
@@ -26,6 +33,7 @@ import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { useBatchTokenPrices } from "@/hooks/useCurrency/useBatchTokenPrices";
+import { useAddUser } from "@/components/ConnectWalletButton/useAddUser";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -77,6 +85,8 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const chainId = useChainId() as SupportedChainIds;
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
+  const { user } = usePrivy();
+  const { mutate: addUser } = useAddUser();
 
   const pricesQuery = useBatchTokenPrices(tokensWithChain);
   const positionsQuery = usePositions();
@@ -179,6 +189,26 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
       return tx;
     },
   });
+
+  useEffect(() => {
+    const isNewUser = localStorage.getItem("isNewUser");
+
+    if (isNewUser === "true" && user?.smartWallet?.address) {
+      const addUserParams = localStorage.getItem("addUserParams");
+
+      if (addUserParams) {
+        const params = JSON.parse(addUserParams);
+        params.address = user?.smartWallet?.address; // update user address
+
+        addUser(params, {
+          onSuccess: () => {
+            localStorage.removeItem("isNewUser");
+            localStorage.removeItem("addUserParams");
+          },
+        });
+      }
+    }
+  }, [user?.smartWallet?.address, addUser]);
 
   const value = {
     withdrawAsset,
