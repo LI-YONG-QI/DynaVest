@@ -26,14 +26,6 @@ export type LoginResponse = {
   loginAccount: LinkedAccountWithMetadata | null;
 };
 
-export type AddUserParams = {
-  privy_id: string;
-  address: string;
-  login_type: LoginMethod;
-  login_id: string;
-  total_value: number;
-};
-
 export const getSmartWalletAddress = (user: User) => {
   if (!user.smartWallet?.address)
     throw new Error("Add user: address not found");

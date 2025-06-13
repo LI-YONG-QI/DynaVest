@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import ChainSelector from "../ChainSelector";
-import { useAddUser } from "./useAddUser";
+import { useAddUser, type AddUserParams } from "./useAddUser";
 import CopyButton from "../CopyButton";
-import { getLoginId, LoginResponse, AddUserParams } from "./utilts";
+import { getLoginId, LoginResponse } from "./utils";
 
 export default function ConnectWalletButton() {
   const {
