@@ -205,6 +205,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
           onSuccess: (address) => {
             localStorage.removeItem("isNewUser");
             localStorage.removeItem("addUserParams");
+
             toast.success(`Login Successfully: ${address}`);
           },
           onError: (error) => {
