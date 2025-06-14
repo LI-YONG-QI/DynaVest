@@ -21,10 +21,12 @@ export const useAddUser = () => {
           },
         }
       );
+
+      if (response.ok) return params.address;
       const data = await response.json();
 
       // Check the address if it exists before adding user
-      if (data.detail === "User not found") {
+      if (!response.ok && data.detail === "User not found") {
         await fetch(`${process.env.NEXT_PUBLIC_CHATBOT_URL}/user`, {
           method: "POST",
           headers: {
@@ -33,7 +35,7 @@ export const useAddUser = () => {
           body: JSON.stringify(params),
         });
       } else {
-        throw new Error(data.details);
+        throw new Error(data.detail);
       }
 
       return params.address;

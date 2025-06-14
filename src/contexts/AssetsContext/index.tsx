@@ -191,6 +191,11 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     },
   });
 
+  /**
+   * @dev If the user is new, the loginResponse (from privy login) will be undefined.
+   * @dev Use localStorage to store the user's address and login params
+   * @dev And add user to database after smart wallet is updated
+   */
   useEffect(() => {
     const isNewUser = localStorage.getItem("isNewUser");
 
@@ -209,7 +214,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
             toast.success(`Login Successfully: ${address}`);
           },
           onError: (error) => {
-            toast.error(`Login Failed: ${error}`);
+            toast.error(`Wallet creation failed: ${error}`);
           },
         });
       }
