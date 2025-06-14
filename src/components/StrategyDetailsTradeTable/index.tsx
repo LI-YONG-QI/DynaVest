@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useCallback, useRef, useEffect } from "react";
 
 interface Trade {
   id: string;
@@ -23,52 +22,54 @@ const generateMockData = (count: number): Trade[] => {
 };
 
 export function StrategyDetailsTradeTable() {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const page = useRef(1);
-  const itemsPerPage = 10;
+  const trades = generateMockData(10);
+
+  // const [trades, setTrades] = useState<Trade[]>(generateMockData(10));
+  // const [loading, setLoading] = useState(false);
+  // const [hasMore, setHasMore] = useState(true);
+  // const observer = useRef<IntersectionObserver | null>(null);
+  // const page = useRef(1);
+  // const itemsPerPage = 10;
 
   // TODO: Use real data
-  const loadTrades = useCallback(() => {
-    if (loading || page.current > 3) return;
+  // const loadTrades = useCallback(() => {
+  //   if (loading || page.current > 1) return;
 
-    setLoading(true);
+  //   setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newTrades = generateMockData(itemsPerPage);
-      setTrades((prev) => [...prev, ...newTrades]);
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     const newTrades = generateMockData(itemsPerPage);
+  //     setTrades((prev) => [...prev, ...newTrades]);
 
-      // Stop loading more after 5 pages for demo
-      setHasMore(page.current < 5);
+  //     // Stop loading more after 5 pages for demo
+  //     setHasMore(page.current < 5);
 
-      setLoading(false);
-      page.current += 1;
-    }, 1000);
-  }, [loading]);
+  //     setLoading(false);
+  //     page.current += 1;
+  //   }, 1000);
+  // }, [loading]);
 
-  const lastTradeElementRef = useCallback(
-    (node: HTMLTableRowElement) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
+  // const lastTradeElementRef = useCallback(
+  //   (node: HTMLTableRowElement) => {
+  //     if (loading) return;
+  //     if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadTrades();
-        }
-      });
+  //     observer.current = new IntersectionObserver((entries) => {
+  //       if (entries[0].isIntersecting && hasMore) {
+  //         loadTrades();
+  //       }
+  //     });
 
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore, loadTrades]
-  );
+  //     if (node) observer.current.observe(node);
+  //   },
+  //   [loading, hasMore, loadTrades]
+  // );
 
-  useEffect(() => {
-    loadTrades();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   loadTrades();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <div className="w-full overflow-auto">
@@ -83,12 +84,8 @@ export function StrategyDetailsTradeTable() {
         </thead>
 
         <tbody className="divide-y divide-gray-100">
-          {trades.map((trade, index) => (
-            <tr
-              key={trade.id}
-              ref={index === trades.length - 1 ? lastTradeElementRef : null}
-              className="hover:bg-gray-50"
-            >
+          {trades.map((trade) => (
+            <tr key={trade.id} className="hover:bg-gray-50">
               <td className="py-3 text-sm">{trade.date}</td>
 
               <td className="py-3 text-sm font-medium">{trade.amount}</td>
@@ -135,7 +132,7 @@ export function StrategyDetailsTradeTable() {
             </tr>
           ))}
 
-          {loading && (
+          {/* {loading && (
             <tr>
               <td
                 colSpan={4}
@@ -170,7 +167,7 @@ export function StrategyDetailsTradeTable() {
                 </div>
               </td>
             </tr>
-          )}
+          )} */}
         </tbody>
       </table>
     </div>
