@@ -42,7 +42,7 @@ export default function TransactionsTableComponent() {
               key={`${transaction.transaction_id}`}
               className="bg-white rounded-xl shadow-[0_0_0_0.2px_#3d84ff,_0px_4px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_0_0_1.5px_#3d84ff,_0px_4px_12px_rgba(0,0,0,0.15)] transition-all cursor-pointer"
             >
-              <div className="flex w-full">
+              <div className="flex justify-center items-center w-full">
                 {/* Date */}
                 <div className="w-[20%] p-4">
                   <div className="font-medium text-md">

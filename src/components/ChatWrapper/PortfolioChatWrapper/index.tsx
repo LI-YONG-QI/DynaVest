@@ -17,6 +17,7 @@ import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { MoonLoader } from "react-spinners";
 
 interface PortfolioChatWrapperProps {
   message: PortfolioMessage;
@@ -135,12 +136,21 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
               icon={<Percent />}
             />
 
-            <Button
-              onClick={() => nextMessage("build")}
-              text="Start Building Portfolio"
-              disabled={!isEdit}
-              icon={<MoveUpRight />}
-            />
+            {multiInvest.isPending ? (
+              <button
+                className="w-full cursor-pointer max-w-[250px] flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:opacity-50"
+                disabled={multiInvest.isPending}
+              >
+                <MoonLoader size={12} />
+              </button>
+            ) : (
+              <Button
+                onClick={() => nextMessage("build")}
+                text="Start Building Portfolio"
+                disabled={!isEdit}
+                icon={<MoveUpRight />}
+              />
+            )}
           </div>
         </div>
       </div>
