@@ -18,7 +18,7 @@ const StrategyListChatWrapper = ({
 
     if (selectedRiskLevel.length > 0) {
       filtered = filtered.filter((strategy) =>
-        selectedRiskLevel.includes(strategy.risk.level)
+        selectedRiskLevel.includes(strategy.risk)
       );
     }
 

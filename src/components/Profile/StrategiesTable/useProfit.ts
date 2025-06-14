@@ -6,14 +6,14 @@ import { useChainId } from "wagmi";
 import type { Address } from "viem";
 
 import type { Position } from "@/types/position";
-import { Protocol } from "@/types";
+import type { Strategy } from "@/types/strategies";
 
 export async function getProfit(
   user: Address,
   chainId: number,
   position: Position
 ) {
-  const strategy = getStrategy(position.strategy as Protocol, chainId);
+  const strategy = getStrategy(position.id as Strategy, chainId);
   return strategy.getProfit(user, position);
 }
 

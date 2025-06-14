@@ -143,7 +143,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
               <td className="pr-2 py-4 text-sm text-gray-500">
                 <div className="flex items-center gap-x-2">
                   <Image
-                    src={strategy.image}
+                    src="/crypto-icons/chain/base.svg"
                     alt={strategy.title}
                     width={24}
                     height={24}
@@ -156,7 +156,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                 <div className="text-sm text-gray-900 truncate">
                   <div className="flex items-center gap-x-1 flex-wrap">
                     <Image
-                      src={strategy.image}
+                      src="/crypto-icons/protocol/morpho.svg"
                       alt={strategy.title}
                       width={24}
                       height={24}

@@ -1,7 +1,10 @@
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+
 import { Position } from "@/types/position";
+import { Strategy } from "@/types/strategies";
+import { SupportedChainIds } from "@/providers/config";
 
 type PositionResponse = {
   position_id: string;
@@ -23,10 +26,10 @@ const getPositions = async (address: string): Promise<Position[]> => {
   return response.data.map((position) => ({
     id: position.position_id,
     createAt: position.created_at,
-    strategy: position.strategy,
+    strategy: position.strategy as Strategy,
     tokenName: position.token_name,
     amount: position.amount,
-    chainId: position.chain_id,
+    chainId: position.chain_id as SupportedChainIds,
     status: position.status,
   }));
 };
