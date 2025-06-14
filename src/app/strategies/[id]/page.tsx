@@ -7,10 +7,7 @@ import { useParams, notFound } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 import { StrategyDetailsChart } from "@/components/StrategyList/StrategyDetailsChart";
-import {
-  InvestmentFormMode,
-  StrategyDetailsChartToggleOption,
-} from "@/types/strategies";
+import { StrategyDetailsChartToggleOption } from "@/types/strategies";
 import { StrategyDetailsTradeTable } from "@/components/StrategyDetailsTradeTable";
 import InvestmentForm from "@/components/StrategyList/StrategyCard/InvestModal/InvestmentForm";
 import { Home, ChartLine, FileChartColumn } from "lucide-react";
@@ -310,7 +307,7 @@ function StrategyDetailContent() {
                 </button>
               </div> */}
               <div className="p-5">
-                <InvestmentForm strategy={strategy} mode={mode} />
+                <InvestmentForm strategy={strategy} />
               </div>
             </div>
           </div>
