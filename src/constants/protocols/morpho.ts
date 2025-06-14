@@ -1,7 +1,8 @@
 import { base } from "viem/chains";
+
 import type { Protocol } from "@/types/strategies";
 
-export const MORPHO: Protocol = {
+export const MORPHO = {
   name: "Morpho",
   description:
     "Morpho is a decentralized lending protocol that allows users to lend and borrow assets.",
@@ -12,4 +13,4 @@ export const MORPHO: Protocol = {
       morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
     },
   },
-} as const;
+} as const satisfies Protocol;

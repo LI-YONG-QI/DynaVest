@@ -1,5 +1,7 @@
 import { arbitrum, base, bsc } from "viem/chains";
 
+import type { Protocol } from "@/types/strategies";
+
 // Uniswap protocol contract addresses for each network
 export const UNISWAP = {
   name: "Uniswap",
@@ -21,4 +23,4 @@ export const UNISWAP = {
       nftManager: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
     },
   },
-} as const;
+} as const satisfies Protocol;

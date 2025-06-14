@@ -7,15 +7,16 @@ import { UNISWAP } from "@/constants/protocols/uniswap";
 import { Token } from "@/types/blockchain";
 import { wagmiConfig } from "@/providers/config";
 import { Position } from "@/types/position";
+import { GetProtocolChains } from "@/types/strategies";
 
 /**
  * @notice swap nativeToken to wstETH
  * @notice Ethereum: ETH -> wstETH
  * @notice BSC: BNB -> wbETH
  */
-export class UniswapV3SwapLST extends BaseStrategy {
+export class UniswapV3SwapLST extends BaseStrategy<typeof UNISWAP> {
   constructor(
-    chainId: number,
+    chainId: GetProtocolChains<typeof UNISWAP>,
     public readonly nativeToken: Token,
     public readonly lstToken: Token
   ) {

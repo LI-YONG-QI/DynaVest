@@ -5,16 +5,17 @@ import { MORPHO, ERC20_ABI, MORPHO_ABI } from "@/constants";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { Position } from "@/types/position";
 import { wagmiConfig as config } from "@/providers/config";
+import { GetProtocolChains } from "@/types/strategies";
 
 /**
  * @notice MorphoSupply is a strategy that allows users to supply their assets to Morpho
  * @notice It supports only USDC (loanToken) and WETH (collateralToken) market
  */
-export class MorphoSupply extends BaseStrategy {
+export class MorphoSupply extends BaseStrategy<typeof MORPHO> {
   private readonly WETH_USDC_MARKET_ID =
     "0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda";
 
-  constructor(chainId: number) {
+  constructor(chainId: GetProtocolChains<typeof MORPHO>) {
     super(chainId, MORPHO, "MorphoSupply");
   }
 

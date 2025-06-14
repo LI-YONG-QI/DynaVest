@@ -1,6 +1,10 @@
 import type { Address } from "viem";
 
-import { Protocol } from "@/types/strategies";
+import {
+  GetProtocolChains,
+  GetProtocolContractNames,
+  Protocol,
+} from "@/types/strategies";
 import { Position } from "@/types/position";
 
 export type StrategyCall = {
@@ -9,20 +13,12 @@ export type StrategyCall = {
   value?: bigint;
 };
 
-export abstract class BaseStrategy {
-  public readonly chainId: number;
-
+export abstract class BaseStrategy<T extends Protocol> {
   constructor(
-    chainId: number,
-    public readonly protocol: Protocol,
+    public readonly chainId: GetProtocolChains<T>,
+    public readonly protocol: T,
     public readonly name: string
-  ) {
-    if (this.isSupported(chainId)) {
-      this.chainId = chainId;
-    } else {
-      throw new Error("Chain not supported");
-    }
-  }
+  ) {}
 
   /**
    * Builds invest transaction calls for the strategy
@@ -49,12 +45,8 @@ export abstract class BaseStrategy {
     return Object.keys(this.protocol.contracts).map(Number).includes(chainId);
   }
 
-  getAddress(contract: string) {
+  getAddress(contract: GetProtocolContractNames<T>) {
     const address = this.protocol.contracts[this.chainId][contract];
-    if (!address)
-      throw new Error(
-        `Contract ${contract} not found, Protocol: ${this.protocol.name}, Chain: ${this.chainId}`
-      );
 
     return address;
   }
