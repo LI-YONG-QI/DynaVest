@@ -33,7 +33,7 @@ function StrategyDetailContent() {
   const params = useParams();
   const [activeToggle, setActiveToggle] =
     useState<StrategyDetailsChartToggleOption>("APY");
-  const [mode, setMode] = useState<InvestmentFormMode>("invest");
+  // const [mode, setMode] = useState<InvestmentFormMode>("invest");
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id || "";
 
   // Find the strategy that matches the normalized title
@@ -219,7 +219,7 @@ function StrategyDetailContent() {
             </div>
           </div>
 
-          <div id="chart" className="mt-5">
+          <div id="chart" className="relative mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
               <div className="p-5 flex items-center">
                 <h2 className="text-2xl font-bold">Charts</h2>
@@ -247,19 +247,37 @@ function StrategyDetailContent() {
                   </div>
                 </div>
               </div>
-              <div className="py-5 px-2">
+              <div className="relative py-5 px-2">
                 <StrategyDetailsChart />
+              </div>
+
+              {/* Mask */}
+              <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-auto">
+                <div className="backdrop-blur bg-black/40 rounded-2xl shadow-2xl p-8 w-full h-full m-4 flex items-center justify-center">
+                  <span className="text-white text-xl md:text-2xl font-bold drop-shadow-lg">
+                    will release in the future
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div id="trades" className="mt-5">
+          <div id="trades" className="relative mt-5">
             <div className="bg-white rounded-lg divide-y-2 divide-gray-200">
               <div className="p-5 flex items-center">
                 <h2 className="text-2xl font-bold">Trades</h2>
               </div>
               <div className="p-5">
                 <StrategyDetailsTradeTable />
+              </div>
+            </div>
+
+            {/* Mask */}
+            <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-auto">
+              <div className="backdrop-blur bg-black/40 rounded-2xl shadow-2xl p-8 w-full h-full m-4 flex items-center justify-center">
+                <span className="text-white text-xl md:text-2xl font-bold drop-shadow-lg">
+                  will release in the future
+                </span>
               </div>
             </div>
           </div>
@@ -269,7 +287,7 @@ function StrategyDetailContent() {
         <div className="xl:col-span-4 mb-6 xl:mb-0">
           <div className="bg-white shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] rounded-lg">
             <div className="divide-y-2 divide-gray-200">
-              <div className="flex items-stretch gap-0.5 mb-5">
+              {/* <div className="flex items-stretch gap-0.5 mb-5">
                 <button
                   onClick={() => setMode("invest")}
                   className={`flex-1 py-3.5 px-5 rounded-tl-lg text-sm font-medium transition-colors ${
@@ -290,7 +308,7 @@ function StrategyDetailContent() {
                 >
                   Withdraw
                 </button>
-              </div>
+              </div> */}
               <div className="p-5">
                 <InvestmentForm strategy={strategy} mode={mode} />
               </div>
@@ -298,20 +316,30 @@ function StrategyDetailContent() {
           </div>
         </div>
       </div>
+      {/* 遮罩層 */}
+      {/* <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-auto">
+          <div className="backdrop-blur bg-black/40 rounded-2xl shadow-2xl p-8 w-full h-full m-8 flex items-center justify-center">
+            <span className="text-white text-2xl md:text-4xl font-bold drop-shadow-lg">
+              will release in the future
+            </span>
+          </div>
+        </div> */}
     </div>
   );
 }
 
 export default function StrategyDetailPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5F79F1]"></div>
-        </div>
-      }
-    >
-      <StrategyDetailContent />
-    </Suspense>
+    <div className="relative">
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5F79F1]"></div>
+          </div>
+        }
+      >
+        <StrategyDetailContent />
+      </Suspense>
+    </div>
   );
 }
