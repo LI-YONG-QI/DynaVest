@@ -6,6 +6,7 @@ import { Percent, MoveUpRight } from "lucide-react";
 import { parseUnits } from "viem";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { MoonLoader } from "react-spinners";
 
 import Button from "@/components/Button";
 import { PortfolioPieChart } from "../../RiskPortfolio/PieChart";
@@ -37,10 +38,9 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
     if (isLoadingBalance) return;
     setIsEdit(false);
 
+    // TODO: hardcode USDC to check balance is enough
     if (action === "build") {
-      // 判斷金額
       if (
-        // TODO: hardcode USDC
         parseUnits(message.amount, USDC.decimals) >
         parseUnits(balance.toString(), USDC.decimals)
       ) {
@@ -101,12 +101,21 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
           icon={<Percent />}
         />
 
-        <Button
-          onClick={() => nextMessage("build")}
-          text="Start Building Portfolio"
-          disabled={!isEdit}
-          icon={<MoveUpRight />}
-        />
+        {multiInvest.isPending ? (
+          <button
+            className="w-full cursor-pointer max-w-[250px] flex items-center justify-center gap-2.5 rounded-lg bg-[#5F79F1] text-white py-3.5 px-5 disabled:opacity-50"
+            disabled={multiInvest.isPending}
+          >
+            <MoonLoader size={12} />
+          </button>
+        ) : (
+          <Button
+            onClick={() => nextMessage("build")}
+            text="Start Building Portfolio"
+            disabled={!isEdit}
+            icon={<MoveUpRight />}
+          />
+        )}
       </div>
     </div>
   );
