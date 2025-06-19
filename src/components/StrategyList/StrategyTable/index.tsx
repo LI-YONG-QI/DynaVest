@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { StrategyMetadata } from "@/types";
+import type { Message, StrategyMetadata } from "@/types";
 import { getChain } from "@/constants/chains";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
 
@@ -14,7 +14,7 @@ interface StrategyTableProps {
 
 export default function StrategyTable({ strategies }: StrategyTableProps) {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const { openChat } = useChat();
+  const { openChat, setMessages } = useChat();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyMetadata>(
     strategies[0]
@@ -28,6 +28,22 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
   // Toggle sort order
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const handleBotClick = async (strategy: StrategyMetadata) => {
+    // const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: `${strategy.fullDescription}`,
+      sender: "bot",
+      timestamp: new Date(),
+      type: "Text",
+    };
+
+    setMessages((prev) => [...prev, botMessage]);
+
+    openChat();
   };
 
   return (
@@ -207,11 +223,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                   </button>
 
                   <button
-                    onClick={() =>
-                      openChat(
-                        `Hello! How can I help you with ${strategy.title}?`
-                      )
-                    }
+                    onClick={() => handleBotClick(strategy)}
                     className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium"
                   >
                     Ask AI

@@ -50,7 +50,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
 
     const botMessage: Message = {
       id: (Date.now() + 1).toString(),
-      text: `${strategy.title} explain in 50 words: ${strategy.fullDescription}`,
+      text: `${strategy.fullDescription}`,
       sender: "bot",
       timestamp: new Date(),
       type: "Text",
