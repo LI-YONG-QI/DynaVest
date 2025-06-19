@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
@@ -35,5 +34,9 @@ export const useProfits = (positions: Position[]) => {
     queryFn: getProfits,
     enabled: !!client && !!user,
     staleTime: 30 * 1000,
+    throwOnError: (error) => {
+      console.error("ProfitsQuery", error);
+      return false;
+    },
   });
 };

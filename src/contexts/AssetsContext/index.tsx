@@ -29,7 +29,7 @@ import { Token } from "@/types";
 import { Position } from "@/types/position";
 import { ERC20_ABI } from "@/constants";
 import { SUPPORTED_TOKENS } from "@/constants/profile";
-import type { SupportedChainIds } from "@/providers/config";
+import type { wagmiConfig } from "@/providers/config";
 import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
@@ -90,7 +90,7 @@ interface WithdrawAssetParams {
 export function AssetsProvider({ children }: AssetsProviderProps) {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
-  const chainId = useChainId() as SupportedChainIds;
+  const chainId = useChainId<typeof wagmiConfig>();
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
   const { user, authenticated } = usePrivy();
@@ -106,8 +106,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   }, [client?.account?.address]);
 
   const { data: prices, isError: isPriceError } = pricesQuery;
-
-  const assetsBalanceData: AssetBalance[] = useMemo(() => {
+  const assetsBalanceWithValue: AssetBalance[] = useMemo(() => {
     return (
       tokensQuery.data?.map((t) => ({
         ...t,
@@ -121,7 +120,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   // 創建包含完整狀態的 assetsBalance 對象
   const assetsBalance: AssetsBalanceQuery = useMemo(
     () => ({
-      data: assetsBalanceData,
+      data: assetsBalanceWithValue,
       isLoading:
         tokensQuery.isLoading ||
         pricesQuery.isLoading ||
@@ -130,10 +129,13 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
       error: tokensQuery.error || pricesQuery.error,
       isSuccess: tokensQuery.isSuccess && pricesQuery.isSuccess,
     }),
-    [assetsBalanceData, tokensQuery, pricesQuery]
+    [assetsBalanceWithValue, tokensQuery, pricesQuery]
   );
 
-  const totalValue = assetsBalanceData.reduce((acc, t) => acc + t.value, 0);
+  const totalValue = assetsBalanceWithValue.reduce(
+    (acc, t) => acc + t.value,
+    0
+  );
 
   const updateTotalValue = useMutation({
     mutationFn: async () => {
@@ -231,15 +233,19 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     }
   }, [user?.smartWallet?.address, addUser]);
 
+  /**
+   * @dev Bug: await chainId
+   */
   useEffect(() => {
     const isOnboardingDialogShown = localStorage.getItem(
       `onboarding-dialog-shown`
     );
 
     if (
-      !tokensQuery.isPlaceholderData &&
-      !tokensQuery.isError &&
-      !isPriceError &&
+      tokensQuery.fetchStatus === "idle" &&
+      tokensQuery.status === "success" &&
+      pricesQuery.fetchStatus === "idle" &&
+      pricesQuery.status === "success" &&
       isOnboardingDialogShown !== "true" &&
       authenticated
     ) {
@@ -247,9 +253,10 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     }
   }, [
     totalValue,
-    tokensQuery.isPlaceholderData,
-    tokensQuery.isError,
-    isPriceError,
+    tokensQuery.fetchStatus,
+    tokensQuery.status,
+    pricesQuery.fetchStatus,
+    pricesQuery.status,
     smartWallet,
     authenticated,
   ]);

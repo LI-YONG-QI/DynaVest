@@ -4,6 +4,7 @@ import {
   COINGECKO_IDS,
   getTokenAddress,
   getTokenNameByCoingeckoId,
+  isCoingeckoId,
 } from "@/utils/coins";
 import { Token } from "@/types";
 import { base } from "viem/chains";
@@ -50,10 +51,16 @@ export async function fetchTokenBalance(
 }
 
 export async function fetchTokensPrices(tokens: Token[]) {
-  const ids = tokens.map((t) => COINGECKO_IDS[t.name]);
+  const ids = tokens.map((t) => {
+    if (isCoingeckoId(t.name)) {
+      return COINGECKO_IDS[t.name];
+    }
+
+    throw new Error(`Token ${t.name} is not supported by Coingecko`);
+  });
 
   const response = await axios.get(
-    "https://api.coingecko.com/api/v3/simple/price",
+    "https://api.coingecko.com/api/v3/simple/pri",
     {
       params: {
         ids: ids.join(","),

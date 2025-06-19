@@ -41,6 +41,10 @@ export const COINGECKO_IDS: Record<string, string> = {
   BNB: "binancecoin",
 };
 
+export const isCoingeckoId = (id: string): boolean => {
+  return Object.values(COINGECKO_IDS).includes(id);
+};
+
 export function getTokenNameByCoingeckoId(id: string): string {
   return (
     Object.entries(COINGECKO_IDS).find(

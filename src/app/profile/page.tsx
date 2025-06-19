@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 
 import { useAssets } from "@/contexts/AssetsContext";
 import AssetsTableComponent from "@/components/Profile/AssetsTable";
@@ -46,16 +45,15 @@ export default function ProfilePage() {
   const [selectedTab, setSelectedTab] = useState(PROFILE_TABS[0].value);
   const { user: privyUser } = usePrivy();
 
-  const { client } = useSmartWallets();
-  const { profitsQuery, updateTotalValue, assetsBalance } = useAssets();
+  const { profitsQuery, updateTotalValue, assetsBalance, smartWallet } =
+    useAssets();
   const { data: profitsData } = profitsQuery;
 
   const totalProfit = profitsData?.reduce((acc, profit) => acc + profit, 0);
-  const user = client?.account.address;
 
   // TODO: refactor reason -> unstable update information
   useEffect(() => {
-    if (user && !assetsBalance.isLoading) {
+    if (smartWallet && !assetsBalance.isLoading) {
       updateTotalValue.mutate(undefined, {
         onSuccess: () => {
           console.log("Total value updated");
@@ -65,7 +63,7 @@ export default function ProfilePage() {
         },
       });
     }
-  }, [user, assetsBalance.isLoading]);
+  }, [smartWallet, assetsBalance.isLoading]);
 
   return (
     <div className="pb-10 px-2 sm:px-0">

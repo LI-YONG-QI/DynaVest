@@ -20,6 +20,6 @@ export const SUPPORTED_TOKENS: Record<SupportedChainIds, Token[]> = {
   [arbitrum.id]: [ETH, USDT, USDC, wstETH], // Arbitrum
   [base.id]: [ETH, USDT, USDC, wstETH], // Base
   [bsc.id]: [BNB, USDT, USDC, wbETH], // BSC
-  [celo.id]: [CELO, USDT, USDC, cEUR], // Celo
+  [celo.id]: [CELO, cEUR], // Celo
   [flowMainnet.id]: [FLOW, USDT, USDC], // Flow
 };

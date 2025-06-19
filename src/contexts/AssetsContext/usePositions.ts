@@ -42,5 +42,9 @@ export const usePositions = () => {
     queryKey: ["positions", address],
     queryFn: () => getPositions(address || ""),
     enabled: !!address,
+    throwOnError: (error) => {
+      console.error("PositionsQuery", error);
+      return false;
+    },
   });
 };

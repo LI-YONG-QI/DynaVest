@@ -58,5 +58,9 @@ export default function useCurrencies(tokens: Token[]) {
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     placeholderData: initialTokensData,
     retry: 2,
+    throwOnError: (error) => {
+      console.error("TokensQuery", error);
+      return false;
+    },
   });
 }
