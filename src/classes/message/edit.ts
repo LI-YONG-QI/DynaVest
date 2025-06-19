@@ -14,7 +14,7 @@ export class EditMessage extends Message {
 
   next(): Message {
     return new ReviewPortfolioMessage(
-      this.createDefaultMetadata("Review"),
+      this.createDefaultMetadata(""),
       this.amount,
       this.chain,
       this.strategies

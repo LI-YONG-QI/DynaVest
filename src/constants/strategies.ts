@@ -30,19 +30,6 @@ export const BOT_STRATEGY: StrategyMetadata = {
 };
 
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
-  // {
-  //   title: "GMX Strategy",
-  //   id: "GMXDeposit",
-  //   apy: 214.47,
-  //   risk: "high",
-  //   protocol: AAV,
-  //   description:
-  //     "Leveraged Beefy Vault on GMX, GMX is staked to earn ETH and esGMX. This ETH is compounded to more GMX",
-  //   externalLink: "https://app.beefy.com/vault/gmx-arb-gmx",
-  //   learnMoreLink: "https://app.beefy.com/vault/gmx-arb-gmx",
-  //   tokens: [ETH],
-  //   chainId: arbitrum.id,
-  // },
   {
     title: "AAVE Lending",
     id: "AaveV3Supply",

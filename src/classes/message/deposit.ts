@@ -25,7 +25,7 @@ export class DepositMessage extends Message {
         );
       case "build":
         return new BuildPortfolioMessage(
-          this.createDefaultMetadata("Build"),
+          this.createDefaultMetadata(""),
           this.amount,
           this.strategies
         );
