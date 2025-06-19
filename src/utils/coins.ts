@@ -1,5 +1,5 @@
 import { Token } from "@/types";
-import { WETH, WBNB, TOKENS } from "@/constants/coins";
+import { WETH, WBNB, TOKENS, TokensName } from "@/constants/coins";
 import { Address } from "viem";
 
 export function getWrappedToken(token: Token): Token {
@@ -34,21 +34,32 @@ export const getTokenAddress = (token: Token, chainId: number): Address => {
   return token.chains?.[chainId] as Address;
 };
 
-export const COINGECKO_IDS: Record<string, string> = {
+export const COINGECKO_IDS: Record<TokensName, string> = {
   USDT: "tether",
   USDC: "usd-coin",
   ETH: "ethereum",
   BNB: "binancecoin",
+  CELO: "celo",
+  cEUR: "celo-euro",
+  WETH: "weth",
+  WBNB: "wbnb",
+  wstETH: "wrapped-steth",
+  wbETH: "wrapped-beacon-eth",
+  FLOW: "flow",
+  GRAIL: "grail",
+  xGRAIL: "grail",
 };
 
-export const isCoingeckoId = (id: string): boolean => {
-  return Object.values(COINGECKO_IDS).includes(id);
+export const isCoingeckoId = (id: string): id is TokensName => {
+  const NAMES = Object.keys(COINGECKO_IDS);
+  console.log(NAMES.includes(id));
+  return NAMES.includes(id);
 };
 
 export function getTokenNameByCoingeckoId(id: string): string {
   return (
     Object.entries(COINGECKO_IDS).find(
-      ([name]) => COINGECKO_IDS[name] === id
+      ([, coingeckoId]) => coingeckoId === id
     )?.[0] || ""
   );
 }

@@ -13,6 +13,9 @@ import { getBalance } from "@wagmi/core";
 import { wagmiConfig as config } from "@/providers/config";
 
 export async function fetchTokenPrice(token: Token) {
+  if (!isCoingeckoId(token.name))
+    throw new Error(`Token ${token.name} is not supported by Coingecko`);
+
   const id = COINGECKO_IDS[token.name];
 
   const response = await axios.get(
@@ -51,16 +54,16 @@ export async function fetchTokenBalance(
 }
 
 export async function fetchTokensPrices(tokens: Token[]) {
-  const ids = tokens.map((t) => {
-    if (isCoingeckoId(t.name)) {
-      return COINGECKO_IDS[t.name];
-    }
+  const ids: string[] = [];
+  for (const t of tokens) {
+    if (!isCoingeckoId(t.name))
+      throw new Error(`Token ${t.name} is not supported by Coingecko`);
 
-    throw new Error(`Token ${t.name} is not supported by Coingecko`);
-  });
+    ids.push(COINGECKO_IDS[t.name]);
+  }
 
   const response = await axios.get(
-    "https://api.coingecko.com/api/v3/simple/pri",
+    "https://api.coingecko.com/api/v3/simple/price",
     {
       params: {
         ids: ids.join(","),
