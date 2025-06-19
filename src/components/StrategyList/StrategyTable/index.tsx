@@ -167,7 +167,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                     <p className="ml-2">{strategy.protocol.name}</p>
                     {strategy.externalLink && (
                       <Link
-                        href={strategy.externalLink}
+                        href={strategy.protocol.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center hover:underline text-[#5F79F1]"
@@ -198,6 +198,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
               <td className="pr-2 py-4 text-sm font-medium text-[#17181C]">
                 {strategy.apy}
               </td>
+
               {/* Actions */}
               {/* TODO: Add business logic */}
               <td className="pr-2 py-4 text-sm font-medium">
