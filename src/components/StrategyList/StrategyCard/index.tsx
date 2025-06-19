@@ -50,7 +50,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
 
     const botMessage: Message = {
       id: (Date.now() + 1).toString(),
-      text: `${strategy.fullDescription}`,
+      text: `${strategy.title} intro: \n\n${strategy.fullDescription} \n\nDo you have any questions about this DeFi strategy?`,
       sender: "bot",
       timestamp: new Date(),
       type: "Text",
