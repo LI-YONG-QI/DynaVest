@@ -25,6 +25,7 @@ export type StrategyMetadata = {
   id: Strategy;
   apy: number;
   risk: RiskLevel;
+  color: `#${string}`;
   protocol: Protocol;
   description: string;
   externalLink?: string;

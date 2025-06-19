@@ -26,6 +26,7 @@ export const BOT_STRATEGY: StrategyMetadata = {
   learnMoreLink: "",
   tokens: [USDC],
   chainId: base.id,
+  color: "#1000FF",
 };
 
 export const STRATEGIES_METADATA: StrategyMetadata[] = [
@@ -47,6 +48,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 4.5,
     risk: "medium",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -62,6 +64,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 35.4,
     risk: "high",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
@@ -77,6 +80,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
@@ -102,6 +106,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "MorphoSupply",
     apy: 6.7,
     risk: "medium",
+    color: "#0072E3",
     protocol: MORPHO,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -117,6 +122,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 6.1,
     risk: "medium",
+    color: "#B15BFF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -132,6 +138,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 32.5,
     risk: "high",
+    color: "#CE0000",
     protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
@@ -147,6 +154,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
+    color: "#CE0000",
     protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
@@ -160,6 +168,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 4.3,
     risk: "medium",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -175,6 +184,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 39.1,
     risk: "high",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Adding USDC and USDT to the Uniswap v3 USDC/USDT 0.01% pool enables users to earn swap fees by providing liquidity for trading between these stablecoins.",
@@ -190,6 +200,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
@@ -216,6 +227,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 69.405,
     risk: "high",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Adding CELO and cEUR to the Uniswap v3 CELO/cEUR 1% pool enables users to earn swap fees by providing liquidity for trading",
@@ -231,6 +243,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 45.15,
     risk: "high",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Adding CELO and stCelo to the Uniswap v3 CELO/stCelo 0.01% pool to earn swap fees and liquid staking rewards",
@@ -246,6 +259,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 5.7,
     risk: "medium",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Supplying cEUR to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -261,6 +275,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 32.15,
     risk: "high",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Looping is a recursive DeFi strategy of supplying and borrowing cEUR in repeated cycles to compound interest and token incentives",
@@ -276,6 +291,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "MorphoSupply",
     apy: 4.3,
     risk: "low",
+    color: "#1000FF",
     protocol: MORPHO,
     description:
       "Lending protocol that allows anyone to deposit and earn yield. Learn More",
@@ -302,6 +318,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 5.1,
     risk: "medium",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -318,6 +335,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 10.1,
     risk: "low",
+    color: "#1000FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -333,6 +351,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3AddLiquidity",
     apy: 10.1,
     risk: "low",
+    color: "#1000FF",
     protocol: UNISWAP,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",

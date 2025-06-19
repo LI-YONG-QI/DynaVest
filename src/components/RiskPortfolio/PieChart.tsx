@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/chart";
 import { LegendItem } from "./LegendItem";
 import { PieStrategy } from "@/types";
-import { createChartConfig, createChartData, COLORS } from "@/utils/pie";
+import { createChartConfig, createChartData } from "@/utils/pie";
 
 // Simple color palette for the chart
 export function PortfolioPieChart({
@@ -81,7 +81,7 @@ export function PortfolioPieChart({
                     <text
                       x={x}
                       y={y}
-                      fill={COLORS[index % COLORS.length]}
+                      fill={pieStrategies[index].color}
                       textAnchor={textAnchor}
                       dominantBaseline="central"
                       className="text-[10px] md:text-xs font-medium"
@@ -94,7 +94,7 @@ export function PortfolioPieChart({
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={pieStrategies[index].color}
                   />
                 ))}
               </Pie>
