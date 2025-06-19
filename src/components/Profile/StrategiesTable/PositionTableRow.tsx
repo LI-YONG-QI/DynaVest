@@ -7,10 +7,6 @@ import { toast } from "react-toastify";
 import { parseUnits } from "viem";
 
 import { getTokenByName } from "@/utils/coins";
-import {
-  getProtocolMetadata,
-  STRATEGIES_PROTOCOLS_MAPPING,
-} from "@/constants/protocols/metadata";
 import { useStrategy } from "@/hooks/useStrategy";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
@@ -37,8 +33,6 @@ export default function PositionTableRow({
   const chainId = useChainId();
 
   const price = pricesQuery.data?.[token.name] || 0;
-
-  console.log("price", price);
 
   const strategyMetadata = getStrategyMetadata(
     position.strategy,
@@ -83,11 +77,7 @@ export default function PositionTableRow({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
               <Image
-                src={`${
-                  getProtocolMetadata(
-                    position.strategy as keyof typeof STRATEGIES_PROTOCOLS_MAPPING
-                  ).icon
-                }`}
+                src={`${strategyMetadata.protocol.icon}`}
                 alt={position.strategy}
                 width={24}
                 height={24}

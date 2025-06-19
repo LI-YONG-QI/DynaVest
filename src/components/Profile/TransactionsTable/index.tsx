@@ -1,7 +1,9 @@
 import Image from "next/image";
-import { useTransaction, type GetTransactionResponse } from "./useTransaction";
-import { getProtocolMetadata } from "@/constants/protocols/metadata";
 import { useChainId } from "wagmi";
+
+import { useTransaction, type GetTransactionResponse } from "./useTransaction";
+import { getStrategyMetadata } from "@/utils/strategies";
+import { Strategy } from "@/types/strategies";
 
 const initialTransactions: GetTransactionResponse[] = [];
 
@@ -55,7 +57,12 @@ export default function TransactionsTableComponent() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
                       <Image
-                        src={getProtocolMetadata(transaction.strategy).icon}
+                        src={
+                          getStrategyMetadata(
+                            transaction.strategy as Strategy,
+                            transaction.chain_id
+                          ).protocol.icon
+                        }
                         alt={"crypto-icons/protocol/aave.svg"}
                         width={24}
                         height={24}
