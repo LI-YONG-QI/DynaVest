@@ -28,19 +28,10 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
   isOpen,
   onOpenChange,
 }) => {
-  const { smartWallet } = useAssets();
-
-  // const handleSkip = () => {
-  //   onOpenChange?.(false);
-  // };
-
   const handleCheckboxChange = (state: CheckedState) => {
     const status = state ? true : false;
 
-    localStorage.setItem(
-      `onboarding-dialog-shown-${smartWallet}`,
-      status.toString()
-    );
+    localStorage.setItem(`onboarding-dialog-shown`, status.toString());
 
     onOpenChange?.(status);
   };

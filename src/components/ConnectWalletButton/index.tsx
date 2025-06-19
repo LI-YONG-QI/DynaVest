@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useLogin, usePrivy } from "@privy-io/react-auth";
+import { useLogin, usePrivy, useLogout } from "@privy-io/react-auth";
 import { useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -13,36 +13,35 @@ import CopyButton from "../CopyButton";
 import { getLoginId, LoginResponse } from "./utils";
 
 export default function ConnectWalletButton() {
-  const {
-    ready: privyReady,
-    authenticated,
-    logout,
-    linkWallet,
-    user,
-  } = usePrivy();
-
   const [address, setAddress] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const { ready: privyReady, authenticated, linkWallet, user } = usePrivy();
   const { mutate: addUser } = useAddUser();
-
-  const handleLoginComplete = (loginResponse: LoginResponse) => {
-    const { user, loginMethod } = loginResponse;
-
-    if (!loginMethod) throw new Error("AddUserError: login method not found");
-    const loginId = getLoginId(loginResponse);
-    const params: AddUserParams = {
-      privy_id: user.id,
-      address: user?.smartWallet?.address || "",
-      total_value: 0,
-      login_type: loginMethod,
-      login_id: loginId,
-    };
-
-    return params;
-  };
-
   const { login } = useLogin({
     onComplete: async (loginResponse) => {
       const { wasAlreadyAuthenticated, isNewUser, loginMethod } = loginResponse;
+
+      const handleLoginComplete = (loginResponse: LoginResponse) => {
+        const { user, loginMethod } = loginResponse;
+
+        if (!loginMethod)
+          throw new Error("AddUserError: login method not found");
+        const loginId = getLoginId(loginResponse);
+        const params: AddUserParams = {
+          privy_id: user.id,
+          address: user?.smartWallet?.address || "",
+          total_value: 0,
+          login_type: loginMethod,
+          login_id: loginId,
+        };
+
+        return params;
+      };
+
       if (wasAlreadyAuthenticated || !loginMethod) return;
 
       const params = handleLoginComplete(loginResponse);
@@ -67,11 +66,13 @@ export default function ConnectWalletButton() {
     },
   });
 
+  const { logout } = useLogout({
+    onSuccess: () => {
+      localStorage.removeItem(`onboarding-dialog-shown`);
+    },
+  });
+
   const { disconnect } = useDisconnect();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // business logic
   const buttonReady = privyReady && !isLoading;

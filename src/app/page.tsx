@@ -231,10 +231,9 @@ export default function Home() {
   }, []);
 
   // Process onboarding logic
-
   useEffect(() => {
     const isOnboardingDialogShown = localStorage.getItem(
-      `onboarding-dialog-shown-${smartWallet}`
+      `onboarding-dialog-shown`
     );
 
     if (
