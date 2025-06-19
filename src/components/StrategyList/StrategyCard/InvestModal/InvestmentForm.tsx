@@ -23,7 +23,9 @@ interface InvestmentFormProps {
   strategy: StrategyMetadata;
   mode?: InvestmentFormMode;
   handleClose?: () => void;
-  handlePortfolio?: (amount: string) => void;
+  chat?: {
+    handlePortfolio: (amount: string) => void;
+  };
 }
 
 enum ButtonState {
@@ -38,7 +40,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   strategy,
   mode = "invest",
   handleClose,
-  handlePortfolio,
+  chat,
 }) => {
   // User context
   const chainId = useChainId();
@@ -95,13 +97,15 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     }
 
     const asset = assetsBalance.data.find((asset) => asset.token === currency);
-    if (asset?.balance === BigInt(0)) {
+
+    // Check balance is zero and no chat process
+    if (asset?.balance === BigInt(0) && !chat) {
       setIsDeposit(true);
       return;
     }
 
-    if (handlePortfolio) {
-      handlePortfolio(amount);
+    if (chat?.handlePortfolio) {
+      chat.handlePortfolio(amount);
       setIsDisabled(false);
     } else {
       executeStrategy();

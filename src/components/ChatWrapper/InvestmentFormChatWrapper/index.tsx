@@ -46,7 +46,7 @@ const InvestmentFormChatWrapper = ({
       </div>
       <InvestmentForm
         strategy={botStrategy}
-        handlePortfolio={handlePortfolio}
+        chat={{ handlePortfolio }}
       />
     </div>
   );
