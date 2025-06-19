@@ -3,7 +3,6 @@
 import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Undo2 } from "lucide-react";
 import { format } from "date-fns";
-import { usePrivy } from "@privy-io/react-auth";
 
 import type { Message } from "@/classes/message";
 import {
@@ -31,14 +30,8 @@ import { BotResponse } from "@/types";
 
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
-import OnboardingDialog from "@/components/OnboardingDialog";
-import { useAssets } from "@/contexts/AssetsContext";
 
 export default function Home() {
-  const { totalValue, tokensQuery, isPriceError, smartWallet } = useAssets();
-  const { authenticated } = usePrivy();
-
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
 
@@ -231,28 +224,6 @@ export default function Home() {
   }, []);
 
   // Process onboarding logic
-  useEffect(() => {
-    const isOnboardingDialogShown = localStorage.getItem(
-      `onboarding-dialog-shown`
-    );
-
-    if (
-      !tokensQuery.isPlaceholderData &&
-      !tokensQuery.isError &&
-      !isPriceError &&
-      isOnboardingDialogShown !== "true" &&
-      authenticated
-    ) {
-      setIsOnboardingOpen(totalValue === 0);
-    }
-  }, [
-    totalValue,
-    tokensQuery.isPlaceholderData,
-    tokensQuery.isError,
-    isPriceError,
-    smartWallet,
-    authenticated,
-  ]);
 
   return (
     <div className="h-[80vh]">
@@ -555,10 +526,6 @@ export default function Home() {
             </div>
           </>
         )}
-        <OnboardingDialog
-          isOpen={isOnboardingOpen}
-          onOpenChange={setIsOnboardingOpen}
-        />
       </div>
     </div>
   );

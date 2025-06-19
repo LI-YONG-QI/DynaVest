@@ -19,25 +19,20 @@ import { useAssets } from "@/contexts/AssetsContext";
 
 interface OnboardingDialogProps {
   trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
-  trigger,
-  isOpen,
-  onOpenChange,
-}) => {
+const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ trigger }) => {
+  const { isOnboardingOpen, setIsOnboardingOpen } = useAssets();
+
   const handleCheckboxChange = (state: CheckedState) => {
     const status = state ? true : false;
-
     localStorage.setItem(`onboarding-dialog-shown`, status.toString());
 
-    onOpenChange?.(status);
+    setIsOnboardingOpen(status);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOnboardingOpen} onOpenChange={setIsOnboardingOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[800px] w-[95%] max-w-[700px] rounded-[12px] p-0 bg-white border-0 shadow-xl">
         <DialogHeader className="sr-only">
