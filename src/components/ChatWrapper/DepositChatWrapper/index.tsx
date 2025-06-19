@@ -11,6 +11,7 @@ import { USDC } from "@/constants/coins";
 import { BOT_STRATEGY } from "@/constants/strategies";
 import Button from "@/components/Button";
 import AddressQRCode from "@/components/AddressQRCode";
+import { getTokenAddress } from "@/utils/coins";
 
 const DEPOSIT_ACTIONS = ["Deposit", "Change Amount"];
 
@@ -28,7 +29,7 @@ const DepositChatWrapper = ({
   const [isDeposit, setIsDeposit] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
 
-  const usdc = USDC.chains![message.chain];
+  const usdc = getTokenAddress(USDC, message.chain);
   const { data: balance } = useBalance({
     address,
     token: usdc,

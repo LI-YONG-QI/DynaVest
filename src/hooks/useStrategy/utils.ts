@@ -19,6 +19,7 @@ export type PositionParams = {
 
 type PositionResponse = {
   id: string;
+  chain_id: number;
   amount: number;
   strategy: string;
   status: string;
@@ -77,6 +78,8 @@ export async function getInvestCalls(
  */
 export async function updatePosition(positionParams: PositionParams) {
   // TODO: refactor with backend
+
+  // Check user if have any position
   let res: AxiosResponse;
   try {
     res = await axios.get(
@@ -89,9 +92,12 @@ export async function updatePosition(positionParams: PositionParams) {
     );
   }
 
+  // Check user if have the same position
   const position = res.data.find(
     (pos: PositionResponse) =>
-      pos.strategy === positionParams.strategy && pos.status === "true"
+      pos.strategy === positionParams.strategy &&
+      pos.status === "true" &&
+      pos.chain_id === positionParams.chain_id
   );
   if (!position) {
     return await axios.post(

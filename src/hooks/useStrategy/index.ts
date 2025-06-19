@@ -207,6 +207,7 @@ export function useStrategy() {
         chain_id: chainId,
         strategy: strategy.name,
       });
+
       await addTx.mutateAsync({
         address: user,
         chain_id: chainId,
