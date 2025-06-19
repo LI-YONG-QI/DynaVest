@@ -141,7 +141,11 @@ export default function ConnectWalletButton() {
       style={backgroundStyle}
       ref={dropdownRef}
     >
-      <div className="flex items-center max-w-[30%] ml-2">
+      <div
+        className={`flex items-center max-w-[30%] ml-2 ${
+          !authenticated ? "hidden" : ""
+        }`}
+      >
         {/* Chain Selector */}
         <ChainSelector />
       </div>
