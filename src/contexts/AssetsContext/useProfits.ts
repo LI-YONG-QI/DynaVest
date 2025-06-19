@@ -16,7 +16,7 @@ export const useProfits = (positions: Position[]) => {
 
   async function getProfits() {
     const activePositions = positions.filter(
-      (position) => position.status === "true"
+      (position) => position.status === "true" && position.chainId === chainId
     );
     const profits = await Promise.all(
       activePositions.map((position) => getProfit(user!, chainId, position))

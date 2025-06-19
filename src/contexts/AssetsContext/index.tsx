@@ -37,6 +37,7 @@ import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { useBatchTokenPrices } from "@/contexts/AssetsContext/useBatchTokenPrices";
 import { getTokenAddress } from "@/utils/coins";
 import { useAddUser } from "@/components/ConnectWalletButton/useAddUser";
+import { useOnboardingLogic } from "@/contexts/AssetsContext/useOnboardingLogic";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -233,33 +234,14 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     }
   }, [user?.smartWallet?.address, addUser]);
 
-  /**
-   * @dev Bug: await chainId
-   */
-  useEffect(() => {
-    const isOnboardingDialogShown = localStorage.getItem(
-      `onboarding-dialog-shown`
-    );
-
-    if (
-      tokensQuery.fetchStatus === "idle" &&
-      tokensQuery.status === "success" &&
-      pricesQuery.fetchStatus === "idle" &&
-      pricesQuery.status === "success" &&
-      isOnboardingDialogShown !== "true" &&
-      authenticated
-    ) {
-      setIsOnboardingOpen(totalValue === 0);
-    }
-  }, [
+  // 使用自定義 hook 處理引導邏輯
+  useOnboardingLogic({
+    tokensQuery,
+    pricesQuery,
     totalValue,
-    tokensQuery.fetchStatus,
-    tokensQuery.status,
-    pricesQuery.fetchStatus,
-    pricesQuery.status,
-    smartWallet,
     authenticated,
-  ]);
+    setIsOnboardingOpen,
+  });
 
   const value = {
     withdrawAsset,

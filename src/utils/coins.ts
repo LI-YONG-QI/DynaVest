@@ -52,7 +52,6 @@ export const COINGECKO_IDS: Record<TokensName, string> = {
 
 export const isCoingeckoId = (id: string): id is TokensName => {
   const NAMES = Object.keys(COINGECKO_IDS);
-  console.log(NAMES.includes(id));
   return NAMES.includes(id);
 };
 
