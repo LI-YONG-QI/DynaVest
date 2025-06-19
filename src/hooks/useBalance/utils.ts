@@ -1,9 +1,21 @@
 import axios from "axios";
 
-import { COINGECKO_IDS, getTokenNameByCoingeckoId } from "@/constants/coins";
+import {
+  COINGECKO_IDS,
+  getTokenAddress,
+  getTokenNameByCoingeckoId,
+  isCoingeckoId,
+} from "@/utils/coins";
 import { Token } from "@/types";
+import { base } from "viem/chains";
+import { Address } from "viem";
+import { getBalance } from "@wagmi/core";
+import { wagmiConfig as config } from "@/providers/config";
 
 export async function fetchTokenPrice(token: Token) {
+  if (!isCoingeckoId(token.name))
+    throw new Error(`Token ${token.name} is not supported by Coingecko`);
+
   const id = COINGECKO_IDS[token.name];
 
   const response = await axios.get(
@@ -26,8 +38,29 @@ type TokenPriceResponse = {
   };
 };
 
+export async function fetchTokenBalance(
+  token: Token,
+  user: Address,
+  chainId: number = base.id
+) {
+  const tokenAddr = getTokenAddress(token, chainId);
+  const params = {
+    address: user,
+    ...(token.isNativeToken ? {} : { token: tokenAddr }),
+  };
+
+  const balance = await getBalance(config, params);
+  return balance;
+}
+
 export async function fetchTokensPrices(tokens: Token[]) {
-  const ids = tokens.map((t) => COINGECKO_IDS[t.name]);
+  const ids: string[] = [];
+  for (const t of tokens) {
+    if (!isCoingeckoId(t.name))
+      throw new Error(`Token ${t.name} is not supported by Coingecko`);
+
+    ids.push(COINGECKO_IDS[t.name]);
+  }
 
   const response = await axios.get(
     "https://api.coingecko.com/api/v3/simple/price",

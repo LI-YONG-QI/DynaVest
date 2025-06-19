@@ -5,7 +5,7 @@ import { useChainId } from "wagmi";
 
 import { Token } from "@/types";
 import { SUPPORTED_TOKENS } from "@/constants/profile";
-import { SupportedChainIds } from "@/providers/config";
+import { wagmiConfig } from "@/providers/config";
 
 interface AssetSelectViewProps {
   selectedAsset?: Token;
@@ -21,9 +21,9 @@ export function AssetSelectView({
   title = "Select Asset",
 }: AssetSelectViewProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const chainId = useChainId() as SupportedChainIds;
+  const chainId = useChainId<typeof wagmiConfig>();
 
-  const availableTokens = SUPPORTED_TOKENS[chainId] || [];
+  const availableTokens = SUPPORTED_TOKENS[chainId];
 
   const filteredTokens = availableTokens.filter((token) =>
     token.name.toLowerCase().includes(searchTerm.toLowerCase())

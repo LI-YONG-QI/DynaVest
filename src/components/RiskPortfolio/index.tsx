@@ -36,7 +36,7 @@ export const RiskBadge = ({
       }`}
       onClick={handleClick}
     >
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-medium capitalize">{label}</span>
     </div>
   );
 };

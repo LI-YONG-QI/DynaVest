@@ -3,12 +3,8 @@ import { twMerge } from "tailwind-merge";
 
 import type { RiskLevel } from "@/types";
 
-export const getRiskColor = (risk: {
-  level: RiskLevel;
-  color: string;
-  bgColor: string;
-}) => {
-  switch (risk.level) {
+export const getRiskColor = (risk: RiskLevel) => {
+  switch (risk) {
     case "low":
       return { text: "#10B981", bg: "rgba(16, 185, 129, 0.3)" };
     case "medium":

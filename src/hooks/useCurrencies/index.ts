@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { wagmiConfig as config } from "@/providers/config";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { Token } from "@/types";
+import { getTokenAddress } from "@/utils/coins";
 
 export interface TokenData {
   token: Token;
@@ -34,7 +35,9 @@ export default function useCurrencies(tokens: Token[]) {
 
         const params = {
           address: user,
-          ...(token.isNativeToken ? {} : { token: token.chains?.[chainId] }),
+          ...(token.isNativeToken
+            ? {}
+            : { token: getTokenAddress(token, chainId) }),
         };
 
         const { value } = await getBalance(config, params);
@@ -55,5 +58,9 @@ export default function useCurrencies(tokens: Token[]) {
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     placeholderData: initialTokensData,
     retry: 2,
+    throwOnError: (error) => {
+      console.error("TokensQuery", error);
+      return false;
+    },
   });
 }

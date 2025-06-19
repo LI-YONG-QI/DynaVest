@@ -8,12 +8,7 @@ import { Tooltip } from "@/components/Tooltip";
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type {
-  BotResponse,
-  Message,
-  RiskLevel,
-  StrategyMetadata,
-} from "@/types";
+import type { Message, RiskLevel, StrategyMetadata } from "@/types";
 
 function getRiskLevelLabel(risk: RiskLevel) {
   switch (risk) {
@@ -29,25 +24,15 @@ function getRiskLevelLabel(risk: RiskLevel) {
 }
 
 export default function StrategyCard(strategy: StrategyMetadata) {
-  const {
-    title,
-    id,
-    apy,
-    risk,
-    protocol,
-    description,
-    externalLink,
-    tokens,
-    chainId,
-    displayInsufficientBalance = false,
-  } = strategy;
+  const { title, id, apy, risk, description, tokens, chainId, protocol } =
+    strategy;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Extract the base description without "Learn More" text
   const baseDescription = description.replace(/\s*Learn More\s*$/, "");
 
-  const { openChat, setMessages, sendMessage } = useChat();
+  const { openChat, setMessages } = useChat();
   const router = useRouter();
 
   const handleCardClick = (e: MouseEvent) => {
@@ -61,45 +46,18 @@ export default function StrategyCard(strategy: StrategyMetadata) {
   };
 
   const handleBotClick = async () => {
-    const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+    // const prompt = `Hello. Can you explain the ${title} in 50 words?`;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: prompt,
-      sender: "user",
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: `${strategy.title} intro: \n\n${strategy.fullDescription} \n\nDo you have any questions about this DeFi strategy?`,
+      sender: "bot",
       timestamp: new Date(),
       type: "Text",
     };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, botMessage]);
 
     openChat();
-
-    sendMessage.mutate(prompt, {
-      onSuccess: (data: BotResponse) => {
-        if (data.type === "question") {
-          const botMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            text: data.data?.answer ?? "",
-            sender: "bot",
-            timestamp: new Date(),
-            type: "Text",
-          };
-
-          setMessages((prev) => [...prev, botMessage]);
-        }
-      },
-      onError: (error) => {
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: error.message ?? "",
-          sender: "bot",
-          timestamp: new Date(),
-          type: "Text",
-        };
-
-        setMessages((prev) => [...prev, botMessage]);
-      },
-    });
   };
 
   return (
@@ -129,17 +87,17 @@ export default function StrategyCard(strategy: StrategyMetadata) {
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium text-base text-[#17181C]">
-                APY {apy}%
+                APY {apy} %
               </span>
               <div
                 className="flex justify-center items-center px-2 py-1 rounded-lg"
-                style={{ backgroundColor: getRiskColor(risk)?.bg || "#E5E7EB" }}
+                style={{ backgroundColor: getRiskColor(risk).bg }}
               >
                 <span
                   className="text-xs font-medium"
-                  style={{ color: getRiskColor(risk)?.text || "#6B7280" }}
+                  style={{ color: getRiskColor(risk).text }}
                 >
-                  {getRiskLevelLabel(risk.level)}
+                  {getRiskLevelLabel(risk)}
                 </span>
               </div>
             </div>
@@ -153,16 +111,16 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                 <div className="col-span-4 space-y-1">
                   <div className="text-sm">Protocol</div>
                   <div className="text-sm">TVL</div>
-                  <div className="text-sm">Token(s)</div>
+                  <div className="text-sm">Tokens</div>
                 </div>
                 <div className="col-span-7 space-y-1">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-medium text-gray-900 truncate">
-                      {protocol}
+                      {protocol.name}
                     </span>
-                    {externalLink && (
+                    {protocol.link && (
                       <Link
-                        href={externalLink}
+                        href={protocol.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-shrink-0 text-[#3568E8] hover:underline"
@@ -183,6 +141,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                       </Link>
                     )}
                   </div>
+
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
                     $
@@ -197,6 +156,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     )}
                     M
                   </p>
+
                   <div className="text-sm text-gray-900 flex items-center">
                     {tokens.map((token) => (
                       <div key={token.name} className="w-5 h-5 relative">
@@ -217,6 +177,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
             </div>
           </div>
         </div>
+
         {/* Action button section - always stay at bottom */}
         <div className="w-full mt-auto flex items-center gap-5">
           <button
@@ -238,7 +199,6 @@ export default function StrategyCard(strategy: StrategyMetadata) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         strategy={strategy}
-        displayInsufficientBalance={displayInsufficientBalance}
       />
     </>
   );

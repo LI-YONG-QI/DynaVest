@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useMemo,
   useEffect,
+  useState,
 } from "react";
 import {
   Address,
@@ -28,13 +29,15 @@ import { Token } from "@/types";
 import { Position } from "@/types/position";
 import { ERC20_ABI } from "@/constants";
 import { SUPPORTED_TOKENS } from "@/constants/profile";
-import type { SupportedChainIds } from "@/providers/config";
+import type { wagmiConfig } from "@/providers/config";
 import { usePositions } from "./usePositions";
 import { useProfits } from "./useProfits";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
-import { useBatchTokenPrices } from "@/hooks/useCurrency/useBatchTokenPrices";
+import { useBatchTokenPrices } from "@/contexts/AssetsContext/useBatchTokenPrices";
+import { getTokenAddress } from "@/utils/coins";
 import { useAddUser } from "@/components/ConnectWalletButton/useAddUser";
+import { useOnboardingLogic } from "@/contexts/AssetsContext/useOnboardingLogic";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -52,13 +55,16 @@ interface AssetsBalanceQuery {
 interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
   positionsQuery: UseQueryResult<Position[], Error>;
+  profitsQuery: UseQueryResult<number[], Error>;
+  pricesQuery: UseQueryResult<Record<string, number>, Error>;
   withdrawAsset: UseMutationResult<Hash, Error, WithdrawAssetParams>;
   updateTotalValue: UseMutationResult<void, Error, void>;
-  profitsQuery: UseQueryResult<number[], Error>;
   totalValue: number;
   isPriceError: boolean;
-  pricesQuery: UseQueryResult<Record<string, number>, Error>;
   assetsBalance: AssetsBalanceQuery;
+  smartWallet: Address | null;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -83,10 +89,12 @@ interface WithdrawAssetParams {
 }
 
 export function AssetsProvider({ children }: AssetsProviderProps) {
-  const chainId = useChainId() as SupportedChainIds;
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  const chainId = useChainId<typeof wagmiConfig>();
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
-  const { user } = usePrivy();
+  const { user, authenticated } = usePrivy();
   const { mutate: addUser } = useAddUser();
 
   const pricesQuery = useBatchTokenPrices(tokensWithChain);
@@ -94,9 +102,12 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const profitsQuery = useProfits(positionsQuery.data || []);
   const tokensQuery = useCurrencies(tokensWithChain);
 
-  const { data: prices, isError: isPriceError } = pricesQuery;
+  const smartWallet = useMemo(() => {
+    return client?.account?.address || null;
+  }, [client?.account?.address]);
 
-  const assetsBalanceData: AssetBalance[] = useMemo(() => {
+  const { data: prices, isError: isPriceError } = pricesQuery;
+  const assetsBalanceWithValue: AssetBalance[] = useMemo(() => {
     return (
       tokensQuery.data?.map((t) => ({
         ...t,
@@ -110,7 +121,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   // 創建包含完整狀態的 assetsBalance 對象
   const assetsBalance: AssetsBalanceQuery = useMemo(
     () => ({
-      data: assetsBalanceData,
+      data: assetsBalanceWithValue,
       isLoading:
         tokensQuery.isLoading ||
         pricesQuery.isLoading ||
@@ -119,19 +130,21 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
       error: tokensQuery.error || pricesQuery.error,
       isSuccess: tokensQuery.isSuccess && pricesQuery.isSuccess,
     }),
-    [assetsBalanceData, tokensQuery, pricesQuery]
+    [assetsBalanceWithValue, tokensQuery, pricesQuery]
   );
 
-  const totalValue = assetsBalanceData.reduce((acc, t) => acc + t.value, 0);
+  const totalValue = assetsBalanceWithValue.reduce(
+    (acc, t) => acc + t.value,
+    0
+  );
 
   const updateTotalValue = useMutation({
     mutationFn: async () => {
-      const user = client?.account.address;
+      if (!smartWallet) throw new Error("User not found");
 
-      if (!user) throw new Error("User not found");
       if (tokensQuery.data) {
         await axios.patch<{ success: boolean }>(
-          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${user}`,
+          `${process.env.NEXT_PUBLIC_CHATBOT_URL}/users/update_total/${smartWallet}`,
           {
             total_value: totalValue,
           }
@@ -148,7 +161,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
 
       const decimals = asset.decimals || 6;
       const amountInBaseUnits = parseUnits(amount, decimals);
-      const assetAddress = asset.chains?.[chainId] as Address;
+      const assetAddress = getTokenAddress(asset, chainId);
 
       const { fee, amount: amountWithoutFee } = calculateFee(amountInBaseUnits);
       const feeCall = addFeesCall(assetAddress, asset.isNativeToken, fee);
@@ -221,6 +234,15 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     }
   }, [user?.smartWallet?.address, addUser]);
 
+  // 使用自定義 hook 處理引導邏輯
+  useOnboardingLogic({
+    tokensQuery,
+    pricesQuery,
+    totalValue,
+    authenticated,
+    setIsOnboardingOpen,
+  });
+
   const value = {
     withdrawAsset,
     positionsQuery,
@@ -231,6 +253,9 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     isPriceError,
     pricesQuery,
     assetsBalance,
+    smartWallet,
+    isOnboardingOpen,
+    setIsOnboardingOpen,
   };
 
   return (

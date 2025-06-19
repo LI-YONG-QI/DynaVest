@@ -2,7 +2,8 @@ import axios, { AxiosResponse } from "axios";
 import { Address } from "viem";
 
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
-import { Protocols } from "@/types/strategies";
+import { Protocol } from "@/types/strategies";
+import { getTokenAddress } from "@/utils/coins";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
@@ -18,13 +19,14 @@ export type PositionParams = {
 
 type PositionResponse = {
   id: string;
+  chain_id: number;
   amount: number;
   strategy: string;
   status: string;
 };
 
 export async function getRedeemCalls(
-  strategy: BaseStrategy<Protocols> | MultiStrategy,
+  strategy: BaseStrategy<Protocol> | MultiStrategy,
   amount: bigint,
   user: Address,
   token: Token,
@@ -35,7 +37,11 @@ export async function getRedeemCalls(
   if (token.isNativeToken) {
     calls = await strategy.redeemCalls(amount, user);
   } else {
-    calls = await strategy.redeemCalls(amount, user, token.chains?.[chainId]);
+    calls = await strategy.redeemCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId)
+    );
   }
 
   if (calls.length === 0) throw new Error("No calls found");
@@ -43,7 +49,7 @@ export async function getRedeemCalls(
 }
 
 export async function getInvestCalls(
-  strategy: BaseStrategy<Protocols> | MultiStrategy,
+  strategy: BaseStrategy<Protocol> | MultiStrategy,
   amount: bigint,
   user: Address,
   token: Token,
@@ -54,7 +60,11 @@ export async function getInvestCalls(
   if (token.isNativeToken) {
     calls = await strategy.investCalls(amount, user);
   } else {
-    calls = await strategy.investCalls(amount, user, token.chains?.[chainId]);
+    calls = await strategy.investCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId)
+    );
   }
 
   if (calls.length === 0) throw new Error("No calls found");
@@ -69,6 +79,7 @@ export async function getInvestCalls(
 export async function updatePosition(positionParams: PositionParams) {
   // TODO: refactor with backend
 
+  // Check user if have any position
   let res: AxiosResponse;
   try {
     res = await axios.get(
@@ -81,9 +92,12 @@ export async function updatePosition(positionParams: PositionParams) {
     );
   }
 
+  // Check user if have the same position
   const position = res.data.find(
     (pos: PositionResponse) =>
-      pos.strategy === positionParams.strategy && pos.status === "true"
+      pos.strategy === positionParams.strategy &&
+      pos.status === "true" &&
+      pos.chain_id === positionParams.chain_id
   );
   if (!position) {
     return await axios.post(

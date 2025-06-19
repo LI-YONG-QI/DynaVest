@@ -5,22 +5,27 @@ import { toast } from "react-toastify";
 import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 
-import useCurrency from "@/hooks/useCurrency";
-import useSwitchChain from "@/hooks/useSwitchChain";
-import { InvestmentFormMode, InvestStrategy, Token } from "@/types";
+import useBalance from "@/hooks/useBalance";
+
+import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { getStrategy } from "@/utils/strategies";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
+import { useWallets } from "@privy-io/react-auth";
+import { DepositDialog } from "@/components/DepositDialog";
+import { useAssets } from "@/contexts/AssetsContext";
 
 // Props interface
 
 // TODO: refactor
 // TODO: split responsibilities of the AmountInput (avoid props drilling)
 interface InvestmentFormProps {
-  strategy: InvestStrategy;
+  strategy: StrategyMetadata;
   mode?: InvestmentFormMode;
   handleClose?: () => void;
-  handlePortfolio?: (amount: string) => void;
+  chat?: {
+    handlePortfolio: (amount: string) => void;
+  };
 }
 
 enum ButtonState {
@@ -35,14 +40,22 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   strategy,
   mode = "invest",
   handleClose,
-  handlePortfolio,
+  chat,
 }) => {
+  // User context
+  const chainId = useChainId();
+  const isSupportedChain = chainId === strategy.chainId;
+  const { ready: isWalletReady } = useWallets();
+  const { switchChainAsync } = useWagmiSwitchChain();
+  const { assetsBalance } = useAssets();
+  const [isDeposit, setIsDeposit] = useState(false);
+
   // first token input
   const [amount, setAmount] = useState<string>("");
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [currency, setCurrency] = useState<Token>(strategy.tokens[0]);
   const { balance: maxBalance = BigInt(0), isLoadingBalance } =
-    useCurrency(currency);
+    useBalance(currency);
 
   // second token input - for LP
   const [secondAmount, setSecondAmount] = useState<string>("");
@@ -54,26 +67,21 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const {
     balance: secondMaxBalance = BigInt(0),
     isLoadingBalance: isLoadingSecondBalance,
-  } = useCurrency(secondCurrency);
+  } = useBalance(secondCurrency);
 
+  // Button state
   const [buttonState, setButtonState] = useState<ButtonState>(
     ButtonState.Pending
   );
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isSupportedChain, ready: isWalletReady } = useSwitchChain(
-    strategy.chainId
-  );
-  const { switchChainAsync } = useWagmiSwitchChain();
-
-  const chainId = useChainId();
-  const { invest: investStrategy } = useStrategyExecutor();
+  const { invest: investStrategy } = useStrategy();
 
   // Advanced settings state
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [slippage, setSlippage] = useState<number | "auto">("auto");
-  const [customSlippage, setCustomSlippage] = useState("");
+  // const [showAdvanced, setShowAdvanced] = useState(false);
+  // const [slippage, setSlippage] = useState<number | "auto">("auto");
+  // const [customSlippage, setCustomSlippage] = useState("");
 
   const AMOUNT_LIMIT = 0;
 
@@ -88,8 +96,16 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
       return;
     }
 
-    if (handlePortfolio) {
-      handlePortfolio(amount);
+    const asset = assetsBalance.data.find((asset) => asset.token === currency);
+
+    // Check balance is zero and no chat process
+    if (asset?.balance === BigInt(0) && !chat) {
+      setIsDeposit(true);
+      return;
+    }
+
+    if (chat?.handlePortfolio) {
+      chat.handlePortfolio(amount);
       setIsDisabled(false);
     } else {
       executeStrategy();
@@ -119,7 +135,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const executeStrategy = async () => {
     setIsLoading(true);
 
-    const strategyHandler = getStrategy(strategy.protocol, chainId);
+    const strategyHandler = getStrategy(strategy.id, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
 
     investStrategy.mutate(
@@ -192,151 +208,161 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   }, [isLoading, isSupportedChain, isWalletReady, mode]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Amount input */}
-      <AmountInput
-        inputName="amount"
-        amount={amount}
-        setAmount={setAmount}
-        currency={currency}
-        setCurrency={setCurrency}
-        showCurrencyDropdown={showCurrencyDropdown}
-        setShowCurrencyDropdown={setShowCurrencyDropdown}
-        strategy={strategy}
-        isLoadingBalance={isLoadingBalance}
-        isSupportedChain={isSupportedChain}
-        maxBalance={maxBalance}
-        handleSetMax={handleSetMax}
-      />
-
-      {mode == "lp" && (
+    <>
+      <form onSubmit={handleSubmit}>
+        {/* Amount input */}
         <AmountInput
-          inputName="secondAmount"
-          amount={secondAmount}
-          setAmount={setSecondAmount}
-          currency={secondCurrency}
-          setCurrency={setSecondCurrency}
-          showCurrencyDropdown={showSecondCurrencyDropdown}
-          setShowCurrencyDropdown={setShowSecondCurrencyDropdown}
+          amount={amount}
+          setAmount={setAmount}
+          currency={currency}
+          setCurrency={setCurrency}
+          showCurrencyDropdown={showCurrencyDropdown}
+          setShowCurrencyDropdown={setShowCurrencyDropdown}
           strategy={strategy}
-          isLoadingBalance={isLoadingSecondBalance}
+          isLoadingBalance={isLoadingBalance}
           isSupportedChain={isSupportedChain}
-          maxBalance={secondMaxBalance}
+          maxBalance={maxBalance}
           handleSetMax={handleSetMax}
         />
-      )}
 
-      {/* Advanced Settings */}
-      <div className="my-4">
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
-        >
-          <span>Advanced Settings</span>
-          <svg
-            className={`size-4 transition-transform ${
-              showAdvanced ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+        {mode == "lp" && (
+          <AmountInput
+            amount={secondAmount}
+            setAmount={setSecondAmount}
+            currency={secondCurrency}
+            setCurrency={setSecondCurrency}
+            showCurrencyDropdown={showSecondCurrencyDropdown}
+            setShowCurrencyDropdown={setShowSecondCurrencyDropdown}
+            strategy={strategy}
+            isLoadingBalance={isLoadingSecondBalance}
+            isSupportedChain={isSupportedChain}
+            maxBalance={secondMaxBalance}
+            handleSetMax={handleSetMax}
+          />
+        )}
+
+        {/* Advanced Settings */}
+        {/* <div className="my-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+            <span>Advanced Settings</span>
+            <svg
+              className={`size-4 transition-transform ${
+                showAdvanced ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
 
-        {showAdvanced && (
-          <div className="mt-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Max Slippage</span>
-              <button
-                type="button"
-                onClick={() => setSlippage("auto")}
-                className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
-              >
-                Auto
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
-              {["auto", "0.1", "0.5", "1.0"].map((value) => (
+          {showAdvanced && (
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Max Slippage</span>
                 <button
-                  key={value}
                   type="button"
-                  onClick={() => {
-                    setSlippage(value === "auto" ? "auto" : Number(value));
-                    if (value !== "custom") setCustomSlippage("");
-                  }}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-                    (value === "auto" && slippage === "auto") ||
-                    (value !== "auto" && slippage === Number(value))
-                      ? "bg-[#5F79F1] text-white"
-                      : "text-black hover:bg-[#5F79F1]/20"
-                  }`}
+                  onClick={() => setSlippage("auto")}
+                  className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
                 >
-                  {value === "auto" ? "Auto" : `${value}%`}
+                  Auto
                 </button>
-              ))}
-              <div className="relative flex-1 xl:max-w-[80px]">
-                <input
-                  type="text"
-                  value={customSlippage}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setCustomSlippage(val);
-                      const num = parseFloat(val);
-                      if (!isNaN(num)) {
-                        setSlippage(num);
-                      } else if (val === "") {
-                        setSlippage("auto");
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
+                {["auto", "0.1", "0.5", "1.0"].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setSlippage(value === "auto" ? "auto" : Number(value));
+                      if (value !== "custom") setCustomSlippage("");
+                    }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md ${
+                      (value === "auto" && slippage === "auto") ||
+                      (value !== "auto" && slippage === Number(value))
+                        ? "bg-[#5F79F1] text-white"
+                        : "text-black hover:bg-[#5F79F1]/20"
+                    }`}
+                  >
+                    {value === "auto" ? "Auto" : `${value}%`}
+                  </button>
+                ))}
+                <div className="relative flex-1 xl:max-w-[80px]">
+                  <input
+                    type="text"
+                    value={customSlippage}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setCustomSlippage(val);
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) {
+                          setSlippage(num);
+                        } else if (val === "") {
+                          setSlippage("auto");
+                        }
                       }
+                    }}
+                    onFocus={() =>
+                      setSlippage(
+                        customSlippage
+                          ? parseFloat(customSlippage) || "auto"
+                          : "auto"
+                      )
                     }
-                  }}
-                  onFocus={() =>
-                    setSlippage(
-                      customSlippage
-                        ? parseFloat(customSlippage) || "auto"
-                        : "auto"
-                    )
-                  }
-                  placeholder="1.5%"
-                  className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
-                />
+                    placeholder="1.5%"
+                    className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div> */}
 
-      {/* Invest button */}
-      <button
-        type="submit"
-        disabled={isDisabled}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-[#5F79F1] hover:bg-[#4A64DC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-      >
-        {buttonState}
-      </button>
-    </form>
+        {/* Invest button */}
+        <button
+          type="submit"
+          disabled={isDisabled}
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-[#5F79F1] hover:bg-[#4A64DC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        >
+          {buttonState === ButtonState.Pending ? (
+            <MoonLoader size={16} />
+          ) : (
+            <p>{buttonState}</p>
+          )}
+        </button>
+      </form>
+      <div className="hidden">
+        <DepositDialog
+          token={currency}
+          open={isDeposit}
+          onOpenChange={setIsDeposit}
+        />
+      </div>
+    </>
   );
 };
 
 interface AmountInputProps {
-  inputName?: string;
   amount: string;
   setAmount: (amount: string) => void;
   currency: Token;
   setCurrency: (currency: Token) => void;
   showCurrencyDropdown: boolean;
   setShowCurrencyDropdown: (show: boolean) => void;
-  strategy: InvestStrategy;
+  strategy: StrategyMetadata;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
   maxBalance: bigint;
@@ -344,7 +370,6 @@ interface AmountInputProps {
 }
 
 const AmountInput = ({
-  inputName = "amount",
   amount,
   setAmount,
   currency,
@@ -362,8 +387,8 @@ const AmountInput = ({
       <div className="flex items-center w-full gap-2">
         <input
           type="text"
-          name={inputName}
-          id={inputName}
+          name="amount"
+          id="amount"
           className="flex-1 min-w-0 bg-transparent text-gray-500 block px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-0 focus:border-0 placeholder:text-gray-500"
           placeholder="0.00"
           value={amount}

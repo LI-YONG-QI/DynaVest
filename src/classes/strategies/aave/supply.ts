@@ -2,16 +2,17 @@ import { Position } from "@/types/position";
 import type { Address } from "viem";
 import { encodeFunctionData, formatUnits } from "viem";
 import { readContract } from "@wagmi/core";
+import { GetProtocolChains } from "@/types/strategies";
 
 import { AAVE_V3_ABI, ERC20_ABI } from "@/constants/abis";
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
-import { AAVE_CONTRACTS } from "@/constants/protocols/aave";
+import { AAVE } from "@/constants/protocols/aave";
 import { wagmiConfig } from "@/providers/config";
-import { getTokenByName } from "@/constants/coins";
+import { getTokenByName } from "@/utils/coins";
 
-export class AaveV3Supply extends BaseStrategy<typeof AAVE_CONTRACTS> {
-  constructor(chainId: number) {
-    super(chainId, AAVE_CONTRACTS, "AaveV3Supply");
+export class AaveV3Supply extends BaseStrategy<typeof AAVE> {
+  constructor(chainId: GetProtocolChains<typeof AAVE>) {
+    super(chainId, AAVE, "AaveV3Supply");
   }
 
   async investCalls(

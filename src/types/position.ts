@@ -1,9 +1,12 @@
+import { SupportedChainIds } from "@/providers/config";
+import type { Strategy } from "./strategies";
+
 export type Position = {
   id: string;
   createAt: string;
-  strategy: string;
+  strategy: Strategy;
   tokenName: string;
   amount: number;
-  chainId: number;
+  chainId: SupportedChainIds;
   status: string;
 };

@@ -69,7 +69,7 @@ export default function ChatBubble({
                 : "left-0 border-t-16 border-t-[#5F79F1] border-r-16"
             } border-l-transparent border-r-transparent`}
           />
-          <p className="text-sm">
+          <p className="text-sm whitespace-pre-wrap">
             {isLoading ? (
               <span className="flex items-center space-x-1 py-1">
                 <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></span>

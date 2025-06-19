@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
@@ -17,7 +16,7 @@ export const useProfits = (positions: Position[]) => {
 
   async function getProfits() {
     const activePositions = positions.filter(
-      (position) => position.status === "true"
+      (position) => position.status === "true" && position.chainId === chainId
     );
     const profits = await Promise.all(
       activePositions.map((position) => getProfit(user!, chainId, position))
@@ -35,5 +34,9 @@ export const useProfits = (positions: Position[]) => {
     queryFn: getProfits,
     enabled: !!client && !!user,
     staleTime: 30 * 1000,
+    throwOnError: (error) => {
+      console.error("ProfitsQuery", error);
+      return false;
+    },
   });
 };

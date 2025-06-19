@@ -7,7 +7,7 @@ import { waitForTransactionReceipt } from "viem/actions";
 import { useMutation } from "@tanstack/react-query";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
-import { Protocols } from "@/types/strategies";
+import { Protocol } from "@/types/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
@@ -19,18 +19,18 @@ import {
   updatePosition,
   type PositionParams,
 } from "./utils";
-import { getTokenByName } from "@/constants/coins";
 import { addFeesCall, calculateFee } from "@/utils/fee";
+import { getTokenAddress, getTokenByName } from "@/utils/coins";
 
 type RedeemParams = {
-  strategy: BaseStrategy<Protocols>;
+  strategy: BaseStrategy<Protocol>;
   amount: bigint;
   token: Token;
   positionId: string;
 };
 
 type InvestParams = {
-  strategy: BaseStrategy<Protocols>;
+  strategy: BaseStrategy<Protocol>;
   amount: bigint;
   token: Token;
 };
@@ -42,9 +42,7 @@ type MultiInvestParams = {
   positionId?: string;
 };
 
-// TODO: rename, and encapsulate logic of strategy
-// TODO: useStrategy(strategyName: Protocol)
-export function useStrategyExecutor() {
+export function useStrategy() {
   const { client } = useSmartWallets();
   const chainId = useChainId();
   const publicClient = useClient();
@@ -148,7 +146,7 @@ export function useStrategyExecutor() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );
@@ -194,10 +192,11 @@ export function useStrategyExecutor() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );
+
       calls.push(feeCall);
       const txHash = await sendAndWaitTransaction(calls);
 
@@ -208,6 +207,7 @@ export function useStrategyExecutor() {
         chain_id: chainId,
         strategy: strategy.name,
       });
+
       await addTx.mutateAsync({
         address: user,
         chain_id: chainId,
@@ -239,7 +239,7 @@ export function useStrategyExecutor() {
       );
 
       const feeCall = addFeesCall(
-        token.chains?.[chainId] as Address,
+        getTokenAddress(token, chainId),
         token.isNativeToken,
         fee
       );

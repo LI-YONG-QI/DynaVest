@@ -26,7 +26,7 @@ import { Token } from "@/types";
 import { NetworkSelectView } from "@/components/DepositDialog/NetworkSelectView";
 import { AssetSelectView } from "@/components/AssetSelectDialog";
 import { createWithdrawFormSchema } from "./types";
-import useCurrency from "@/hooks/useCurrency";
+import useBalance from "@/hooks/useBalance";
 import { useAssets } from "@/contexts/AssetsContext";
 import { toast } from "react-toastify";
 
@@ -51,7 +51,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const [selectedAsset, setSelectedAsset] = useState<Token>(token);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-  const { balance = BigInt(0) } = useCurrency(selectedAsset);
+  const { balance = BigInt(0) } = useBalance(selectedAsset);
 
   const maxBalance = useMemo(() => {
     return Number(formatUnits(balance, selectedAsset.decimals));

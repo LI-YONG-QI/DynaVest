@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { FileCheck, MoveUpRight } from "lucide-react";
 
 import { BuildPortfolioMessage } from "@/classes/message";

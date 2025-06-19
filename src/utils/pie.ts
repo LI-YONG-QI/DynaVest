@@ -1,7 +1,6 @@
 import type { ChartConfig } from "@/components/ui/chart";
 import type { PieStrategy, RiskPortfolioStrategies } from "@/types";
 
-export const COLORS = ["#7086FD", "#6FD195", "#FFAE4C", "#07DBFA", "#988AFC"];
 
 /**
  * Generates chart data from strategy information
@@ -30,10 +29,10 @@ export const createPieChartStrategies = (
 ) => {
   return strategiesMetadata.map((strategy, index) => ({
     id: index + 1,
-    color: COLORS[index],
+    color: strategy.color,
     name: strategy.title,
     apy: `APY ${strategy.apy}%`,
-    risk: `${strategy.risk.level} Risk`,
+    risk: `${strategy.risk} Risk`,
     allocation: strategy.allocation,
   }));
 };
