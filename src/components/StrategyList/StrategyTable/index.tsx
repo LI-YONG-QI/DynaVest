@@ -4,29 +4,21 @@ import { useState } from "react";
 
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { RiskLevel, StrategyMetadata } from "@/types";
+import type { StrategyMetadata } from "@/types";
 import { getChain } from "@/constants/chains";
+import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
 
 interface StrategyTableProps {
   strategies: Array<StrategyMetadata>;
 }
 
-function getRiskLevelLabel(risk: RiskLevel) {
-  switch (risk) {
-    case "low":
-      return "Low";
-    case "medium":
-      return "Medium";
-    case "high":
-      return "High";
-    default:
-      return "Unknown";
-  }
-}
-
 export default function StrategyTable({ strategies }: StrategyTableProps) {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const { openChat } = useChat();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<StrategyMetadata>(
+    strategies[0]
+  );
 
   // Sort strategies by APY
   const sortedStrategies = [...strategies].sort((a, b) => {
@@ -115,12 +107,12 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {sortedStrategies.map((strategy, index) => (
-            <tr key={index} className="hover:bg-gray-50">
+            <tr key={index} className="hover:bg-gray-50 rounded-3xl">
               {/* Title */}
               <td className="pr-2 py-4">
                 <div className="flex items-center flex-wrap">
                   <div className="">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="ml-2 text-sm font-medium text-gray-900">
                       {strategy.title}
                     </div>
                   </div>
@@ -133,10 +125,10 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                   style={{ backgroundColor: getRiskColor(strategy.risk).bg }}
                 >
                   <span
-                    className="font-medium"
+                    className="font-medium capitalize"
                     style={{ color: getRiskColor(strategy.risk).text }}
                   >
-                    {getRiskLevelLabel(strategy.risk)}
+                    {strategy.risk}
                   </span>
                 </div>
               </td>
@@ -203,9 +195,17 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
               {/* TODO: Add business logic */}
               <td className="pr-2 py-4 text-sm font-medium">
                 <div className="flex space-x-2">
-                  <button className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium">
-                    Deposit
+                  <button
+                    className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsModalOpen(true);
+                      setSelectedStrategy(strategy);
+                    }}
+                  >
+                    Invest
                   </button>
+
                   <button
                     onClick={() =>
                       openChat(
@@ -222,6 +222,11 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
           ))}
         </tbody>
       </table>
+      <InvestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        strategy={selectedStrategy}
+      />
     </div>
   );
 }
