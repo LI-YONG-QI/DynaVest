@@ -8,6 +8,7 @@ import StrategyTable from "./StrategyTable";
 import RiskFilter from "./RiskFilter";
 import ProtocolFilter from "./ProtocolFilter";
 import ChainFilter from "./ChainFilter";
+import APYFilter from "./APYFilter";
 
 import { STRATEGIES_METADATA } from "@/constants/strategies";
 
@@ -31,8 +32,12 @@ export default function StrategyList() {
   const [showProtocolDropdown, setShowProtocolDropdown] = useState(false);
   const [selectedProtocols, setSelectedProtocols] = useState<string[]>([]);
   const [selectedChains, setSelectedChains] = useState<number[]>([]);
+  const [showApyDropdown, setShowApyDropdown] = useState(false);
+  const [selectedApySort, setSelectedApySort] = useState<string | null>(null);
+
   const protocolDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const apyDropdownRef = useRef<HTMLDivElement>(null);
 
   // Extract all distinct protocols
   const protocolOptions = useMemo(() => {
@@ -55,7 +60,7 @@ export default function StrategyList() {
     );
   };
 
-  // Filter strategies based on search query, selected risks, and selected protocols
+  // Filter and sort strategies based on all criteria
   const filteredStrategies = useMemo(() => {
     let filtered = STRATEGIES_METADATA;
 
@@ -101,8 +106,26 @@ export default function StrategyList() {
       }
     }
 
+    // Sort by APY if selected
+    if (selectedApySort) {
+      filtered = [...filtered].sort((a, b) => {
+        if (selectedApySort === "high-to-low") {
+          return b.apy - a.apy;
+        } else if (selectedApySort === "low-to-high") {
+          return a.apy - b.apy;
+        }
+        return 0;
+      });
+    }
+
     return filtered;
-  }, [searchQuery, selectedRisks, selectedProtocols, selectedChains]);
+  }, [
+    searchQuery,
+    selectedRisks,
+    selectedProtocols,
+    selectedChains,
+    selectedApySort,
+  ]);
 
   return (
     <div>
@@ -120,6 +143,7 @@ export default function StrategyList() {
             setShowRiskDropdown={setShowRiskDropdown}
             dropdownRef={dropdownRef}
           />
+
           <ProtocolFilter
             protocols={protocolOptions}
             selectedProtocols={selectedProtocols}
@@ -128,6 +152,14 @@ export default function StrategyList() {
             showProtocolDropdown={showProtocolDropdown}
             setShowProtocolDropdown={setShowProtocolDropdown}
             dropdownRef={protocolDropdownRef}
+          />
+
+          <APYFilter
+            selectedApySort={selectedApySort}
+            setSelectedApySort={setSelectedApySort}
+            showApyDropdown={showApyDropdown}
+            setShowApyDropdown={setShowApyDropdown}
+            dropdownRef={apyDropdownRef}
           />
 
           {/* Chain Filter - Desktop */}
