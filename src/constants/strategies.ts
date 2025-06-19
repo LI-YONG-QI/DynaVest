@@ -106,7 +106,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "MorphoSupply",
     apy: 6.7,
     risk: "medium",
-    color: "#0072E3",
+    color: "#2973FF",
     protocol: MORPHO,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -122,7 +122,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 6.1,
     risk: "medium",
-    color: "#B15BFF",
+    color: "#9896FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -154,7 +154,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
-    color: "#CE0000",
+    color: "#F50DB5",
     protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",

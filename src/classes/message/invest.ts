@@ -40,9 +40,16 @@ export class InvestMessage extends Message {
       );
     };
 
+    const getHighRiskStrategies = () => {
+      return STRATEGIES_METADATA.filter(
+        (s) =>
+          (s.id === "AaveV3Supply" || s.id === "MorphoSupply") &&
+          s.chainId === chainId
+      );
+    };
+
     const getRandomAllocation = (lower: number, upper: number) => {
       const random = Math.floor(Math.random() * (upper - lower)) + lower;
-      console.log("Random", random);
       return random;
     };
 
@@ -67,9 +74,8 @@ export class InvestMessage extends Message {
         case "high":
           // Aggressive allocation: AAVE 20%, Morpho 30%, Uniswap 50%
           aaveAllocation = getRandomAllocation(20, 50);
-          morphoAllocation = getRandomAllocation(20, 50);
-          lstAllocation = 100 - aaveAllocation - morphoAllocation;
-          return [aaveAllocation, morphoAllocation, lstAllocation];
+          morphoAllocation = 100 - aaveAllocation;
+          return [aaveAllocation, morphoAllocation];
         default:
           throw new Error("Invalid risk type");
       }
@@ -94,6 +100,12 @@ export class InvestMessage extends Message {
       if (riskLevel === "low") {
         // Use only 2 strategies for low risk
         const availableStrategies = getLowRiskStrategies();
+        strategiesSet[riskLevel] = availableStrategies
+          .slice(0, 2)
+          .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
+      } else if (riskLevel === "high") {
+        // Use only 2 strategies for high risk
+        const availableStrategies = getHighRiskStrategies();
         strategiesSet[riskLevel] = availableStrategies
           .slice(0, 2)
           .map((strategy, i) => addAllocation(strategy, allocations[i] || 0));
