@@ -337,7 +337,11 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           disabled={isDisabled}
           className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm font-medium text-white bg-[#5F79F1] hover:bg-[#4A64DC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
         >
-          {buttonState}
+          {buttonState === ButtonState.Pending ? (
+            <MoonLoader size={16} />
+          ) : (
+            <p>{buttonState}</p>
+          )}
         </button>
       </form>
       <div className="hidden">

@@ -95,12 +95,12 @@ const Chatroom = () => {
   return (
     <div className="fixed bg-white bottom-20 md:bottom-6 right-3 md:right-6 rounded-2xl overflow-hidden shadow-2xl z-50 w-full max-w-md h-[500px] flex flex-col">
       {/* Header */}
-      <div className="bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2 rounded-t-2xl">
+      <button
+        onClick={toggleMinimize}
+        className="bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2 rounded-t-2xl"
+      >
         <div className="flex items-center gap-x-3">
-          <button
-            onClick={toggleMinimize}
-            className="flex items-center justify-center mt-1"
-          >
+          <div className="flex items-center justify-center mt-1">
             <Image
               src="/bot-icon-white.svg"
               alt="Bot"
@@ -108,7 +108,7 @@ const Chatroom = () => {
               height={48}
               className="object-contain w-6 h-6"
             />
-          </button>
+          </div>
           <div className="leading-5">
             <h3 className="font-bold md:text-lg">DynaVest Bot</h3>
             <div className="flex items-center gap-1.5">
@@ -117,10 +117,7 @@ const Chatroom = () => {
             </div>
           </div>
         </div>
-        <button
-          onClick={toggleMinimize}
-          className="flex bg-opacity-20 items-center rounded-full p-1.5 hover:bg-opacity-30 transition-all"
-        >
+        <div className="flex bg-opacity-20 items-center rounded-full p-1.5 hover:bg-opacity-30 transition-all">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -134,8 +131,8 @@ const Chatroom = () => {
           >
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
-        </button>
-      </div>
+        </div>
+      </button>
 
       {/* Chat Area */}
       {!isMinimized && (
