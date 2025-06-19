@@ -1,3 +1,5 @@
+// TODO: replace it with Protocol type data
+
 export const PROTOCOLS_METADATA: Record<
   string,
   { icon: string; description: string }

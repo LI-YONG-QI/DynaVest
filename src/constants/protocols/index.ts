@@ -1,3 +1,7 @@
+import { AAVE } from "./aave";
+import { UNISWAP } from "./uniswap";
+import { MORPHO } from "./morpho";
+
 export * from "./aave";
 export * from "./stCelo";
 export * from "./ankr";
@@ -8,12 +12,4 @@ export * from "./camelot";
 export * from "./uniswap";
 export * from "./gmx";
 
-export const PROTOCOLS = [
-  "AaveV3Supply",
-  "StCeloStaking",
-  "MorphoSupply",
-  "UniswapV3AddLiquidity",
-  "UniswapV3SwapLST",
-  "CamelotStaking",
-  "GMXDeposit",
-] as const;
+export const PROTOCOLS = [AAVE, UNISWAP, MORPHO];

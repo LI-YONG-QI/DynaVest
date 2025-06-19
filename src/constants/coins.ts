@@ -139,58 +139,18 @@ export const WBNB: Token = {
   },
 };
 
-export function getWrappedToken(token: Token): Token {
-  if (token.isNativeToken) {
-    switch (token.name) {
-      case "ETH":
-        return WETH;
-      case "BNB":
-        return WBNB;
-      default:
-        throw new Error("Token does't have wrapped token");
-    }
-  } else {
-    throw new Error("Token does't have wrapped token");
-  }
-}
-
-// TODO: collect all tokens in a single object
-const tokenMap: Record<string, Token> = {
-  [USDT.name]: USDT,
-  [USDC.name]: USDC,
-  [ETH.name]: ETH,
-  [BNB.name]: BNB,
-  [WETH.name]: WETH,
-  [WBNB.name]: WBNB,
-  [wstETH.name]: wstETH,
-  [wbETH.name]: wbETH,
-  [cbBTC.name]: cbBTC,
-  [CELO.name]: CELO,
-  [FLOW.name]: FLOW,
-  [cEUR.name]: cEUR,
-  [GRAIL.name]: GRAIL,
-  [xGRAIL.name]: xGRAIL,
-};
-
-export const getTokenByName = (name: string): Token => {
-  const token = tokenMap[name];
-  if (!token) {
-    throw new Error(`Token ${name} not found`);
-  }
-  return token;
-};
-
-export const COINGECKO_IDS: Record<string, string> = {
-  USDT: "tether",
-  USDC: "usd-coin",
-  ETH: "ethereum",
-  BNB: "binancecoin",
-};
-
-export function getTokenNameByCoingeckoId(id: string): string {
-  return (
-    Object.entries(COINGECKO_IDS).find(
-      ([name]) => COINGECKO_IDS[name] === id
-    )?.[0] || ""
-  );
-}
+export const TOKENS = [
+  USDT,
+  USDC,
+  ETH,
+  BNB,
+  WETH,
+  WBNB,
+  wstETH,
+  wbETH,
+  CELO,
+  FLOW,
+  cEUR,
+  GRAIL,
+  xGRAIL,
+];

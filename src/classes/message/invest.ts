@@ -24,9 +24,9 @@ export class InvestMessage extends Message {
     const getAllStrategies = () => {
       return STRATEGIES_METADATA.filter(
         (s) =>
-          (s.protocol === "AaveV3Supply" ||
-            s.protocol === "MorphoSupply" ||
-            s.protocol === "UniswapV3SwapLST") &&
+          (s.id === "AaveV3Supply" ||
+            s.id === "MorphoSupply" ||
+            s.id === "UniswapV3SwapLST") &&
           s.chainId === chainId
       );
     };
@@ -35,8 +35,7 @@ export class InvestMessage extends Message {
     const getLowRiskStrategies = () => {
       return STRATEGIES_METADATA.filter(
         (s) =>
-          (s.protocol === "AaveV3Supply" ||
-            s.protocol === "UniswapV3SwapLST") &&
+          (s.id === "AaveV3Supply" || s.id === "UniswapV3SwapLST") &&
           s.chainId === chainId
       );
     };

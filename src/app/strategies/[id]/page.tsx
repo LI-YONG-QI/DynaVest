@@ -11,6 +11,7 @@ import { StrategyDetailsChartToggleOption } from "@/types/strategies";
 import { StrategyDetailsTradeTable } from "@/components/StrategyDetailsTradeTable";
 import InvestmentForm from "@/components/StrategyList/StrategyCard/InvestModal/InvestmentForm";
 import { Home, ChartLine, FileChartColumn } from "lucide-react";
+import { getRiskColor } from "@/utils";
 
 function getRiskLevelLabel(level: string) {
   switch (level) {
@@ -117,11 +118,11 @@ function StrategyDetailContent() {
               <span
                 className="px-2 py-1 rounded-lg text-xs font-medium"
                 style={{
-                  backgroundColor: strategy.risk?.bgColor || "#E5E7EB",
-                  color: strategy.risk?.color || "#6B7280",
+                  backgroundColor: getRiskColor(strategy.risk).bg,
+                  color: getRiskColor(strategy.risk).text,
                 }}
               >
-                {getRiskLevelLabel(strategy.risk?.level)}
+                {getRiskLevelLabel(strategy.risk)}
               </span>
             </div>
             <div className="flex flex-col items-start self-stretch flex-grow md:pr-20">
@@ -148,7 +149,7 @@ function StrategyDetailContent() {
                       Protocol
                     </div>
                     <div className="font-medium mt-1 flex gap-1 items-center">
-                      <span>{strategy.protocol}</span>
+                      <span>{strategy.id}</span>
                       {strategy.externalLink && (
                         <Link
                           href={strategy.externalLink}

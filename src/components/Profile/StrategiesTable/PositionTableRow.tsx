@@ -6,16 +6,16 @@ import { formatAmount } from "@/utils";
 import { toast } from "react-toastify";
 import { parseUnits } from "viem";
 
-import { getTokenByName } from "@/constants/coins";
+import { getTokenByName } from "@/utils/coins";
 import {
   getProtocolMetadata,
   STRATEGIES_PROTOCOLS_MAPPING,
 } from "@/constants/protocols/metadata";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
 import { getStrategy, getStrategyMetadata } from "@/utils/strategies";
 import { type Position } from "@/types/position";
 import { useProfit } from "./useProfit";
-import { Protocol, StrategyMetadata } from "@/types";
+import type { StrategyMetadata } from "@/types";
 import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
 import { useAssets } from "@/contexts/AssetsContext";
 
@@ -33,7 +33,7 @@ export default function PositionTableRow({
 
   const { pricesQuery } = useAssets();
   const { data: profit = 0 } = useProfit(position);
-  const { redeem, invest } = useStrategyExecutor();
+  const { redeem, invest } = useStrategy();
   const chainId = useChainId();
 
   const price = pricesQuery.data?.[token.name] || 0;
@@ -46,7 +46,7 @@ export default function PositionTableRow({
   );
 
   const handleRedeem = () => {
-    const strategy = getStrategy(position.strategy as Protocol, chainId);
+    const strategy = getStrategy(position.strategy, chainId);
     const token = getTokenByName(position.tokenName);
 
     redeem.mutate(
@@ -164,7 +164,6 @@ export default function PositionTableRow({
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             strategy={strategyMetadata as StrategyMetadata}
-            displayInsufficientBalance={false}
           />,
           document.body
         )}

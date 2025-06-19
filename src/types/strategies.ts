@@ -1,33 +1,32 @@
 import { Address } from "viem";
 
-import type { PROTOCOLS } from "@/constants";
+import type { STRATEGIES } from "@/constants";
 import { RISK_OPTIONS } from "@/constants/risk";
 import { Token } from "./blockchain";
 
-// TODO: need rename it
-export type Protocols = Record<number, Record<string, Address>>;
-export type ProtocolChains<T extends Protocols> = keyof T;
-export type ProtocolContracts<T extends Protocols> = keyof T[keyof T];
-
-export type Protocol = (typeof PROTOCOLS)[number];
-
-export type StrategyMetadata = InvestStrategy & {
-  displayInsufficientBalance?: boolean;
+type ProtocolContracts = Record<number, Record<string, Address>>;
+export type Protocol = {
+  name: string;
+  description: string;
+  icon: string;
+  link: string;
+  contracts: ProtocolContracts;
 };
 
-export type InvestStrategy = {
+export type GetProtocolContracts<T extends Protocol> = T["contracts"];
+export type GetProtocolChains<T extends Protocol> = keyof T["contracts"] &
+  number;
+export type GetProtocolContractNames<T extends Protocol> =
+  keyof T["contracts"][keyof T["contracts"]] & string;
+
+export type Strategy = (typeof STRATEGIES)[number];
+export type StrategyMetadata = {
   title: string;
-  id: string;
+  id: Strategy;
   apy: number;
-  risk: {
-    level: RiskLevel;
-    color: string;
-    bgColor: string;
-  };
+  risk: RiskLevel;
   protocol: Protocol;
   description: string;
-  /** @deprecated This field is no longer in use */
-  image: string;
   externalLink?: string;
   learnMoreLink?: string;
   chainId: number;
@@ -35,13 +34,14 @@ export type InvestStrategy = {
 };
 
 export type RiskLevel = (typeof RISK_OPTIONS)[number];
-
 export type RiskPortfolioStrategies = StrategyMetadata & {
   allocation: number;
 };
 
+/**
+ * represents a strategy with an allocation filtered by risk level
+ */
 export type StrategiesSet = Record<RiskLevel, RiskPortfolioStrategies[]>;
-
 export type PieStrategy = {
   id: number;
   color: string;
@@ -52,5 +52,4 @@ export type PieStrategy = {
 };
 
 export type StrategyDetailsChartToggleOption = "APY" | "TVL" | "PRICE";
-
 export type InvestmentFormMode = "invest" | "withdraw" | "lp";

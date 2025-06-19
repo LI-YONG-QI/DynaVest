@@ -16,7 +16,7 @@ const addAllocation = (
 
 // Filter strategies by risk level
 const getStrategiesByRisk = (riskLevel: RiskLevel) => {
-  return STRATEGIES_METADATA.filter((s) => s.risk.level === riskLevel);
+  return STRATEGIES_METADATA.filter((s) => s.risk === riskLevel);
 };
 
 // Get all unique strategies for high airdrop potential (using specific protocols)

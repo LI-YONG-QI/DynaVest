@@ -1,9 +1,9 @@
 import type { Address } from "viem";
 
 import {
-  Protocols,
-  ProtocolChains,
-  ProtocolContracts,
+  GetProtocolChains,
+  GetProtocolContractNames,
+  Protocol,
 } from "@/types/strategies";
 import { Position } from "@/types/position";
 
@@ -13,27 +13,12 @@ export type StrategyCall = {
   value?: bigint;
 };
 
-export type BaseStrategyMetadata = {
-  name: string;
-  protocol: string;
-  type: "Lending" | "Trading" | "Staking" | "Yield" | "Other";
-  description: string;
-};
-
-export abstract class BaseStrategy<T extends Protocols> {
-  public readonly chainId: ProtocolChains<T>;
-
+export abstract class BaseStrategy<T extends Protocol> {
   constructor(
-    chainId: number,
-    public readonly protocolAddresses: T,
+    public readonly chainId: GetProtocolChains<T>,
+    public readonly protocol: T,
     public readonly name: string
-  ) {
-    if (this.isSupported(chainId)) {
-      this.chainId = chainId as ProtocolChains<T>;
-    } else {
-      throw new Error("Chain not supported");
-    }
-  }
+  ) {}
 
   /**
    * Builds invest transaction calls for the strategy
@@ -57,10 +42,12 @@ export abstract class BaseStrategy<T extends Protocols> {
   abstract getProfit(user: Address, position: Position): Promise<number>;
 
   isSupported(chainId: number): boolean {
-    return Object.keys(this.protocolAddresses).map(Number).includes(chainId);
+    return Object.keys(this.protocol.contracts).map(Number).includes(chainId);
   }
 
-  getAddress(contract: ProtocolContracts<T>) {
-    return this.protocolAddresses[this.chainId][contract];
+  getAddress(contract: GetProtocolContractNames<T>) {
+    const address = this.protocol.contracts[this.chainId][contract];
+
+    return address;
   }
 }

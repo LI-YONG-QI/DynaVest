@@ -10,11 +10,11 @@ import { MoonLoader } from "react-spinners";
 
 import Button from "@/components/Button";
 import { PortfolioPieChart } from "../../RiskPortfolio/PieChart";
-import useCurrency from "@/hooks/useCurrency";
+import useBalance from "@/hooks/useBalance";
 import { USDC } from "@/constants/coins";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { getStrategy } from "@/utils/strategies";
-import { useStrategyExecutor } from "@/hooks/useStrategyExecutor";
+import { useStrategy } from "@/hooks/useStrategy";
 
 interface ReviewPortfolioChatWrapperProps {
   message: ReviewPortfolioMessage;
@@ -26,8 +26,8 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
   addBotMessage,
 }) => {
   const [isEdit, setIsEdit] = useState(true);
-  const { balance, isLoadingBalance } = useCurrency(USDC);
-  const { multiInvest } = useStrategyExecutor();
+  const { balance, isLoadingBalance } = useBalance(USDC);
+  const { multiInvest } = useStrategy();
 
   const strategies = message.strategies;
   const totalAPY = strategies.reduce((acc, strategy) => {
@@ -55,7 +55,7 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
 
   async function executeMultiStrategy() {
     const strategiesHandlers = strategies.map((strategy) => ({
-      strategy: getStrategy(strategy.protocol, strategy.chainId),
+      strategy: getStrategy(strategy.id, strategy.chainId),
       allocation: strategy.allocation,
     }));
     const multiStrategy = new MultiStrategy(strategiesHandlers);

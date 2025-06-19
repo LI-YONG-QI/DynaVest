@@ -1,7 +1,7 @@
 import { Address } from "viem";
 
 import { BaseStrategy, StrategyCall } from "./baseStrategy";
-import { Protocols } from "@/types";
+import { Protocol } from "@/types";
 
 /**
  * MultiStrategy allows combining multiple strategies of different types
@@ -10,7 +10,7 @@ import { Protocols } from "@/types";
 export class MultiStrategy {
   constructor(
     public readonly strategies: {
-      strategy: BaseStrategy<Protocols>;
+      strategy: BaseStrategy<Protocol>;
       allocation: number;
     }[]
   ) {}

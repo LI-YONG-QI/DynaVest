@@ -36,7 +36,7 @@ export default function StrategyList() {
 
   // Extract all distinct protocols
   const protocolOptions = useMemo(() => {
-    const protocols = STRATEGIES_METADATA.map((strategy) => strategy.protocol);
+    const protocols = STRATEGIES_METADATA.map((strategy) => strategy.id);
     return Array.from(new Set(protocols));
   }, []);
 
@@ -62,14 +62,14 @@ export default function StrategyList() {
     // Filter by risk if any risks are selected
     if (selectedRisks.length > 0) {
       filtered = filtered.filter((strategy) =>
-        selectedRisks.includes(strategy.risk.level)
+        selectedRisks.includes(strategy.risk)
       );
     }
 
     // Filter by protocol if any protocols are selected
     if (selectedProtocols.length > 0) {
       filtered = filtered.filter((strategy) =>
-        selectedProtocols.includes(strategy.protocol)
+        selectedProtocols.includes(strategy.id)
       );
     }
 
@@ -86,7 +86,7 @@ export default function StrategyList() {
         filtered = filtered.filter(
           (strategy) =>
             regex.test(strategy.title) ||
-            regex.test(strategy.protocol) ||
+            regex.test(strategy.id) ||
             regex.test(strategy.description)
         );
       } catch {
@@ -95,7 +95,7 @@ export default function StrategyList() {
         filtered = filtered.filter(
           (strategy) =>
             strategy.title.toLowerCase().includes(query) ||
-            strategy.protocol.toLowerCase().includes(query) ||
+            strategy.id.toLowerCase().includes(query) ||
             strategy.description.toLowerCase().includes(query)
         );
       }
