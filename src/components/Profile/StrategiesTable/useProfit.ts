@@ -13,7 +13,7 @@ export async function getProfit(
   chainId: number,
   position: Position
 ) {
-  const strategy = getStrategy(position.id as Strategy, chainId);
+  const strategy = getStrategy(position.strategy as Strategy, chainId);
   return strategy.getProfit(user, position);
 }
 
