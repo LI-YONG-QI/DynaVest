@@ -30,11 +30,8 @@ import { BotResponse } from "@/types";
 
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import { arbitrum } from "viem/chains";
-import OnboardingDialog from "@/components/OnboardingDialog";
-import { useAssets } from "@/contexts/AssetsContext";
 
 export default function Home() {
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
 
@@ -46,8 +43,6 @@ export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { closeChat, sendMessage } = useChat();
   const loadingBotResponse = sendMessage.isPending;
-
-  const { totalValue, tokensQuery, isPriceError } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -229,21 +224,6 @@ export default function Home() {
   }, []);
 
   // Process onboarding logic
-  useEffect(() => {
-    if (
-      !tokensQuery.isPlaceholderData &&
-      !tokensQuery.isError &&
-      !isPriceError &&
-      localStorage.getItem("onboarding-dialog-shown") !== "true"
-    ) {
-      setIsOnboardingOpen(totalValue === 0);
-    }
-  }, [
-    totalValue,
-    tokensQuery.isPlaceholderData,
-    tokensQuery.isError,
-    isPriceError,
-  ]);
 
   return (
     <div className="h-[80vh]">
@@ -546,10 +526,6 @@ export default function Home() {
             </div>
           </>
         )}
-        <OnboardingDialog
-          isOpen={isOnboardingOpen}
-          onOpenChange={setIsOnboardingOpen}
-        />
       </div>
     </div>
   );

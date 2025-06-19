@@ -15,6 +15,7 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import Chatroom from "@/components/Chatroom";
 import { ToastContainer } from "react-toastify";
+import OnboardingDialog from "@/components/OnboardingDialog";
 
 const lilyScript = localFont({
   src: "../../public/fonts/LilyScriptOne-Regular.ttf",
@@ -89,6 +90,7 @@ export default function RootLayout({
                 <ToastContainer position="bottom-right" />
               </div>
               <Chatroom />
+              <OnboardingDialog />
             </div>
           </div>
         </Providers>

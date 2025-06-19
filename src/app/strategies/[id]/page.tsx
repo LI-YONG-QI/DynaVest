@@ -13,19 +13,6 @@ import InvestmentForm from "@/components/StrategyList/StrategyCard/InvestModal/I
 import { Home, ChartLine, FileChartColumn } from "lucide-react";
 import { getRiskColor } from "@/utils";
 
-function getRiskLevelLabel(level: string) {
-  switch (level) {
-    case "low":
-      return "Low Risk";
-    case "medium":
-      return "Medium Risk";
-    case "high":
-      return "High Risk";
-    default:
-      return "Unknown Risk";
-  }
-}
-
 function StrategyDetailContent() {
   const { openChat } = useChat();
   const params = useParams();
@@ -35,7 +22,7 @@ function StrategyDetailContent() {
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id || "";
 
   // Find the strategy that matches the normalized title
-  const strategy = STRATEGIES_METADATA.find((s) => s.id.toLowerCase() === id);
+  const strategy = STRATEGIES_METADATA.find((s) => s.id === id);
 
   if (!strategy) {
     notFound();
@@ -116,13 +103,13 @@ function StrategyDetailContent() {
               />
               <h2 className="text-4xl font-semibold">{strategy.title}</h2>
               <span
-                className="px-2 py-1 rounded-lg text-xs font-medium"
+                className="px-2 py-1 rounded-lg text-xs font-medium capitalize"
                 style={{
                   backgroundColor: getRiskColor(strategy.risk).bg,
                   color: getRiskColor(strategy.risk).text,
                 }}
               >
-                {getRiskLevelLabel(strategy.risk)}
+                {strategy.risk}
               </span>
             </div>
             <div className="flex flex-col items-start self-stretch flex-grow md:pr-20">
@@ -149,7 +136,7 @@ function StrategyDetailContent() {
                       Protocol
                     </div>
                     <div className="font-medium mt-1 flex gap-1 items-center">
-                      <span>{strategy.id}</span>
+                      <span>{strategy.protocol.name}</span>
                       {strategy.externalLink && (
                         <Link
                           href={strategy.externalLink}

@@ -4,27 +4,21 @@ import { useState } from "react";
 
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type { RiskLevel, StrategyMetadata } from "@/types";
+import type { Message, StrategyMetadata } from "@/types";
+import { getChain } from "@/constants/chains";
+import InvestModal from "@/components/StrategyList/StrategyCard/InvestModal";
+
 interface StrategyTableProps {
   strategies: Array<StrategyMetadata>;
 }
 
-function getRiskLevelLabel(risk: RiskLevel) {
-  switch (risk) {
-    case "low":
-      return "Low";
-    case "medium":
-      return "Medium";
-    case "high":
-      return "High";
-    default:
-      return "Unknown";
-  }
-}
-
 export default function StrategyTable({ strategies }: StrategyTableProps) {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const { openChat } = useChat();
+  const { openChat, setMessages } = useChat();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<StrategyMetadata>(
+    strategies[0]
+  );
 
   // Sort strategies by APY
   const sortedStrategies = [...strategies].sort((a, b) => {
@@ -34,6 +28,22 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
   // Toggle sort order
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const handleBotClick = async (strategy: StrategyMetadata) => {
+    // const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: `${strategy.fullDescription}`,
+      sender: "bot",
+      timestamp: new Date(),
+      type: "Text",
+    };
+
+    setMessages((prev) => [...prev, botMessage]);
+
+    openChat();
   };
 
   return (
@@ -113,12 +123,12 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {sortedStrategies.map((strategy, index) => (
-            <tr key={index} className="hover:bg-gray-50">
+            <tr key={index} className="hover:bg-gray-50 rounded-3xl">
               {/* Title */}
               <td className="pr-2 py-4">
                 <div className="flex items-center flex-wrap">
                   <div className="">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="ml-2 text-sm font-medium text-gray-900">
                       {strategy.title}
                     </div>
                   </div>
@@ -131,24 +141,25 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                   style={{ backgroundColor: getRiskColor(strategy.risk).bg }}
                 >
                   <span
-                    className="font-medium"
+                    className="font-medium capitalize"
                     style={{ color: getRiskColor(strategy.risk).text }}
                   >
-                    {getRiskLevelLabel(strategy.risk)}
+                    {strategy.risk}
                   </span>
                 </div>
               </td>
+
               {/* Chain */}
               {/* TODO: Display actual chain information */}
               <td className="pr-2 py-4 text-sm text-gray-500">
                 <div className="flex items-center gap-x-2">
                   <Image
-                    src="/crypto-icons/chain/base.svg"
+                    src={getChain(strategy.chainId)?.icon || ""}
                     alt={strategy.title}
                     width={24}
                     height={24}
                   />
-                  <span>Ethereum</span>
+                  <span>{getChain(strategy.chainId)?.name}</span>
                 </div>
               </td>
               {/* Protocol */}
@@ -156,15 +167,15 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                 <div className="text-sm text-gray-900 truncate">
                   <div className="flex items-center gap-x-1 flex-wrap">
                     <Image
-                      src="/crypto-icons/protocol/morpho.svg"
+                      src={`${strategy.protocol.icon}`}
                       alt={strategy.title}
                       width={24}
                       height={24}
                     />
-                    {strategy.id}
+                    <p className="ml-2">{strategy.protocol.name}</p>
                     {strategy.externalLink && (
                       <Link
-                        href={strategy.externalLink}
+                        href={strategy.protocol.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center hover:underline text-[#5F79F1]"
@@ -195,19 +206,24 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
               <td className="pr-2 py-4 text-sm font-medium text-[#17181C]">
                 {strategy.apy}
               </td>
+
               {/* Actions */}
               {/* TODO: Add business logic */}
               <td className="pr-2 py-4 text-sm font-medium">
                 <div className="flex space-x-2">
-                  <button className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium">
-                    Deposit
-                  </button>
                   <button
-                    onClick={() =>
-                      openChat(
-                        `Hello! How can I help you with ${strategy.title}?`
-                      )
-                    }
+                    className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsModalOpen(true);
+                      setSelectedStrategy(strategy);
+                    }}
+                  >
+                    Invest
+                  </button>
+
+                  <button
+                    onClick={() => handleBotClick(strategy)}
                     className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium"
                   >
                     Ask AI
@@ -218,6 +234,11 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
           ))}
         </tbody>
       </table>
+      <InvestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        strategy={selectedStrategy}
+      />
     </div>
   );
 }

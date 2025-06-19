@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useMemo,
   useEffect,
+  useState,
 } from "react";
 import {
   Address,
@@ -53,14 +54,16 @@ interface AssetsBalanceQuery {
 interface AssetsContextType {
   tokensQuery: UseQueryResult<TokenData[], Error>;
   positionsQuery: UseQueryResult<Position[], Error>;
+  profitsQuery: UseQueryResult<number[], Error>;
+  pricesQuery: UseQueryResult<Record<string, number>, Error>;
   withdrawAsset: UseMutationResult<Hash, Error, WithdrawAssetParams>;
   updateTotalValue: UseMutationResult<void, Error, void>;
-  profitsQuery: UseQueryResult<number[], Error>;
   totalValue: number;
   isPriceError: boolean;
-  pricesQuery: UseQueryResult<Record<string, number>, Error>;
   assetsBalance: AssetsBalanceQuery;
   smartWallet: Address | null;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -85,10 +88,12 @@ interface WithdrawAssetParams {
 }
 
 export function AssetsProvider({ children }: AssetsProviderProps) {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
   const chainId = useChainId() as SupportedChainIds;
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
-  const { user } = usePrivy();
+  const { user, authenticated } = usePrivy();
   const { mutate: addUser } = useAddUser();
 
   const pricesQuery = useBatchTokenPrices(tokensWithChain);
@@ -226,6 +231,29 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     }
   }, [user?.smartWallet?.address, addUser]);
 
+  useEffect(() => {
+    const isOnboardingDialogShown = localStorage.getItem(
+      `onboarding-dialog-shown`
+    );
+
+    if (
+      !tokensQuery.isPlaceholderData &&
+      !tokensQuery.isError &&
+      !isPriceError &&
+      isOnboardingDialogShown !== "true" &&
+      authenticated
+    ) {
+      setIsOnboardingOpen(totalValue === 0);
+    }
+  }, [
+    totalValue,
+    tokensQuery.isPlaceholderData,
+    tokensQuery.isError,
+    isPriceError,
+    smartWallet,
+    authenticated,
+  ]);
+
   const value = {
     withdrawAsset,
     positionsQuery,
@@ -237,6 +265,8 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     pricesQuery,
     assetsBalance,
     smartWallet,
+    isOnboardingOpen,
+    setIsOnboardingOpen,
   };
 
   return (

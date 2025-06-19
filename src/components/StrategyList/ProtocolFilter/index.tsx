@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import Image from "next/image";
 
+import { Protocol } from "@/types/strategies";
+
 export interface ProtocolFilterProps {
-  protocols: string[];
-  selectedProtocols: string[];
-  setSelectedProtocols: (protocols: string[]) => void;
-  toggleProtocolSelection: (protocol: string) => void;
+  protocols: Protocol[];
+  selectedProtocols: Protocol[];
+  setSelectedProtocols: (protocols: Protocol[]) => void;
+  toggleProtocolSelection: (protocol: Protocol) => void;
   showProtocolDropdown: boolean;
   setShowProtocolDropdown: (value: boolean) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
@@ -62,8 +64,8 @@ export default function ProtocolFilter({
               Filter by Protocol
             </div>
             <div className="space-y-2">
-              {protocols.map((protocol) => (
-                <div key={protocol} className="flex items-center text-gray-600">
+              {protocols.map((protocol, index) => (
+                <div key={index} className="flex items-center text-gray-600">
                   <label className="flex items-center cursor-pointer w-full">
                     <input
                       type="checkbox"
@@ -97,7 +99,7 @@ export default function ProtocolFilter({
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-1">
-                      <span className="text-sm">{protocol}</span>
+                      <span className="text-sm">{protocol.name}</span>
                     </div>
                   </label>
                 </div>

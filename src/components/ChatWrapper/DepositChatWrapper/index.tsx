@@ -93,9 +93,11 @@ const DepositChatWrapper = ({
         <div className="w-[80%]">
           <InvestmentForm
             strategy={{ ...BOT_STRATEGY, chainId: message.chain }}
-            handlePortfolio={(amount: string) => {
-              message.amount = amount;
-              nextMessage("portfolio");
+            chat={{
+              handlePortfolio: (amount: string) => {
+                message.amount = amount;
+                nextMessage("portfolio");
+              },
             }}
           />
         </div>

@@ -82,6 +82,7 @@ const ReviewPortfolioChatWrapper: React.FC<ReviewPortfolioChatWrapperProps> = ({
 
   return (
     <div className="my-4 flex flex-col gap-6 w-full max-w-[805px]">
+      <p className="text-gray font-bold">Review Percentage</p>
       <p className="text-gray">Total APY: {totalAPY.toFixed(2)}%</p>
       {/* Portfolio visualization */}
       <div className="flex items-center w-full px-[10px] gap-[10px]">

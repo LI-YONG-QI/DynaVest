@@ -1,24 +1,10 @@
 import Image from "next/image";
 import { useEffect } from "react";
 
+import { RISK_OPTIONS } from "@/constants/risk";
+import { getRiskColor } from "@/utils";
+
 // Risk level options with colors
-const riskLevels = [
-  {
-    value: "Low",
-    label: "Low Risk",
-    color: "#10B981",
-  },
-  {
-    value: "Medium",
-    label: "Medium Risk",
-    color: "#B9AB15",
-  },
-  {
-    value: "High",
-    label: "High Risk",
-    color: "#E83033",
-  },
-];
 
 export default function RiskFilter({
   selectedRisks,
@@ -78,26 +64,23 @@ export default function RiskFilter({
               Filter by Risk Level
             </div>
             <div className="space-y-2">
-              {riskLevels.map((risk) => (
-                <div
-                  key={risk.value}
-                  className="flex items-center text-gray-600"
-                >
+              {RISK_OPTIONS.map((risk, index) => (
+                <div key={index} className="flex items-center text-gray-600">
                   <label className="flex items-center cursor-pointer w-full">
                     <input
                       type="checkbox"
                       className="hidden"
-                      checked={selectedRisks.includes(risk.value)}
-                      onChange={() => toggleRiskSelection(risk.value)}
+                      checked={selectedRisks.includes(risk)}
+                      onChange={() => toggleRiskSelection(risk)}
                     />
                     <div
                       className={`w-4 h-4 rounded mr-2 flex items-center justify-center ${
-                        selectedRisks.includes(risk.value)
+                        selectedRisks.includes(risk)
                           ? "bg-[#5F79F1] border-[#5F79F1]"
                           : "border border-gray-300 bg-white"
                       }`}
                     >
-                      {selectedRisks.includes(risk.value) && (
+                      {selectedRisks.includes(risk) && (
                         <svg
                           width="10"
                           height="8"
@@ -116,10 +99,10 @@ export default function RiskFilter({
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-1">
-                      <span className="text-sm">{risk.label}</span>
+                      <span className="text-sm capitalize">{risk}</span>
                       <div
                         className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: risk.color }}
+                        style={{ backgroundColor: getRiskColor(risk).bg }}
                       ></div>
                     </div>
                   </label>
