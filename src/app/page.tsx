@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Undo2 } from "lucide-react";
 import { format } from "date-fns";
+import { usePrivy } from "@privy-io/react-auth";
 
 import type { Message } from "@/classes/message";
 import {
@@ -34,6 +35,9 @@ import OnboardingDialog from "@/components/OnboardingDialog";
 import { useAssets } from "@/contexts/AssetsContext";
 
 export default function Home() {
+  const { totalValue, tokensQuery, isPriceError, smartWallet } = useAssets();
+  const { authenticated } = usePrivy();
+
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
@@ -46,8 +50,6 @@ export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { closeChat, sendMessage } = useChat();
   const loadingBotResponse = sendMessage.isPending;
-
-  const { totalValue, tokensQuery, isPriceError } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -229,12 +231,18 @@ export default function Home() {
   }, []);
 
   // Process onboarding logic
+
   useEffect(() => {
+    const isOnboardingDialogShown = localStorage.getItem(
+      `onboarding-dialog-shown-${smartWallet}`
+    );
+
     if (
       !tokensQuery.isPlaceholderData &&
       !tokensQuery.isError &&
       !isPriceError &&
-      localStorage.getItem("onboarding-dialog-shown") !== "true"
+      isOnboardingDialogShown !== "true" &&
+      authenticated
     ) {
       setIsOnboardingOpen(totalValue === 0);
     }
@@ -243,6 +251,8 @@ export default function Home() {
     tokensQuery.isPlaceholderData,
     tokensQuery.isError,
     isPriceError,
+    smartWallet,
+    authenticated,
   ]);
 
   return (

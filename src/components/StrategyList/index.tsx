@@ -11,6 +11,7 @@ import ChainFilter from "./ChainFilter";
 import APYFilter from "./APYFilter";
 
 import { STRATEGIES_METADATA } from "@/constants/strategies";
+import { Protocol } from "@/types/strategies";
 
 // No results placeholder
 const NoResultsPlaceholder = () => (
@@ -30,7 +31,7 @@ export default function StrategyList() {
   const [showRiskDropdown, setShowRiskDropdown] = useState(false);
   const [selectedRisks, setSelectedRisks] = useState<string[]>([]);
   const [showProtocolDropdown, setShowProtocolDropdown] = useState(false);
-  const [selectedProtocols, setSelectedProtocols] = useState<string[]>([]);
+  const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
   const [selectedChains, setSelectedChains] = useState<number[]>([]);
   const [showApyDropdown, setShowApyDropdown] = useState(false);
   const [selectedApySort, setSelectedApySort] = useState<string | null>(null);
@@ -41,12 +42,12 @@ export default function StrategyList() {
 
   // Extract all distinct protocols
   const protocolOptions = useMemo(() => {
-    const protocols = STRATEGIES_METADATA.map((strategy) => strategy.id);
+    const protocols = STRATEGIES_METADATA.map((strategy) => strategy.protocol);
     return Array.from(new Set(protocols));
   }, []);
 
   // Toggle protocol selection
-  const toggleProtocolSelection = (protocol: string) => {
+  const toggleProtocolSelection = (protocol: Protocol) => {
     setSelectedProtocols((prev) =>
       prev.includes(protocol)
         ? prev.filter((p) => p !== protocol)
@@ -74,7 +75,7 @@ export default function StrategyList() {
     // Filter by protocol if any protocols are selected
     if (selectedProtocols.length > 0) {
       filtered = filtered.filter((strategy) =>
-        selectedProtocols.includes(strategy.id)
+        selectedProtocols.includes(strategy.protocol)
       );
     }
 
