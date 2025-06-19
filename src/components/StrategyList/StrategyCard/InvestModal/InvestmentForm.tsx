@@ -79,9 +79,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const { invest: investStrategy } = useStrategy();
 
   // Advanced settings state
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [slippage, setSlippage] = useState<number | "auto">("auto");
-  const [customSlippage, setCustomSlippage] = useState("");
+  // const [showAdvanced, setShowAdvanced] = useState(false);
+  // const [slippage, setSlippage] = useState<number | "auto">("auto");
+  // const [customSlippage, setCustomSlippage] = useState("");
 
   const AMOUNT_LIMIT = 0;
 
@@ -242,7 +242,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
         )}
 
         {/* Advanced Settings */}
-        <div className="my-4">
+        {/* <div className="my-4">
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
@@ -329,7 +329,7 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Invest button */}
         <button

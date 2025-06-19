@@ -29,7 +29,7 @@ function getRiskLevelLabel(risk: RiskLevel) {
 }
 
 export default function StrategyCard(strategy: StrategyMetadata) {
-  const { title, id, apy, risk, description, externalLink, tokens, chainId } =
+  const { title, id, apy, risk, description, tokens, chainId, protocol } =
     strategy;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,7 +119,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium text-base text-[#17181C]">
-                APY {apy}%
+                APY {apy} %
               </span>
               <div
                 className="flex justify-center items-center px-2 py-1 rounded-lg"
@@ -143,16 +143,16 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                 <div className="col-span-4 space-y-1">
                   <div className="text-sm">Protocol</div>
                   <div className="text-sm">TVL</div>
-                  <div className="text-sm">Token(s)</div>
+                  <div className="text-sm">Tokens</div>
                 </div>
                 <div className="col-span-7 space-y-1">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-medium text-gray-900 truncate">
-                      {id}
+                      {protocol.name}
                     </span>
-                    {externalLink && (
+                    {protocol.link && (
                       <Link
-                        href={externalLink}
+                        href={protocol.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-shrink-0 text-[#3568E8] hover:underline"
@@ -173,6 +173,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                       </Link>
                     )}
                   </div>
+
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
                     $
@@ -187,6 +188,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     )}
                     M
                   </p>
+                  
                   <div className="text-sm text-gray-900 flex items-center">
                     {tokens.map((token) => (
                       <div key={token.name} className="w-5 h-5 relative">
@@ -207,6 +209,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
             </div>
           </div>
         </div>
+
         {/* Action button section - always stay at bottom */}
         <div className="w-full mt-auto flex items-center gap-5">
           <button
