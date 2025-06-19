@@ -28,6 +28,7 @@ export type StrategyMetadata = {
   color: `#${string}`;
   protocol: Protocol;
   description: string;
+  fullDescription: string;
   externalLink?: string;
   learnMoreLink?: string;
   chainId: number;

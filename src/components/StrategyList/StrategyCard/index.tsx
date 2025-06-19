@@ -8,12 +8,7 @@ import { Tooltip } from "@/components/Tooltip";
 import InvestModal from "./InvestModal";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
-import type {
-  BotResponse,
-  Message,
-  RiskLevel,
-  StrategyMetadata,
-} from "@/types";
+import type { Message, RiskLevel, StrategyMetadata } from "@/types";
 
 function getRiskLevelLabel(risk: RiskLevel) {
   switch (risk) {
@@ -37,7 +32,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
   // Extract the base description without "Learn More" text
   const baseDescription = description.replace(/\s*Learn More\s*$/, "");
 
-  const { openChat, setMessages, sendMessage } = useChat();
+  const { openChat, setMessages } = useChat();
   const router = useRouter();
 
   const handleCardClick = (e: MouseEvent) => {
@@ -51,45 +46,18 @@ export default function StrategyCard(strategy: StrategyMetadata) {
   };
 
   const handleBotClick = async () => {
-    const prompt = `Hello. Can you explain the ${title} in 50 words?`;
+    // const prompt = `Hello. Can you explain the ${title} in 50 words?`;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: prompt,
-      sender: "user",
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: `${strategy.title} explain in 50 words: ${strategy.fullDescription}`,
+      sender: "bot",
       timestamp: new Date(),
       type: "Text",
     };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, botMessage]);
 
     openChat();
-
-    sendMessage.mutate(prompt, {
-      onSuccess: (data: BotResponse) => {
-        if (data.type === "question") {
-          const botMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            text: data.data?.answer ?? "",
-            sender: "bot",
-            timestamp: new Date(),
-            type: "Text",
-          };
-
-          setMessages((prev) => [...prev, botMessage]);
-        }
-      },
-      onError: (error) => {
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: error.message ?? "",
-          sender: "bot",
-          timestamp: new Date(),
-          type: "Text",
-        };
-
-        setMessages((prev) => [...prev, botMessage]);
-      },
-    });
   };
 
   return (
@@ -188,7 +156,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     )}
                     M
                   </p>
-                  
+
                   <div className="text-sm text-gray-900 flex items-center">
                     {tokens.map((token) => (
                       <div key={token.name} className="w-5 h-5 relative">
