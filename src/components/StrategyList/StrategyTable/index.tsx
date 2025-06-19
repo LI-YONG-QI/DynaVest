@@ -5,6 +5,8 @@ import { useState } from "react";
 import { getRiskColor } from "@/utils";
 import { useChat } from "@/contexts/ChatContext";
 import type { RiskLevel, StrategyMetadata } from "@/types";
+import { getChain } from "@/constants/chains";
+
 interface StrategyTableProps {
   strategies: Array<StrategyMetadata>;
 }
@@ -138,17 +140,18 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                   </span>
                 </div>
               </td>
+
               {/* Chain */}
               {/* TODO: Display actual chain information */}
               <td className="pr-2 py-4 text-sm text-gray-500">
                 <div className="flex items-center gap-x-2">
                   <Image
-                    src="/crypto-icons/chain/base.svg"
+                    src={getChain(strategy.chainId)?.icon || ""}
                     alt={strategy.title}
                     width={24}
                     height={24}
                   />
-                  <span>Ethereum</span>
+                  <span>{getChain(strategy.chainId)?.name}</span>
                 </div>
               </td>
               {/* Protocol */}
@@ -156,12 +159,12 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
                 <div className="text-sm text-gray-900 truncate">
                   <div className="flex items-center gap-x-1 flex-wrap">
                     <Image
-                      src="/crypto-icons/protocol/morpho.svg"
+                      src={`${strategy.protocol.icon}`}
                       alt={strategy.title}
                       width={24}
                       height={24}
                     />
-                    {strategy.id}
+                    <p className="ml-2">{strategy.protocol.name}</p>
                     {strategy.externalLink && (
                       <Link
                         href={strategy.externalLink}
