@@ -36,7 +36,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "AaveV3Supply",
     apy: 4.5,
     risk: "medium",
-    color: "#1000FF",
+    color: "#9896FF",
     protocol: AAVE,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -72,7 +72,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "UniswapV3SwapLST",
     apy: 2.8,
     risk: "low",
-    color: "#1000FF",
+    color: "#F50DB5",
     protocol: UNISWAP,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
@@ -352,7 +352,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   // TODO: mock for demo
   {
     title: "Aave Lending Leverage",
-    id: "AaveV3Supply",
+    id: "UniswapV3AddLiquidity",
     apy: 10.1,
     risk: "low",
     color: "#1000FF",

@@ -4,6 +4,7 @@ import { useChainId } from "wagmi";
 import { useTransaction, type GetTransactionResponse } from "./useTransaction";
 import { getStrategyMetadata } from "@/utils/strategies";
 import { Strategy } from "@/types/strategies";
+import { getChain } from "@/constants/chains";
 
 const initialTransactions: GetTransactionResponse[] = [];
 
@@ -11,6 +12,7 @@ export default function TransactionsTableComponent() {
   const { transactions: txs } = useTransaction();
   const chainId = useChainId();
   const { data: transactions = initialTransactions } = txs;
+  const chain = getChain(chainId);
 
   const filteredTransactions = transactions.filter(
     (transaction) => transaction.chain_id === chainId
@@ -37,7 +39,7 @@ export default function TransactionsTableComponent() {
             <div
               onClick={() =>
                 window.open(
-                  `https://basescan.org/tx/${transaction.hash}`,
+                  ` ${chain?.blockExplorers.default.url}/tx/${transaction.hash}`,
                   "_blank"
                 )
               }
