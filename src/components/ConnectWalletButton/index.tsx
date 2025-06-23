@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useLogin, usePrivy, useLogout } from "@privy-io/react-auth";
+import { usePrivy, useLogout } from "@privy-io/react-auth";
 import { useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
 import ChainSelector from "../ChainSelector";
-import { useAddUser, type AddUserParams } from "./useAddUser";
 import CopyButton from "../CopyButton";
-import { getLoginId, LoginResponse } from "./utils";
+import { useAssets } from "@/contexts/AssetsContext";
 
 export default function ConnectWalletButton() {
   const [address, setAddress] = useState<string | null>(null);
@@ -20,51 +18,7 @@ export default function ConnectWalletButton() {
   const router = useRouter();
 
   const { ready: privyReady, authenticated, linkWallet, user } = usePrivy();
-  const { mutate: addUser } = useAddUser();
-  const { login } = useLogin({
-    onComplete: async (loginResponse) => {
-      const { wasAlreadyAuthenticated, isNewUser, loginMethod } = loginResponse;
-
-      const handleLoginComplete = (loginResponse: LoginResponse) => {
-        const { user, loginMethod } = loginResponse;
-
-        if (!loginMethod)
-          throw new Error("AddUserError: login method not found");
-        const loginId = getLoginId(loginResponse);
-        const params: AddUserParams = {
-          privy_id: user.id,
-          address: user?.smartWallet?.address || "",
-          total_value: 0,
-          login_type: loginMethod,
-          login_id: loginId,
-        };
-
-        return params;
-      };
-
-      if (wasAlreadyAuthenticated || !loginMethod) return;
-
-      const params = handleLoginComplete(loginResponse);
-      if (isNewUser) {
-        localStorage.setItem("isNewUser", "true");
-        localStorage.setItem("addUserParams", JSON.stringify(params));
-        return;
-      }
-
-      addUser(params, {
-        onSuccess: (address) => {
-          toast.success(`Login Successfully: ${address}`);
-        },
-        onError: (error) => {
-          console.error(error);
-          toast.error(`Wallet creation failed: ${error}`);
-        },
-      });
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+  const { login } = useAssets();
 
   const { logout } = useLogout({
     onSuccess: () => {
@@ -89,11 +43,7 @@ export default function ConnectWalletButton() {
         linkWallet();
       } else {
         // User is not authenticated, use regular login
-        login({
-          loginMethods: ["wallet", "google"],
-          walletChainType: "ethereum-only",
-          disableSignup: false,
-        });
+        login();
       }
       return;
     }

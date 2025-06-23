@@ -11,7 +11,7 @@ import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { getStrategy } from "@/utils/strategies";
 import { useStrategy } from "@/hooks/useStrategy";
-import { useWallets } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { DepositDialog } from "@/components/DepositDialog";
 import { useAssets } from "@/contexts/AssetsContext";
 
@@ -34,6 +34,7 @@ enum ButtonState {
   Withdraw = "Withdraw",
   LP = "Add Liquidity",
   SwitchChain = "Switch Chain",
+  ConnectWallet = "Connect Wallet",
 }
 
 const InvestmentForm: FC<InvestmentFormProps> = ({
@@ -45,9 +46,10 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   // User context
   const chainId = useChainId();
   const isSupportedChain = chainId === strategy.chainId;
+  const { authenticated } = usePrivy();
   const { ready: isWalletReady } = useWallets();
   const { switchChainAsync } = useWagmiSwitchChain();
-  const { assetsBalance } = useAssets();
+  const { assetsBalance, login } = useAssets();
   const [isDeposit, setIsDeposit] = useState(false);
 
   // first token input
@@ -176,6 +178,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
       case ButtonState.SwitchChain:
         handleSwitchChain(strategy.chainId);
         break;
+      case ButtonState.ConnectWallet:
+        login();
+        break;
       default:
         break;
     }
@@ -183,6 +188,10 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
 
   useEffect(() => {
     const getButtonState = () => {
+      if (!authenticated) {
+        return ButtonState.ConnectWallet;
+      }
+
       if (isLoading || !isWalletReady) {
         return ButtonState.Pending;
       }

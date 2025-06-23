@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { LoginMethod } from "./utils";
+import { LoginMethod } from "../../components/ConnectWalletButton/utils";
 
 export type AddUserParams = {
   privy_id: string;
