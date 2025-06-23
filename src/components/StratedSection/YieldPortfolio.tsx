@@ -2,15 +2,20 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, CircleCheckBig } from "lucide-react";
 
+import { useAssets } from "@/contexts/AssetsContext";
+
 const YieldPortfolio = ({
   handleMessage,
 }: {
   handleMessage: (userInput: string) => Promise<void>;
 }) => {
   const [isDone, setIsDone] = useState(false);
+  const { smartWallet } = useAssets();
 
   const handleClick = async () => {
     setIsDone(true);
+
+    localStorage.setItem(`${smartWallet}-is-onboarded`, "true");
 
     await handleMessage("Build a diversified DeFi Portfolio");
   };

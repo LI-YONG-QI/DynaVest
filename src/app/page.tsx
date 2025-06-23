@@ -31,10 +31,14 @@ import { BotResponse } from "@/types";
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
 import CreateAccount from "@/components/StratedSection/CreateAccount";
 import YieldPortfolio from "@/components/StratedSection/YieldPortfolio";
+import MultiStrategy from "@/components/StratedSection/MultiStrategy";
+import SingleStrategy from "@/components/StratedSection/SingleStrategy";
+import { useAssets } from "@/contexts/AssetsContext";
 
 export default function Home() {
   const [isInput, setIsInput] = useState(false);
   const [command, setCommand] = useState("");
+  const [isOnboarded, setIsOnboarded] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -44,6 +48,7 @@ export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { closeChat, sendMessage } = useChat();
   const loadingBotResponse = sendMessage.isPending;
+  const { smartWallet } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -220,6 +225,13 @@ export default function Home() {
     setIsInput(latestBotMessage instanceof TextMessage);
   }, [conversation]);
 
+  useEffect(() => {
+    const isOnboarded = localStorage.getItem(`${smartWallet}-is-onboarded`);
+    if (isOnboarded === "true") {
+      setIsOnboarded(true);
+    }
+  }, [smartWallet]);
+
   // close chat room by default
   useEffect(() => {
     closeChat();
@@ -253,19 +265,32 @@ export default function Home() {
               </div>
 
               {/* Get Started Section */}
-              <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
-                <h2 className="font-[Manrope] font-medium text-lg text-[#17181C] text-center">
-                  Get Started
-                </h2>
+              {!isOnboarded ? (
+                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                  <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)]">
+                    Get Started
+                  </h2>
 
-                <div className="flex flex-col md:flex-row gap-4 w-full">
-                  {/* Steps Row */}
-                  <CreateAccount />
-
-                  {/* Step 2 */}
-                  <YieldPortfolio handleMessage={handleMessage} />
+                  <div className="flex flex-col md:flex-row gap-4 w-full">
+                    <CreateAccount />
+                    <YieldPortfolio handleMessage={handleMessage} />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                  <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)] text-center">
+                    Build Yield Portfolio
+                  </h2>
+
+                  <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+                    <MultiStrategy handleMessage={handleMessage} />
+                    <span className="font-[Manrope] font-medium text-sm text-[#999CB3]">
+                      OR
+                    </span>
+                    <SingleStrategy handleMessage={handleMessage} />
+                  </div>
+                </div>
+              )}
 
               {/* Hot Topics */}
               <div className="flex-col items-center gap-3.5 w-full max-w-[771px] md:flex hidden">
