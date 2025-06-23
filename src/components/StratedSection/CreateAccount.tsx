@@ -5,19 +5,11 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useAssets } from "@/contexts/AssetsContext";
 
 const CreateAccount = () => {
-  const { authenticated, linkWallet } = usePrivy();
+  const { authenticated } = usePrivy();
   const { login } = useAssets();
 
   const handleLogin = () => {
-    if (authenticated) {
-      linkWallet();
-    } else {
-      login({
-        loginMethods: ["wallet", "google"],
-        walletChainType: "ethereum-only",
-        disableSignup: false,
-      });
-    }
+    if (!authenticated) login();
     return;
   };
 
@@ -26,7 +18,9 @@ const CreateAccount = () => {
       <div
         onClick={handleLogin}
         className={`flex-1  rounded-[11px] px-[20px] py-[10px] relative border border-[#5F79F1] ${
-          authenticated ? "bg-[#5F79F1] text-white" : "bg-white text-black"
+          authenticated
+            ? "bg-[#5F79F1] text-white"
+            : "bg-white text-black cursor-pointer"
         }`}
       >
         <div className="flex justify-between items-center">

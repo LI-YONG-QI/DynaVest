@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, CircleCheckBig } from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
 
 import { useAssets } from "@/contexts/AssetsContext";
 
@@ -10,11 +11,12 @@ const YieldPortfolio = ({
   handleMessage: (userInput: string) => Promise<void>;
 }) => {
   const [isDone, setIsDone] = useState(false);
+  const { authenticated } = usePrivy();
   const { smartWallet } = useAssets();
 
   const handleClick = async () => {
+    if (!authenticated) return;
     setIsDone(true);
-
     localStorage.setItem(`${smartWallet}-is-onboarded`, "true");
 
     await handleMessage("Build a diversified DeFi Portfolio");
@@ -25,7 +27,7 @@ const YieldPortfolio = ({
       onClick={handleClick}
       className={`flex-1 border border-[#5F79F1] rounded-[11px] px-[20px] py-[10px] relative ${
         isDone ? "bg-[#5F79F1] text-white" : "bg-white text-black"
-      }`}
+      } ${!authenticated ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <div className="flex flex-col gap-2 pr-12">
         <span className="font-[Manrope] font-semibold text-xs">Step 2</span>
