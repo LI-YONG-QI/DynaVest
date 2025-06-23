@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Undo2 } from "lucide-react";
 import { format } from "date-fns";
+import { arbitrum } from "viem/chains";
 
 import type { Message } from "@/classes/message";
 import {
@@ -27,9 +28,9 @@ import {
   DefiStrategiesCardsChatWrapper,
 } from "@/components/ChatWrapper";
 import { BotResponse } from "@/types";
-
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
-import { arbitrum } from "viem/chains";
+import CreateAccount from "@/components/StratedSection/CreateAccount";
+import YieldPortfolio from "@/components/StratedSection/YieldPortfolio";
 
 export default function Home() {
   const [isInput, setIsInput] = useState(false);
@@ -219,9 +220,10 @@ export default function Home() {
     setIsInput(latestBotMessage instanceof TextMessage);
   }, [conversation]);
 
+  // close chat room by default
   useEffect(() => {
     closeChat();
-  }, []);
+  }, [closeChat]);
 
   // Process onboarding logic
 
@@ -234,6 +236,21 @@ export default function Home() {
       >
         {conversation.length === 0 ? (
           <>
+            {/* Get Started Section */}
+            <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+              <h2 className="font-[Manrope] font-medium text-lg text-[#17181C] text-center">
+                Get Started
+              </h2>
+
+              <div className="flex flex-col md:flex-row gap-4 w-full">
+                {/* Steps Row */}
+                <CreateAccount />
+
+                {/* Step 2 */}
+                <YieldPortfolio />
+              </div>
+            </div>
+
             {/* Welcome Message and Options UI based on Figma design */}
             <div className="flex flex-col gap-10 w-full max-w-[805px] mx-auto px-4 md:px-0">
               {/* Welcome Message */}
