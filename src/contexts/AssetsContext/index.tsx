@@ -21,7 +21,7 @@ import {
   UseMutationResult,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { LoginModalOptions, usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 import { toast } from "react-toastify";
 
 import useCurrencies, { TokenData } from "@/hooks/useCurrencies";
@@ -65,10 +65,9 @@ interface AssetsContextType {
   assetsBalance: AssetsBalanceQuery;
   smartWallet: Address | null;
   isOnboardingOpen: boolean;
+  isSmartWalletReady: boolean;
   setIsOnboardingOpen: (open: boolean) => void;
-  login: (
-    options?: LoginModalOptions | React.MouseEvent<Element, MouseEvent>
-  ) => void;
+  login: () => void;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -98,7 +97,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const chainId = useChainId<typeof wagmiConfig>();
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
-  const { user, authenticated } = usePrivy();
+  const { user, authenticated, ready } = usePrivy();
   const { mutate: addUser } = useAddUser();
   const { login } = useLogin({
     onSuccess: (address) => {
@@ -270,7 +269,13 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     smartWallet,
     isOnboardingOpen,
     setIsOnboardingOpen,
-    login,
+    isSmartWalletReady: ready && authenticated && !!client,
+    login: () =>
+      login({
+        loginMethods: ["wallet", "google"],
+        walletChainType: "ethereum-only",
+        disableSignup: false,
+      }),
   };
 
   return (

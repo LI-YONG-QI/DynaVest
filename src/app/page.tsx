@@ -48,7 +48,7 @@ export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { closeChat, sendMessage } = useChat();
   const loadingBotResponse = sendMessage.isPending;
-  const { smartWallet } = useAssets();
+  const { smartWallet, isSmartWalletReady } = useAssets();
 
   const parseBotResponse = (botResponse: BotResponse) => {
     let nextMessage: Message;
@@ -227,10 +227,13 @@ export default function Home() {
 
   useEffect(() => {
     const isOnboarded = localStorage.getItem(`${smartWallet}-is-onboarded`);
+
     if (isOnboarded === "true") {
       setIsOnboarded(true);
+    } else {
+      setIsOnboarded(false);
     }
-  }, [smartWallet]);
+  }, [smartWallet, isSmartWalletReady]);
 
   // close chat room by default
   useEffect(() => {
@@ -266,18 +269,19 @@ export default function Home() {
 
               {/* Get Started Section */}
               {!isOnboarded ? (
-                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0">
                   <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)]">
                     Get Started
                   </h2>
 
                   <div className="flex flex-col md:flex-row gap-4 w-full">
                     <CreateAccount />
+
                     <YieldPortfolio handleMessage={handleMessage} />
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0">
                   <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)]">
                     Build Yield Portfolio
                   </h2>
@@ -293,8 +297,8 @@ export default function Home() {
               )}
 
               {/* Hot Topics */}
-              <div className="flex-col items-center gap-3.5 w-full max-w-[771px] md:flex hidden">
-                <p className="font-[Manrope] font-medium text-sm text-center w-full text-black">
+              <div className="flex-col items-center gap-3.5 w-full max-w-[771px]  mx-auto md:flex hidden">
+                <p className="font-[Manrope] font-medium text-sm text-left w-full text-black">
                   Explore hot topics
                 </p>
                 <div className="flex flex-col w-full gap-4">
