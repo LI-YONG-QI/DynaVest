@@ -236,21 +236,6 @@ export default function Home() {
       >
         {conversation.length === 0 ? (
           <>
-            {/* Get Started Section */}
-            <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
-              <h2 className="font-[Manrope] font-medium text-lg text-[#17181C] text-center">
-                Get Started
-              </h2>
-
-              <div className="flex flex-col md:flex-row gap-4 w-full">
-                {/* Steps Row */}
-                <CreateAccount />
-
-                {/* Step 2 */}
-                <YieldPortfolio />
-              </div>
-            </div>
-
             {/* Welcome Message and Options UI based on Figma design */}
             <div className="flex flex-col gap-10 w-full max-w-[805px] mx-auto px-4 md:px-0">
               {/* Welcome Message */}
@@ -267,42 +252,18 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Built-in Functions */}
-              <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px]">
-                <p className="font-[Manrope] font-medium text-sm text-center w-full">
-                  Choose a built-in function
-                </p>
-                <div className="flex flex-col md:flex-row justify-stretch gap-4 w-full">
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Build a diversified DeFi Portfolio")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Build a diversified DeFi Portfolio
-                    </span>
-                  </button>
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Analyze and adjust my DeFi Portfolio")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Analyze and adjust my DeFi Portfolio
-                    </span>
-                  </button>
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Give me some DeFi strategies")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Give me some DeFi strategies
-                    </span>
-                  </button>
+              {/* Get Started Section */}
+              <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                <h2 className="font-[Manrope] font-medium text-lg text-[#17181C] text-center">
+                  Get Started
+                </h2>
+
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                  {/* Steps Row */}
+                  <CreateAccount />
+
+                  {/* Step 2 */}
+                  <YieldPortfolio handleMessage={handleMessage} />
                 </div>
               </div>
 

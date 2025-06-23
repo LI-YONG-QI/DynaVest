@@ -2,12 +2,22 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, CircleCheckBig } from "lucide-react";
 
-const YieldPortfolio = () => {
+const YieldPortfolio = ({
+  handleMessage,
+}: {
+  handleMessage: (userInput: string) => Promise<void>;
+}) => {
   const [isDone, setIsDone] = useState(false);
+
+  const handleClick = async () => {
+    setIsDone(true);
+
+    await handleMessage("Build a diversified DeFi Portfolio");
+  };
 
   return (
     <div
-      onClick={() => setIsDone(!isDone)}
+      onClick={handleClick}
       className={`flex-1 border border-[#5F79F1] rounded-[11px] px-[20px] py-[10px] relative ${
         isDone ? "bg-[#5F79F1] text-white" : "bg-white text-black"
       }`}
