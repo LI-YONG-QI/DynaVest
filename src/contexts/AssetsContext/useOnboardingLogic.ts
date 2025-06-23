@@ -52,6 +52,7 @@ export function useOnboardingLogic({
   useEffect(() => {
     if (
       shouldShowOnboarding &&
+      localStorage.getItem("onboarding-dialog-shown") !== "never-show-again" &&
       localStorage.getItem("onboarding-dialog-shown") !== "true"
     )
       setIsOnboardingOpen(true);

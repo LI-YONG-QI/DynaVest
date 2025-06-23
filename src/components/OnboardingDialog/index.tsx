@@ -26,13 +26,25 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ trigger }) => {
 
   const handleCheckboxChange = (state: CheckedState) => {
     const status = state ? true : false;
-    localStorage.setItem(`onboarding-dialog-shown`, status.toString());
+
+    localStorage.setItem(`onboarding-dialog-shown`, "never-show-again");
 
     setIsOnboardingOpen(status);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOnboardingOpen(open);
+
+    if (
+      !open &&
+      localStorage.getItem("onboarding-dialog-shown") !== "never-show-again"
+    ) {
+      localStorage.setItem(`onboarding-dialog-shown`, "true");
+    }
+  };
+
   return (
-    <Dialog open={isOnboardingOpen} onOpenChange={setIsOnboardingOpen}>
+    <Dialog open={isOnboardingOpen} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[800px] w-[95%] max-w-[700px] rounded-[12px] p-0 bg-white border-0 shadow-xl">
         <DialogHeader className="sr-only">
@@ -81,7 +93,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ trigger }) => {
                     className="font-[Manrope] font-semibold text-[16px] leading-[1em] text-[#5F79F1] hover:text-[#5F79F1]/80 transition-colors"
                     htmlFor="email"
                   >
-                    Don&apos;t show this again
+                    Never show this again
                   </Label>
                 </div>
               </div>

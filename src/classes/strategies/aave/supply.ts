@@ -82,8 +82,9 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE> {
 
   async getProfit(user: Address, position: Position) {
     const { amount, tokenName } = position;
+    const token = getTokenByName(tokenName);
 
-    const underlyingAsset = getTokenByName(tokenName).chains![this.chainId];
+    const underlyingAsset = token.chains![this.chainId];
     const pool = this.getAddress("pool");
 
     const aTokenAddress = await readContract(wagmiConfig, {
@@ -100,6 +101,6 @@ export class AaveV3Supply extends BaseStrategy<typeof AAVE> {
       args: [user],
     });
 
-    return Number(formatUnits(aTokenBalance, 6)) - amount;
+    return Number(formatUnits(aTokenBalance, token.decimals)) - amount;
   }
 }

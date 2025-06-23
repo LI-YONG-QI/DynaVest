@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Undo2 } from "lucide-react";
 import { format } from "date-fns";
+import { arbitrum } from "viem/chains";
 
 import type { Message } from "@/classes/message";
 import {
@@ -27,9 +28,8 @@ import {
   DefiStrategiesCardsChatWrapper,
 } from "@/components/ChatWrapper";
 import { BotResponse } from "@/types";
-
 import FindStrategiesChatWrapper from "@/components/ChatWrapper/FindStrategiesChatWrapper";
-import { arbitrum } from "viem/chains";
+import OnboardingGate from "@/components/OnboardingGate";
 
 export default function Home() {
   const [isInput, setIsInput] = useState(false);
@@ -219,9 +219,10 @@ export default function Home() {
     setIsInput(latestBotMessage instanceof TextMessage);
   }, [conversation]);
 
+  // close chat room by default
   useEffect(() => {
     closeChat();
-  }, []);
+  }, [closeChat]);
 
   // Process onboarding logic
 
@@ -250,48 +251,11 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Built-in Functions */}
-              <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px]">
-                <p className="font-[Manrope] font-medium text-sm text-center w-full">
-                  Choose a built-in function
-                </p>
-                <div className="flex flex-col md:flex-row justify-stretch gap-4 w-full">
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Build a diversified DeFi Portfolio")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Build a diversified DeFi Portfolio
-                    </span>
-                  </button>
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Analyze and adjust my DeFi Portfolio")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Analyze and adjust my DeFi Portfolio
-                    </span>
-                  </button>
-                  <button
-                    className="w-full bg-[#5F79F1] text-white rounded-[11px] py-3 px-4 flex justify-center items-center"
-                    onClick={() =>
-                      handleMessage("Give me some DeFi strategies")
-                    }
-                  >
-                    <span className="font-[Manrope] font-semibold text-base text-center">
-                      Give me some DeFi strategies
-                    </span>
-                  </button>
-                </div>
-              </div>
+              <OnboardingGate handleMessage={handleMessage} />
 
               {/* Hot Topics */}
-              <div className="flex-col items-center gap-3.5 w-full max-w-[771px] md:flex hidden">
-                <p className="font-[Manrope] font-medium text-sm text-center w-full text-black">
+              <div className="flex-col items-center gap-3.5 w-full max-w-[771px]  mx-auto md:flex hidden">
+                <p className="font-[Manrope] font-medium text-sm text-left w-full text-black">
                   Explore hot topics
                 </p>
                 <div className="flex flex-col w-full gap-4">

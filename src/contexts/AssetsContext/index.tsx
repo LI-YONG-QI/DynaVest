@@ -36,8 +36,9 @@ import { addFeesCall, calculateFee } from "@/utils/fee";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
 import { useBatchTokenPrices } from "@/contexts/AssetsContext/useBatchTokenPrices";
 import { getTokenAddress } from "@/utils/coins";
-import { useAddUser } from "@/components/ConnectWalletButton/useAddUser";
+import { useAddUser } from "@/contexts/AssetsContext/useAddUser";
 import { useOnboardingLogic } from "@/contexts/AssetsContext/useOnboardingLogic";
+import useLogin from "./useLogin";
 
 type AssetBalance = TokenData & {
   value: number;
@@ -64,7 +65,9 @@ interface AssetsContextType {
   assetsBalance: AssetsBalanceQuery;
   smartWallet: Address | null;
   isOnboardingOpen: boolean;
+  isSmartWalletReady: boolean;
   setIsOnboardingOpen: (open: boolean) => void;
+  login: () => void;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -94,8 +97,16 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
   const chainId = useChainId<typeof wagmiConfig>();
   const tokensWithChain = SUPPORTED_TOKENS[chainId];
   const { client } = useSmartWallets();
-  const { user, authenticated } = usePrivy();
+  const { user, authenticated, ready } = usePrivy();
   const { mutate: addUser } = useAddUser();
+  const { login } = useLogin({
+    onSuccess: (address) => {
+      toast.success(`Login Successfully: ${address}`);
+    },
+    onError: (error) => {
+      toast.error(`Wallet creation failed: ${error}`);
+    },
+  });
 
   const pricesQuery = useBatchTokenPrices(tokensWithChain);
   const positionsQuery = usePositions();
@@ -224,6 +235,8 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
             localStorage.removeItem("isNewUser");
             localStorage.removeItem("addUserParams");
 
+            console.log("From AssetsContext", address);
+
             toast.success(`Login Successfully: ${address}`);
           },
           onError: (error) => {
@@ -256,6 +269,14 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     smartWallet,
     isOnboardingOpen,
     setIsOnboardingOpen,
+    // TODO: isSmartWalletReady isn't precise (when not authenticated)
+    isSmartWalletReady: ready && authenticated && !!client,
+    login: () =>
+      login({
+        loginMethods: ["wallet", "google"],
+        walletChainType: "ethereum-only",
+        disableSignup: false,
+      }),
   };
 
   return (

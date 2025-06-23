@@ -30,8 +30,7 @@ import useBalance from "@/hooks/useBalance";
 import { useAssets } from "@/contexts/AssetsContext";
 import { toast } from "react-toastify";
 
-const calculateFees = (amount: number) => {
-  const feePercentage = 0.001; // 0.1%
+const calculateFees = (amount: number, feePercentage: number = 0.001) => {
   const fee = amount * feePercentage;
   const total = amount - fee;
 
@@ -92,7 +91,10 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
     form.setValue("withdrawalAmount", maxBalance.toString());
   };
 
-  const { total } = calculateFees(Number(form.watch("withdrawalAmount")));
+  const { total } = calculateFees(
+    Number(form.watch("withdrawalAmount")),
+    0.005
+  );
 
   const onSubmit = async (values: WithdrawFormValues) => {
     setIsWithdrawing(true);
