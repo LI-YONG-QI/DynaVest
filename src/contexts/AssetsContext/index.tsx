@@ -269,6 +269,7 @@ export function AssetsProvider({ children }: AssetsProviderProps) {
     smartWallet,
     isOnboardingOpen,
     setIsOnboardingOpen,
+    // TODO: isSmartWalletReady isn't precise (when not authenticated)
     isSmartWalletReady: ready && authenticated && !!client,
     login: () =>
       login({
