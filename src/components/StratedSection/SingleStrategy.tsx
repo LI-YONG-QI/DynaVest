@@ -5,13 +5,21 @@ interface SingleStrategyProps {
   handleMessage: (message: string) => void;
 }
 
+const backgroundStyle = {
+  background:
+    "linear-gradient(-86.667deg, rgba(95, 121, 241, 30%) 18%, rgba(253, 164, 175, 30%) 100%)",
+};
+
 const SingleStrategy = ({ handleMessage }: SingleStrategyProps) => {
   return (
     <button
       className="flex-1 bg-white border border-[rgba(95,121,241,0.4)] rounded-[11px] p-5 relative shadow-[0px_4px_4px_0px_rgba(0,0,0,0.15)] text-left flex flex-col gap-2"
       onClick={() => handleMessage("Find the best performing Yield Strategy")}
     >
-      <div className="bg-gradient-to-r from-[#5F79F1] to-[#FDA4AF] rounded-[4px] px-2.5 py-1.5 self-start shadow-[0px_1px_4px_0px_rgba(0,0,0,0.15)]">
+      <div
+        style={backgroundStyle}
+        className="bg-gradient-to-r rounded-[4px] px-2.5 py-1.5 self-start shadow-[0px_1px_4px_0px_rgba(0,0,0,0.15)]"
+      >
         <span className="font-[Manrope] font-semibold text-xs text-black">
           Single-Strategy
         </span>

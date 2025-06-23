@@ -5,6 +5,11 @@ interface MultiStrategyProps {
   handleMessage: (message: string) => void;
 }
 
+const backgroundStyle = {
+  background:
+    "linear-gradient(-86.667deg, rgba(95, 121, 241, 30%) 18%, rgba(253, 164, 175, 30%) 100%)",
+};
+
 const MultiStrategy = ({ handleMessage }: MultiStrategyProps) => {
   return (
     <button
@@ -13,8 +18,11 @@ const MultiStrategy = ({ handleMessage }: MultiStrategyProps) => {
         handleMessage("Run a Cross-Chain, Multi-Protocols Yield Portfolio")
       }
     >
-      <div className="bg-gradient-to-r from-[#5F79F1] to-[#FDA4AF] rounded-[4px] px-2.5 py-1.5 self-start shadow-[0px_1px_4px_0px_rgba(0,0,0,0.15)]">
-        <span className="font-[Manrope] font-semibold text-xs text-black">
+      <div
+        style={backgroundStyle}
+        className="bg-gradient-to-r rounded-[4px] px-2.5 py-1.5 self-start shadow-[0px_1px_4px_0px_rgba(0,0,0,0.15)]"
+      >
+        <span className="font-[Manrope] font-semibold text-xs text-black    ">
           Multi-Strategies
         </span>
       </div>

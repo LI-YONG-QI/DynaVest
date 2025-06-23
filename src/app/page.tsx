@@ -277,8 +277,8 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
-                  <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)] text-center">
+                <div className="flex flex-col gap-2.5 w-full max-w-[771px] mx-auto px-4 md:px-0 mb-10">
+                  <h2 className="font-[Manrope] font-semibold text-sm text-[rgba(0,0,0,0.6)]">
                     Build Yield Portfolio
                   </h2>
 
