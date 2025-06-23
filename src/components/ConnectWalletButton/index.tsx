@@ -68,7 +68,10 @@ export default function ConnectWalletButton() {
 
   const { logout } = useLogout({
     onSuccess: () => {
-      localStorage.removeItem(`onboarding-dialog-shown`);
+      if (
+        localStorage.getItem("onboarding-dialog-shown") !== "never-show-again"
+      )
+        localStorage.setItem(`onboarding-dialog-shown`, "false");
     },
   });
 
