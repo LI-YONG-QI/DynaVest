@@ -261,6 +261,9 @@ export function useStrategy() {
 
       return txHash;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user] });
+    },
   });
 
   return {

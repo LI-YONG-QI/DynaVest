@@ -19,8 +19,10 @@ const BuildPortfolioChatWrapper: React.FC<BuildPortfolioChatWrapperProps> = ({
       <div className="flex flex-col gap-2">
         {message.strategies.map((strategy, index) => (
           <p className="text-sm text-gray-400" key={index}>
-            {strategy.title} {strategy.allocation}% $
-            {(strategy.allocation * Number(message.amount)) / 100}
+            {`${strategy.title} (${strategy.allocation}%) ${(
+              (strategy.allocation * Number(message.amount)) /
+              100
+            ).toFixed(4)} USDC`}
           </p>
         ))}
       </div>
