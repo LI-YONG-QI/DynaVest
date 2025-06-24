@@ -64,7 +64,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
     <>
       <div
         onClick={handleCardClick}
-        className="flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-100 transition-colors"
+        className="tracking-wide flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-100 transition-colors"
       >
         {/* Header Section */}
         <div className="flex justify-between md:justify-around items-center w-full">
@@ -144,7 +144,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
 
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
-                    $
+                    ${" "}
                     {Math.abs(
                       title
                         .split("")

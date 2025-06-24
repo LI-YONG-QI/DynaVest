@@ -28,7 +28,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ protocol, description }) => {
       <HoverCardContent
         side="top"
         align="center"
-        className="w-auto"
+        className="w-auto tracking-wide"
         style={{ maxWidth: "250px" }}
       >
         <div className="text-sm text-popover-foreground p-2">
