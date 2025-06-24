@@ -2,7 +2,7 @@ import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
 import type { StrategyMetadata } from "@/types";
 import { USDC, CELO, FLOW, cEUR, BNB } from "@/constants/coins";
-import { AAVE, UNISWAP, MORPHO } from "./protocols";
+import { AAVE, UNISWAP, MORPHO, Lido } from "./protocols";
 
 export const STRATEGIES = [
   "AaveV3Supply",
@@ -73,7 +73,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#F50DB5",
-    protocol: UNISWAP,
+    protocol: Lido,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:
@@ -155,7 +155,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#F50DB5",
-    protocol: UNISWAP,
+    protocol: Lido,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:
@@ -207,7 +207,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#1000FF",
-    protocol: UNISWAP,
+    protocol: Lido,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:

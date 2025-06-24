@@ -11,5 +11,6 @@ export * from "./dynaVest";
 export * from "./camelot";
 export * from "./uniswap";
 export * from "./gmx";
+export * from "./lido";
 
 export const PROTOCOLS = [AAVE, UNISWAP, MORPHO];

@@ -103,7 +103,7 @@ export default function InvestModal({
                     APY {strategy.apy}%
                   </div>
                   <div
-                    className="px-2 py-1 rounded-lg text-sm font-medium"
+                    className="px-2 py-1 rounded-lg text-sm font-medium capitalize"
                     style={{
                       backgroundColor: getRiskColor(strategy.risk).bg,
                       color: getRiskColor(strategy.risk).text,
