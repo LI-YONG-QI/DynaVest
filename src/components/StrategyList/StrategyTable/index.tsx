@@ -212,7 +212,7 @@ export default function StrategyTable({ strategies }: StrategyTableProps) {
               <td className="pr-2 py-4 text-sm font-medium">
                 <div className="flex space-x-2">
                   <button
-                    className="bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium"
+                    className="cursor-pointer bg-[#5F79F1] text-white px-3 py-1.5 rounded-sm font-medium hover:bg-[#4A64DC] transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsModalOpen(true);

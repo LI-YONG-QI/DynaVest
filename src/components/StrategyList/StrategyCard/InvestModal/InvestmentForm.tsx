@@ -13,6 +13,13 @@ import { useStrategy } from "@/hooks/useStrategy";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { DepositDialog } from "@/components/DepositDialog";
 import { useAssets } from "@/contexts/AssetsContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Props interface
 
@@ -48,20 +55,17 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const { authenticated } = usePrivy();
   const { ready: isWalletReady } = useWallets();
   const { switchChainAsync } = useWagmiSwitchChain();
-  const { assetsBalance, login } = useAssets();
+  const { assetsBalance, login, pricesQuery } = useAssets();
   const [isDeposit, setIsDeposit] = useState(false);
 
   // first token input
   const [amount, setAmount] = useState<string>("");
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [currency, setCurrency] = useState<Token>(strategy.tokens[0]);
   const { balance: maxBalance = BigInt(0), isLoadingBalance } =
     useBalance(currency);
 
   // second token input - for LP
   const [secondAmount, setSecondAmount] = useState<string>("");
-  const [showSecondCurrencyDropdown, setShowSecondCurrencyDropdown] =
-    useState(false);
   const [secondCurrency, setSecondCurrency] = useState<Token>(
     strategy.tokens?.[1] || strategy.tokens[0]
   );
@@ -84,15 +88,28 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   // const [slippage, setSlippage] = useState<number | "auto">("auto");
   // const [customSlippage, setCustomSlippage] = useState("");
 
-  const AMOUNT_LIMIT = 0;
+  const AMOUNT_LIMIT = 0.01;
 
   // Handle setting max amount
   const handleSetMax = () => {
     setAmount(formatUnits(maxBalance, currency.decimals));
   };
 
+  const validateAmount = () => {
+    const { data, isError } = pricesQuery;
+    const price = data?.[currency.name];
+
+    if (isError) return false;
+    if (price) {
+      const amountInUSD = Number(amount) * price;
+      return amountInUSD >= AMOUNT_LIMIT;
+    }
+
+    return false;
+  };
+
   const invest = async () => {
-    if (Number(amount) < AMOUNT_LIMIT) {
+    if (!validateAmount()) {
       toast.error("Investment amount must be greater than 0.01");
       return;
     }
@@ -222,8 +239,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           setAmount={setAmount}
           currency={currency}
           setCurrency={setCurrency}
-          showCurrencyDropdown={showCurrencyDropdown}
-          setShowCurrencyDropdown={setShowCurrencyDropdown}
           strategy={strategy}
           isLoadingBalance={isLoadingBalance}
           isSupportedChain={isSupportedChain}
@@ -237,8 +252,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
             setAmount={setSecondAmount}
             currency={secondCurrency}
             setCurrency={setSecondCurrency}
-            showCurrencyDropdown={showSecondCurrencyDropdown}
-            setShowCurrencyDropdown={setShowSecondCurrencyDropdown}
             strategy={strategy}
             isLoadingBalance={isLoadingSecondBalance}
             isSupportedChain={isSupportedChain}
@@ -366,8 +379,6 @@ interface AmountInputProps {
   setAmount: (amount: string) => void;
   currency: Token;
   setCurrency: (currency: Token) => void;
-  showCurrencyDropdown: boolean;
-  setShowCurrencyDropdown: (show: boolean) => void;
   strategy: StrategyMetadata;
   isLoadingBalance: boolean;
   isSupportedChain: boolean;
@@ -380,14 +391,21 @@ const AmountInput = ({
   setAmount,
   currency,
   setCurrency,
-  showCurrencyDropdown,
-  setShowCurrencyDropdown,
   strategy,
   isLoadingBalance,
   isSupportedChain,
   maxBalance,
   handleSetMax,
 }: AmountInputProps) => {
+  const handleCurrencyChange = (tokenName: string) => {
+    const selectedToken = strategy.tokens.find(
+      (token) => token.name === tokenName
+    );
+    if (selectedToken) {
+      setCurrency(selectedToken);
+    }
+  };
+
   return (
     <div className="bg-gray-100 rounded-md border border-gray-300 mb-6">
       <div className="flex items-center w-full gap-2">
@@ -400,63 +418,39 @@ const AmountInput = ({
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        {/* Custom dropdown with icons */}
-        <div className="shrink-0 md:min-w-[100px] relative">
-          <button
-            type="button"
-            className="text-sm md:text-lg bg-transparent flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 font-semibold focus:outline-none rounded-md hover:bg-gray-200"
-            onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-          >
-            <Image
-              src={currency.icon}
-              alt={currency.name}
-              className="w-6 h-6 object-contain"
-              width={24}
-              height={24}
-            />
-            {currency.name}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3 w-3 md:h-5 md:w-5 md:ml-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          {showCurrencyDropdown && (
-            <div className="absolute right-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        {/* Shadcn Select component */}
+        <div className="shrink-0 md:min-w-[100px]">
+          <Select value={currency.name} onValueChange={handleCurrencyChange}>
+            <SelectTrigger className="text-sm md:text-lg bg-transparent border-none shadow-none px-2 md:px-4 py-2 font-semibold hover:bg-gray-200 focus:ring-0 focus:ring-offset-0">
+              <div className="flex items-center gap-1 md:gap-2">
+                <SelectValue placeholder="Select asset" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="border-none">
               {strategy.tokens.map((token) => (
-                <button
+                <SelectItem
                   key={token.name}
-                  type="button"
-                  className="w-full flex items-center gap-1 px-2 md:gap-2 md:px-4 py-2 text-left hover:bg-gray-100"
-                  onClick={() => {
-                    setCurrency(token);
-                    setShowCurrencyDropdown(false);
-                  }}
+                  value={token.name}
+                  className="cursor-pointer"
                 >
-                  <Image
-                    src={token.icon}
-                    alt={token.name}
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 object-contain"
-                  />
-                  {token.name}
-                </button>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={token.icon}
+                      alt={token.name}
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 object-contain"
+                    />
+                    {token.name}
+                  </div>
+                </SelectItem>
               ))}
-            </div>
-          )}
+            </SelectContent>
+          </Select>
         </div>
       </div>
-      <div className="flex items-center px-4 pb-2">
+      <div className="flex flex-col px-4 pb-2">
+        <div className="text-xs md:text-sm text-gray-500">≈ $ 1,023</div>
         <div className="flex items-center w-full">
           <span className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
             <span>Balance: </span>

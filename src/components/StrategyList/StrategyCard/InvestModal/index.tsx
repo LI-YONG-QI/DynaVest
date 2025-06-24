@@ -22,9 +22,25 @@ export default function InvestModal({
 
   // Reset closing state when modal opens
   useEffect(() => {
+    const body = document.body;
     if (isOpen) {
+      const scrollbarWidth = window.innerWidth - body.clientWidth;
+      body.style.paddingRight = `${scrollbarWidth}px`;
+      body.style.overflow = "hidden";
       setIsClosing(false);
+    } else {
+      // Delay removing styles to allow for closing animation
+      setTimeout(() => {
+        body.style.paddingRight = "";
+        body.style.overflow = "";
+      }, 300);
     }
+
+    // Cleanup on unmount
+    return () => {
+      body.style.paddingRight = "";
+      body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Handle close with animation

@@ -157,7 +157,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     M
                   </p>
 
-                  <div className="text-sm text-gray-900 flex items-center">
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
                     {tokens.map((token) => (
                       <div key={token.name} className="w-5 h-5 relative">
                         <Image
