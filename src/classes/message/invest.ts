@@ -1,7 +1,12 @@
 import { Message, MessageMetadata } from "./base";
 import { PortfolioMessage } from "./portfolio";
 import { STRATEGIES_METADATA } from "@/constants/strategies";
-import { RiskLevel, RiskPortfolioStrategies, StrategiesSet } from "@/types";
+import {
+  RiskLevel,
+  RiskPortfolioStrategies,
+  Strategy,
+  StrategiesSet,
+} from "@/types";
 import { RISK_OPTIONS } from "@/constants/risk";
 import { wagmiConfig } from "@/providers/config";
 import { base, arbitrum } from "viem/chains";
@@ -42,11 +47,12 @@ export class InvestMessage extends Message {
         ],
         high: [
           { strategyId: "AaveV3Supply", allocationRange: [20, 40] },
+          { strategyId: "FluidSupply", allocationRange: [20, 40] },
           { strategyId: "MorphoSupply", allocationRange: null }, // Will be adjusted to ensure 100% total
         ],
       } as Record<
         RiskLevel,
-        Array<{ strategyId: string; allocationRange: [number, number] }>
+        Array<{ strategyId: Strategy; allocationRange: [number, number] }>
       >,
     },
     [arbitrum.id]: {

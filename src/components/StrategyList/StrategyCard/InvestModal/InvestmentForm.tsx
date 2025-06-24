@@ -9,7 +9,6 @@ import useBalance from "@/hooks/useBalance";
 
 import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
-import { getStrategy } from "@/utils/strategies";
 import { useStrategy } from "@/hooks/useStrategy";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { DepositDialog } from "@/components/DepositDialog";
@@ -137,12 +136,10 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const executeStrategy = async () => {
     setIsLoading(true);
 
-    const strategyHandler = getStrategy(strategy.id, chainId);
     const parsedAmount = parseUnits(amount, currency.decimals);
-
     investStrategy.mutate(
       {
-        strategy: strategyHandler,
+        strategyId: strategy.id,
         amount: parsedAmount,
         token: currency,
       },

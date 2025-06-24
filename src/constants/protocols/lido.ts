@@ -1,7 +1,7 @@
 import type { Protocol } from "@/types/strategies";
 
 // Uniswap protocol contract addresses for each network
-export const Lido = {
+export const LIDO = {
   name: "Lido",
   description:
     "Lido is a liquid staking protocol that allows users to stake their ETH and earn staking rewards.",
