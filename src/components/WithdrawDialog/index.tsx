@@ -343,7 +343,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                         Value
                       </p>
                       <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
-                        ${(Number(total.toFixed(6)) * price).toFixed(4)}
+                        ${(Number(total.toFixed(6)) * price).toFixed(6)}
                       </p>
                     </div>
 

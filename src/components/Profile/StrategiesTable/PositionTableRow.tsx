@@ -85,7 +85,7 @@ export default function PositionTableRow({
               />
             </div>
             <div>
-              <div className="font-bold">{position.strategy}</div>
+              <div className="font-bold">{strategyMetadata.title}</div>
             </div>
           </div>
         </td>

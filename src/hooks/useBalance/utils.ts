@@ -12,25 +12,7 @@ import { Address } from "viem";
 import { getBalance } from "@wagmi/core";
 import { wagmiConfig as config } from "@/providers/config";
 
-export async function fetchTokenPrice(token: Token) {
-  if (!isCoingeckoId(token.name))
-    throw new Error(`Token ${token.name} is not supported by Coingecko`);
 
-  const id = COINGECKO_IDS[token.name];
-
-  const response = await axios.get(
-    "https://api.coingecko.com/api/v3/simple/price",
-    {
-      params: {
-        ids: id,
-        vs_currencies: "usd",
-      },
-    }
-  );
-
-  const price = Number(response.data[id]?.usd);
-  return price;
-}
 
 type TokenPriceResponse = {
   [key: string]: {
