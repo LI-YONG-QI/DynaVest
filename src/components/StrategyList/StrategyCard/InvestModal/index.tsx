@@ -130,6 +130,7 @@ export default function InvestModal({
                 </div>
               </div>
             </div>
+            
             {/* Invest modal content */}
             <div>
               <InvestmentForm strategy={strategy} handleClose={handleClose} />

@@ -1,7 +1,7 @@
 import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
 import type { StrategyMetadata } from "@/types";
-import { USDC, CELO, FLOW, cEUR, BNB, USDT } from "@/constants/coins";
+import { USDC, CELO, FLOW, cEUR, BNB } from "@/constants/coins";
 import { AAVE, UNISWAP, MORPHO, LIDO, FLUID } from "./protocols";
 
 export const STRATEGIES = [
@@ -111,7 +111,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
       "https://app.morpho.org/base/market/0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda/weth-usdc",
     learnMoreLink:
       "https://app.morpho.org/base/market/0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda/weth-usdc",
-    tokens: [USDC, USDT],
+    tokens: [USDC],
     chainId: base.id,
   },
   {
