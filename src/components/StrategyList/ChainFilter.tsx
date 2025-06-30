@@ -27,7 +27,7 @@ export default function ChainFilter({
           <button
             key={chain.id}
             type="button"
-            className={`w-8 h-8 flex items-center justify-center
+            className={`w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors cursor-pointer
               ${
                 selectedChains.length > 0
                   ? selectedChains.includes(chain.id)

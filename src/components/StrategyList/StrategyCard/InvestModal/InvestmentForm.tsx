@@ -4,9 +4,9 @@ import { FC, useState, useEffect, FormEvent } from "react";
 import { toast } from "react-toastify";
 import { useChainId, useSwitchChain as useWagmiSwitchChain } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
+import { CirclePlus } from "lucide-react";
 
 import useBalance from "@/hooks/useBalance";
-
 import { InvestmentFormMode, type StrategyMetadata, Token } from "@/types";
 import { MoonLoader } from "react-spinners";
 import { useStrategy } from "@/hooks/useStrategy";
@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatAmount } from "@/utils";
 
 // Props interface
 
@@ -69,10 +70,11 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [secondCurrency, setSecondCurrency] = useState<Token>(
     strategy.tokens?.[1] || strategy.tokens[0]
   );
-  const {
-    balance: secondMaxBalance = BigInt(0),
-    isLoadingBalance: isLoadingSecondBalance,
-  } = useBalance(secondCurrency);
+
+  // const {
+  //   balance: secondMaxBalance = BigInt(0),
+  //   isLoadingBalance: isLoadingSecondBalance,
+  // } = useBalance(secondCurrency);
 
   // Button state
   const [buttonState, setButtonState] = useState<ButtonState>(
@@ -233,6 +235,9 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit}>
+        <div className="mb-1 capitalize text-sm text-gray-500">
+          Investment Amount
+        </div>
         {/* Amount input */}
         <AmountInput
           amount={amount}
@@ -240,10 +245,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           currency={currency}
           setCurrency={setCurrency}
           strategy={strategy}
-          isLoadingBalance={isLoadingBalance}
-          isSupportedChain={isSupportedChain}
-          maxBalance={maxBalance}
-          handleSetMax={handleSetMax}
         />
 
         {mode == "lp" && (
@@ -253,10 +254,6 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
             currency={secondCurrency}
             setCurrency={setSecondCurrency}
             strategy={strategy}
-            isLoadingBalance={isLoadingSecondBalance}
-            isSupportedChain={isSupportedChain}
-            maxBalance={secondMaxBalance}
-            handleSetMax={handleSetMax}
           />
         )}
 
@@ -350,6 +347,35 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           )}
         </div> */}
 
+        <div className="flex gap-2 items-center w-full my-4">
+          <CirclePlus className="text-[#5F79F1] rounded-full h-[16px] w-[16px] cursor-pointer" />
+
+          <span className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+            <span>Balance: </span>
+            <div>
+              {isLoadingBalance ? (
+                <MoonLoader size={10} />
+              ) : isSupportedChain ? (
+                formatAmount(
+                  Number(formatUnits(maxBalance, currency.decimals)),
+                  4
+                )
+              ) : (
+                "NaN"
+              )}
+            </div>
+            <span>{currency.name}</span>
+          </span>
+          <button
+            type="button"
+            onClick={handleSetMax}
+            disabled={!isSupportedChain || isLoadingBalance}
+            className="text-xs md:text-sm font-medium text-[#5F79F1] hover:text-[#4A64DC] focus:outline-none ml-2 border-0 bg-transparent cursor-pointer disabled:opacity-50"
+          >
+            MAX
+          </button>
+        </div>
+
         {/* Invest button */}
         <button
           type="submit"
@@ -380,10 +406,6 @@ interface AmountInputProps {
   currency: Token;
   setCurrency: (currency: Token) => void;
   strategy: StrategyMetadata;
-  isLoadingBalance: boolean;
-  isSupportedChain: boolean;
-  maxBalance: bigint;
-  handleSetMax: () => void;
 }
 
 const AmountInput = ({
@@ -392,11 +414,12 @@ const AmountInput = ({
   currency,
   setCurrency,
   strategy,
-  isLoadingBalance,
-  isSupportedChain,
-  maxBalance,
-  handleSetMax,
 }: AmountInputProps) => {
+  const { pricesQuery } = useAssets();
+
+  const { data: pricesData, isError } = pricesQuery;
+  const price = isError ? 0 : pricesData?.[currency.name] || 0;
+
   const handleCurrencyChange = (tokenName: string) => {
     const selectedToken = strategy.tokens.find(
       (token) => token.name === tokenName
@@ -407,7 +430,7 @@ const AmountInput = ({
   };
 
   return (
-    <div className="bg-gray-100 rounded-md border border-gray-300 mb-6">
+    <div className="bg-gray-100 rounded-md border border-gray-300">
       <div className="flex items-center w-full gap-2">
         <input
           type="text"
@@ -450,29 +473,8 @@ const AmountInput = ({
         </div>
       </div>
       <div className="flex flex-col px-4 pb-2">
-        <div className="text-xs md:text-sm text-gray-500">≈ $ 1,023</div>
-        <div className="flex items-center w-full">
-          <span className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
-            <span>Balance: </span>
-            <div>
-              {isLoadingBalance ? (
-                <MoonLoader size={10} />
-              ) : isSupportedChain ? (
-                formatUnits(maxBalance, currency.decimals)
-              ) : (
-                "NaN"
-              )}
-            </div>
-            <span>{currency.name}</span>
-          </span>
-          <button
-            type="button"
-            onClick={handleSetMax}
-            disabled={!isSupportedChain || isLoadingBalance}
-            className="text-xs md:text-sm font-medium text-[#5F79F1] hover:text-[#4A64DC] focus:outline-none ml-2 border-0 bg-transparent cursor-pointer disabled:opacity-50"
-          >
-            MAX
-          </button>
+        <div className="text-xs md:text-sm text-gray-500">
+          ≈ $ {Number((Number(amount) * price).toFixed(4))}
         </div>
       </div>
     </div>

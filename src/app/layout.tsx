@@ -84,7 +84,7 @@ export default function RootLayout({
           <div className="min-h-screen w-full">
             <div className="mx-auto">
               <Header />
-              <div className="pt-10 max-w-7xl mx-auto px-5 md:px-20 relative">
+              <div className="pt-5 max-w-7xl mx-auto px-5 md:px-20 relative">
                 {children}
                 <BottomNav />
                 <ToastContainer position="bottom-right" />
