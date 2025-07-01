@@ -22,9 +22,25 @@ export default function InvestModal({
 
   // Reset closing state when modal opens
   useEffect(() => {
+    const body = document.body;
     if (isOpen) {
+      const scrollbarWidth = window.innerWidth - body.clientWidth;
+      body.style.paddingRight = `${scrollbarWidth}px`;
+      body.style.overflow = "hidden";
       setIsClosing(false);
+    } else {
+      // Delay removing styles to allow for closing animation
+      setTimeout(() => {
+        body.style.paddingRight = "";
+        body.style.overflow = "";
+      }, 300);
     }
+
+    // Cleanup on unmount
+    return () => {
+      body.style.paddingRight = "";
+      body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Handle close with animation
@@ -103,7 +119,7 @@ export default function InvestModal({
                     APY {strategy.apy}%
                   </div>
                   <div
-                    className="px-2 py-1 rounded-lg text-sm font-medium"
+                    className="px-2 py-1 rounded-lg text-sm font-medium capitalize"
                     style={{
                       backgroundColor: getRiskColor(strategy.risk).bg,
                       color: getRiskColor(strategy.risk).text,
@@ -114,6 +130,7 @@ export default function InvestModal({
                 </div>
               </div>
             </div>
+            
             {/* Invest modal content */}
             <div>
               <InvestmentForm strategy={strategy} handleClose={handleClose} />

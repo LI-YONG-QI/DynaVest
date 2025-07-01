@@ -7,7 +7,7 @@ import { waitForTransactionReceipt } from "viem/actions";
 import { useMutation } from "@tanstack/react-query";
 
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
-import { Protocol } from "@/types/strategies";
+import { Protocol, Strategy } from "@/types/strategies";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
 import { StrategyCall } from "@/classes/strategies/baseStrategy";
@@ -21,6 +21,7 @@ import {
 } from "./utils";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { getTokenAddress, getTokenByName } from "@/utils/coins";
+import { getStrategy } from "@/utils/strategies";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocol>;
@@ -30,7 +31,7 @@ type RedeemParams = {
 };
 
 type InvestParams = {
-  strategy: BaseStrategy<Protocol>;
+  strategyId: Strategy;
   amount: bigint;
   token: Token;
 };
@@ -179,8 +180,10 @@ export function useStrategy() {
   });
 
   const invest = useMutation({
-    mutationFn: async ({ strategy, amount, token }: InvestParams) => {
+    mutationFn: async ({ strategyId, amount, token }: InvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
+
+      const strategy = getStrategy(strategyId, chainId);
 
       const { fee, amount: amountWithoutFee } = calculateFee(amount);
       const calls = await getInvestCalls(
@@ -257,6 +260,9 @@ export function useStrategy() {
       );
 
       return txHash;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user] });
     },
   });
 

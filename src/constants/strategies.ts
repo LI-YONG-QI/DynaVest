@@ -2,7 +2,7 @@ import { celo, flowMainnet, base, bsc, arbitrum, polygon } from "viem/chains";
 
 import type { StrategyMetadata } from "@/types";
 import { USDC, CELO, FLOW, cEUR, BNB } from "@/constants/coins";
-import { AAVE, UNISWAP, MORPHO } from "./protocols";
+import { AAVE, UNISWAP, MORPHO, LIDO, FLUID } from "./protocols";
 
 export const STRATEGIES = [
   "AaveV3Supply",
@@ -13,16 +13,17 @@ export const STRATEGIES = [
   "CamelotStaking",
   "GMXDeposit",
   "MultiStrategy",
+  "FluidSupply",
 ] as const;
 
 export const BOT_STRATEGY: StrategyMetadata = {
   title: "Bot Strategy",
-  id: "AaveV3Supply",
+  id: "MultiStrategy",
   apy: 0,
   risk: "low",
   protocol: AAVE,
-  description: "Deposit USDC to multi strategies",
-  fullDescription: "Deposit USDC to multi strategies",
+  description: "",
+  fullDescription: "",
   externalLink: "",
   learnMoreLink: "",
   tokens: [USDC],
@@ -73,7 +74,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#F50DB5",
-    protocol: UNISWAP,
+    protocol: LIDO,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:
@@ -100,7 +101,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     id: "MorphoSupply",
     apy: 6.7,
     risk: "medium",
-    color: "#2973FF",
+    color: "#C4DAFF",
     protocol: MORPHO,
     description:
       "Supplying USDC to AAVE Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
@@ -114,7 +115,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     chainId: base.id,
   },
   {
-    title: "AAVE Lending Strategy",
+    title: "AAVE Supplying",
     id: "AaveV3Supply",
     apy: 6.1,
     risk: "medium",
@@ -155,7 +156,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#F50DB5",
-    protocol: UNISWAP,
+    protocol: LIDO,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:
@@ -166,7 +167,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     chainId: base.id,
   },
   {
-    title: "AAVE Lending Strategy",
+    title: "AAVE Supplying",
     id: "AaveV3Supply",
     apy: 4.3,
     risk: "medium",
@@ -207,7 +208,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     apy: 2.8,
     risk: "low",
     color: "#1000FF",
-    protocol: UNISWAP,
+    protocol: LIDO,
     description:
       "Staking tokens to operate network nodes helps to maintain security on the blockchain.",
     fullDescription:
@@ -332,7 +333,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
   //   chainId: flowMainnet.id,
   // },
   {
-    title: "AAVE Lending Strategy",
+    title: "AAVE Supplying",
     id: "AaveV3Supply",
     apy: 5.1,
     risk: "medium",
@@ -383,6 +384,22 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
     learnMoreLink:
       "https://app.aave.com/reserve-overview/?underlyingAsset=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&marketName=proto_polygon_v3",
+    tokens: [USDC],
+    chainId: base.id,
+  },
+  {
+    title: "Fluid Supplying",
+    id: "FluidSupply",
+    apy: 6.23,
+    risk: "medium",
+    color: "#3f75ff",
+    protocol: FLUID,
+    description:
+      "Supplying USDC to Fluid Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
+    fullDescription:
+      "Supplying USDC to Fluid Lending Protocol enables earning interest and rewards, maximizing returns in DeFi.",
+    externalLink: "https://fluid.io/",
+    learnMoreLink: "https://fluid.io/",
     tokens: [USDC],
     chainId: base.id,
   },

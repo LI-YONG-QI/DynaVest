@@ -123,10 +123,13 @@ const PortfolioChatWrapper: React.FC<PortfolioChatWrapperProps> = ({
             />
 
             <div className="flex flex-col text-xs md:text-sm font-normal px-1 gap-2">
-              <p className="text-gray ">
-                {getRiskDescription(message.risk)} Average Portfolio APY:{" "}
-                <span className="font-bold">{totalAPY.toFixed(2)}%</span>
-              </p>
+              <div className="text-gray">
+                <p>{getRiskDescription(message.risk)}</p>
+
+                <p className="font-bold">
+                  Average Portfolio APY: {totalAPY.toFixed(2)}%
+                </p>
+              </div>
             </div>
           </div>
         </div>

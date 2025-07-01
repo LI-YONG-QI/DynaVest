@@ -64,7 +64,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
     <>
       <div
         onClick={handleCardClick}
-        className="flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-50 transition-colors"
+        className="tracking-wide flex flex-col items-center p-5 bg-white rounded-2xl shadow-[0px_21px_27px_-10px_rgba(71,114,234,0.65)] h-full cursor-pointer hover:bg-gray-100 transition-colors"
       >
         {/* Header Section */}
         <div className="flex justify-between md:justify-around items-center w-full">
@@ -144,7 +144,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
 
                   {/* TODO: Use real TVL */}
                   <p className="text-sm text-gray-900">
-                    $
+                    ${" "}
                     {Math.abs(
                       title
                         .split("")
@@ -157,7 +157,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     M
                   </p>
 
-                  <div className="text-sm text-gray-900 flex items-center">
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
                     {tokens.map((token) => (
                       <div key={token.name} className="w-5 h-5 relative">
                         <Image
@@ -170,8 +170,8 @@ export default function StrategyCard(strategy: StrategyMetadata) {
                     ))}
                   </div>
                 </div>
-                <div className="col-span-1 flex items-start justify-end">
-                  <Tooltip description={baseDescription} />
+                <div className="col-span-1 flex items-start">
+                  <Tooltip protocol={protocol} description={baseDescription} />
                 </div>
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function StrategyCard(strategy: StrategyMetadata) {
         {/* Action button section - always stay at bottom */}
         <div className="w-full mt-auto flex items-center gap-5">
           <button
-            className="flex justify-center items-center py-2 px-4 bg-[#5F79F1] rounded-lg text-white font-medium hover:bg-[#4A64DC] transition-colors w-full"
+            className="flex-1 flex justify-center items-center py-2 px-4 bg-[#5F79F1] rounded-lg text-white font-medium hover:bg-[#4A64DC] transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setIsModalOpen(true);
@@ -189,9 +189,19 @@ export default function StrategyCard(strategy: StrategyMetadata) {
           >
             Invest
           </button>
-          <button onClick={handleBotClick}>
-            <Image src="/bot-icon-blue.svg" alt="bot" width={30} height={30} />
-          </button>
+          <div className="flex justify-center" style={{ width: 30 }}>
+            <button
+              onClick={handleBotClick}
+              className="cursor-pointer hover:scale-130 rounded-full transition-transform"
+            >
+              <Image
+                src="/bot-icon-blue.svg"
+                alt="bot"
+                width={30}
+                height={30}
+              />
+            </button>
+          </div>
         </div>
       </div>
 

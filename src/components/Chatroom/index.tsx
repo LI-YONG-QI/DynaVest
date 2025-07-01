@@ -79,7 +79,7 @@ const Chatroom = () => {
     return (
       <button
         onClick={toggleMinimize}
-        className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-50 bg-[#5F79F1] rounded-full p-3 shadow-lg hover:bg-[#4A64DC] transition-colors"
+        className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-50 bg-[#5F79F1] rounded-full p-3 shadow-lg hover:bg-[#4A64DC] cursor-pointer hover:scale-120 transition-transform"
       >
         <Image
           src="/bot-icon-white.svg"
@@ -93,11 +93,11 @@ const Chatroom = () => {
   }
 
   return (
-    <div className="fixed bg-white bottom-20 md:bottom-6 right-3 md:right-6 rounded-2xl overflow-hidden shadow-2xl z-50 w-full max-w-md h-[500px] flex flex-col">
+    <div className="fixed bottom-20 md:bottom-6 right-3 md:right-6 rounded-2xl overflow-hidden shadow-2xl z-50 w-full max-w-md h-[500px] flex flex-col">
       {/* Header */}
       <button
         onClick={toggleMinimize}
-        className="bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2 rounded-t-2xl"
+        className="cursor-pointer hover:bg-[#647DEE] transition-colors bg-[#5F79F1] text-white flex items-center justify-between px-3 py-2 rounded-t-2xl"
       >
         <div className="flex items-center gap-x-3">
           <div className="flex items-center justify-center mt-1">
