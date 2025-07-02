@@ -13,9 +13,9 @@ export type UniswapV3AddLiquidityParams = {
   swapCalldata: Hex;
   swapAsset: Address;
   fee: number;
+  amount0Desired: bigint;
   amount1Desired: bigint;
-  amount0Min: bigint;
-  amount1Min: bigint;
+  slippage: number;
 };
 
 /**
@@ -69,13 +69,13 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
     const {
       swapCalldata,
       swapAsset,
-      fee,
+      amount0Desired,
       amount1Desired,
-      amount0Min,
-      amount1Min,
+      slippage,
     } = liquidityParams;
 
     const nftManager = this.getAddress("nftManager");
+    const swapRouter = this.getAddress("swapRouter");
     const deadline = getDeadline();
 
     const [token0, token1] = sortAddresses(inputAsset, swapAsset);
@@ -86,11 +86,11 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
         data: encodeFunctionData({
           abi: ERC20_ABI,
           functionName: "approve",
-          args: [this.getAddress("swapRouter"), amount],
+          args: [swapRouter, amount],
         }),
       },
       {
-        to: this.getAddress("swapRouter"),
+        to: swapRouter,
         data: swapCalldata,
       },
       {
@@ -98,7 +98,7 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
         data: encodeFunctionData({
           abi: ERC20_ABI,
           functionName: "approve",
-          args: [nftManager, amount],
+          args: [nftManager, amount0Desired],
         }),
       },
       {
@@ -118,13 +118,14 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
             {
               token0,
               token1,
-              fee,
+              fee: 100, // TODO: doesn't hardcode
               tickLower: -887220, // Full range by default
               tickUpper: 887220,
-              amount0Desired: amount,
+              amount0Desired,
               amount1Desired,
-              amount0Min,
-              amount1Min,
+              amount0Min: (amount * BigInt(100 - slippage)) / BigInt(100),
+              amount1Min:
+                (amount1Desired * BigInt(100 - slippage)) / BigInt(100),
               recipient: user,
               deadline,
             },

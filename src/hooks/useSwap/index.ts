@@ -1,12 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
+import { SwapRoute } from "@uniswap/smart-order-router";
 import { useChainId } from "wagmi";
 
 type SwapParams = {
   tokenIn: string;
   tokenOut: string;
   recipient: string;
-  slippage: number;
+  slippage: string;
   amountIn: string;
+  chainId: string;
+};
+
+export const getRoute = async ({
+  tokenIn,
+  tokenOut,
+  recipient,
+  slippage,
+  amountIn,
+  chainId,
+}: SwapParams) => {
+  const params = new URLSearchParams({
+    tokenIn,
+    tokenOut,
+    recipient,
+    chainId,
+    slippage,
+    amountIn,
+  });
+
+  const response = await fetch(`/api/swap?${params}`, {
+    method: "GET",
+  });
+
+  return (await response.json()) as SwapRoute;
 };
 
 const useSwap = ({
@@ -28,22 +54,7 @@ const useSwap = ({
       slippage,
       amountIn,
     ],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-
-      params.append("tokenIn", tokenIn);
-      params.append("tokenOut", tokenOut);
-      params.append("recipient", recipient);
-      params.append("chainId", chainId.toString());
-      params.append("slippage", slippage.toString());
-      params.append("amountIn", amountIn.toString());
-
-      const response = await fetch(`/api/swap?${params}`, {
-        method: "GET",
-      });
-
-      return response.json();
-    },
+    queryFn: async () => {},
   });
 };
 
