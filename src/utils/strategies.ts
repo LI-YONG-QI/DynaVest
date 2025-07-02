@@ -26,7 +26,7 @@ import {
 } from "@/classes/strategies";
 import { AAVE } from "@/constants/protocols/aave";
 
-export function isChainSupported<T extends Protocol>(
+export function isChainSupportedProtocol<T extends Protocol>(
   protocol: T,
   chainId: number
 ): chainId is GetProtocolChains<T> {
@@ -117,7 +117,7 @@ export function getStrategy(
   const config = STRATEGY_CONFIGS[strategy];
 
   try {
-    if (isChainSupported(config.protocol, chainId)) {
+    if (isChainSupportedProtocol(config.protocol, chainId)) {
       return config.factory(chainId);
     }
     throw new Error(`Strategy ${strategy} not found on chain ${chainId}`);
