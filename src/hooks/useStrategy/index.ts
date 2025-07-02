@@ -22,6 +22,7 @@ import {
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { getTokenAddress, getTokenByName } from "@/utils/coins";
 import { getStrategy } from "@/utils/strategies";
+import { UniswapV3AddLiquidityParams } from "@/classes/strategies/uniswap/liquidity";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocol>;
@@ -228,6 +229,36 @@ export function useStrategy() {
     },
   });
 
+  const multiInvestWithSwap = useMutation({
+    mutationFn: async ({ multiStrategy, amount, token }: MultiInvestParams) => {
+      if (!user) throw new Error("Smart wallet account not found");
+
+      const { fee, amount: amountWithoutFee } = calculateFee(amount);
+
+      if (multiStrategy.isExistAddLiquidity()) {
+        // pending...
+      }
+      const calls = await getInvestCalls(
+        multiStrategy,
+        amountWithoutFee,
+        user,
+        token,
+        chainId
+      );
+
+      const feeCall = addFeesCall(
+        getTokenAddress(token, chainId),
+        token.isNativeToken,
+        fee
+      );
+      calls.push(feeCall);
+
+      const txHash = await sendAndWaitTransaction(calls);
+
+      return txHash;
+    },
+  });
+
   const multiInvest = useMutation({
     mutationFn: async ({ multiStrategy, amount, token }: MultiInvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
@@ -269,6 +300,7 @@ export function useStrategy() {
   return {
     invest,
     multiInvest,
+    multiInvestWithSwap,
     redeem,
   };
 }

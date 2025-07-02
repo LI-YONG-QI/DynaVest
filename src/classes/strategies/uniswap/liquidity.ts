@@ -1,12 +1,22 @@
 /* eslint-disable */
 
-import { Address, encodeFunctionData } from "viem";
+import { Address, encodeFunctionData, Hex } from "viem";
 
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { UNISWAP } from "@/constants/protocols/uniswap";
 import { ERC20_ABI, NFT_MANAGER_ABI } from "@/constants/abis";
-import { USDT } from "@/constants/coins";
 import { getDeadline } from "@/utils/strategies";
+import { GetProtocolChains } from "@/types/strategies";
+import { Position } from "@/types/position";
+
+export type UniswapV3AddLiquidityParams = {
+  swapCalldata: Hex;
+  swapAsset: Address;
+  fee: number;
+  amount1Desired: bigint;
+  amount0Min: bigint;
+  amount1Min: bigint;
+};
 
 /**
  * Compares two addresses lexicographically
@@ -40,32 +50,49 @@ export function sortAddresses(
 }
 
 export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
-  constructor(chainId: number) {
-    super(chainId, UNISWAP, {
-      name: "Uniswap V3 Add Liquidity",
-      type: "Yield",
-      protocol: "Uniswap V3",
-      description: "Add liquidity to Uniswap V3 pools",
-    });
+  constructor(chainId: GetProtocolChains<typeof UNISWAP>) {
+    super(chainId, UNISWAP, "UniswapV3AddLiquidity");
   }
 
-  // TODO: only support USDC/USDT, and user must have both
-  async buildCalls(
+  async investCalls(
     amount: bigint,
     user: Address,
-    asset?: Address
+    inputAsset: Address,
+    liquidityParams?: UniswapV3AddLiquidityParams
   ): Promise<StrategyCall[]> {
-    if (!asset) {
-      throw new Error("UniswapV3AddLiquidity: asset is required");
+    if (!inputAsset || !liquidityParams) {
+      throw new Error(
+        "UniswapV3AddLiquidity: inputAsset and liquidityParams are required"
+      );
     }
+
+    const {
+      swapCalldata,
+      swapAsset,
+      fee,
+      amount1Desired,
+      amount0Min,
+      amount1Min,
+    } = liquidityParams;
 
     const nftManager = this.getAddress("nftManager");
     const deadline = getDeadline();
 
-    const usdt = USDT.chains![this.chainId as keyof typeof USDT.chains];
-    const [token0, token1] = sortAddresses(asset, usdt);
+    const [token0, token1] = sortAddresses(inputAsset, swapAsset);
 
     return [
+      {
+        to: inputAsset,
+        data: encodeFunctionData({
+          abi: ERC20_ABI,
+          functionName: "approve",
+          args: [this.getAddress("swapRouter"), amount],
+        }),
+      },
+      {
+        to: this.getAddress("swapRouter"),
+        data: swapCalldata,
+      },
       {
         to: token0,
         data: encodeFunctionData({
@@ -79,7 +106,7 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
         data: encodeFunctionData({
           abi: ERC20_ABI,
           functionName: "approve",
-          args: [nftManager, amount * BigInt(2)],
+          args: [nftManager, amount1Desired],
         }),
       },
       {
@@ -91,13 +118,13 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
             {
               token0,
               token1,
-              fee: 100,
-              tickLower: -887220,
+              fee,
+              tickLower: -887220, // Full range by default
               tickUpper: 887220,
               amount0Desired: amount,
-              amount1Desired: amount * BigInt(2), // TODO: calculate the valid amount of token1
-              amount0Min: BigInt(0), // TODO: add min amount
-              amount1Min: BigInt(0), // TODO: add min amount
+              amount1Desired,
+              amount0Min,
+              amount1Min,
               recipient: user,
               deadline,
             },
@@ -105,5 +132,19 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
         }),
       },
     ];
+  }
+
+  async redeemCalls(
+    amount: bigint,
+    user: Address,
+    asset?: Address
+  ): Promise<StrategyCall[]> {
+    // TODO: Implement liquidity removal logic
+    throw new Error("UniswapV3AddLiquidity redeemCalls not implemented yet");
+  }
+
+  async getProfit(user: Address, position: Position): Promise<number> {
+    // TODO: Implement profit calculation logic
+    throw new Error("UniswapV3AddLiquidity getProfit not implemented yet");
   }
 }
