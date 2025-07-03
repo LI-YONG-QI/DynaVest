@@ -8,6 +8,9 @@ import { ERC20_ABI, NFT_MANAGER_ABI } from "@/constants/abis";
 import { getDeadline } from "@/utils/strategies";
 import { GetProtocolChains } from "@/types/strategies";
 import { Position } from "@/types/position";
+import { UniswapV3Swap } from "./swap";
+import { Token } from "@/types/blockchain";
+import { getTokenAddress } from "@/utils/coins";
 
 export type UniswapV3AddLiquidityParams = {
   swapCalldata: Hex;
@@ -50,49 +53,56 @@ export function sortAddresses(
 }
 
 export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
-  constructor(chainId: GetProtocolChains<typeof UNISWAP>) {
+  static SLIPPAGE = 50;
+
+  public swapStrategy?: UniswapV3Swap;
+
+  constructor(
+    chainId: GetProtocolChains<typeof UNISWAP>,
+    swapStrategy?: UniswapV3Swap
+  ) {
     super(chainId, UNISWAP, "UniswapV3AddLiquidity");
+    if (swapStrategy) this.swapStrategy = swapStrategy;
   }
 
   async investCalls(
     amount: bigint,
     user: Address,
-    inputAsset: Address,
-    liquidityParams?: UniswapV3AddLiquidityParams
-  ): Promise<StrategyCall[]> {
-    if (!inputAsset || !liquidityParams) {
-      throw new Error(
-        "UniswapV3AddLiquidity: inputAsset and liquidityParams are required"
-      );
+    asset: Address,
+    options: {
+      pairToken: Token;
     }
+  ): Promise<StrategyCall[]> {
+    if (!this.swapStrategy) throw new Error("Swap strategy not implemented");
 
     const {
-      swapCalldata,
-      swapAsset,
-      amount0Desired,
-      amount1Desired,
-      slippage,
-    } = liquidityParams;
+      calls: swapCalls,
+      inputAmount,
+      outputAmount,
+    } = await this.swapStrategy.getSwapCalls(
+      asset,
+      options.pairToken.name,
+      amount,
+      user
+    );
 
     const nftManager = this.getAddress("nftManager");
-    const swapRouter = this.getAddress("swapRouter");
     const deadline = getDeadline();
+    const pairTokenAddress = getTokenAddress(options.pairToken, this.chainId);
 
-    const [token0, token1] = sortAddresses(inputAsset, swapAsset);
+    const [token0, token1] = sortAddresses(asset, pairTokenAddress);
+
+    let amount0Desired = BigInt(inputAmount);
+    let amount1Desired = BigInt(outputAmount);
+
+    // Exchanged
+    if (token1 === asset) {
+      amount0Desired = BigInt(outputAmount);
+      amount1Desired = BigInt(inputAmount);
+    }
 
     return [
-      {
-        to: inputAsset,
-        data: encodeFunctionData({
-          abi: ERC20_ABI,
-          functionName: "approve",
-          args: [swapRouter, amount],
-        }),
-      },
-      {
-        to: swapRouter,
-        data: swapCalldata,
-      },
+      ...swapCalls,
       {
         to: token0,
         data: encodeFunctionData({
@@ -123,9 +133,13 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
               tickUpper: 887220,
               amount0Desired,
               amount1Desired,
-              amount0Min: (amount * BigInt(100 - slippage)) / BigInt(100),
+              amount0Min:
+                (amount * BigInt(10000 - UniswapV3AddLiquidity.SLIPPAGE)) /
+                BigInt(10000),
               amount1Min:
-                (amount1Desired * BigInt(100 - slippage)) / BigInt(100),
+                (amount1Desired *
+                  BigInt(10000 - UniswapV3AddLiquidity.SLIPPAGE)) /
+                BigInt(10000),
               recipient: user,
               deadline,
             },
