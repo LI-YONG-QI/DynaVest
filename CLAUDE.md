@@ -22,7 +22,13 @@ pnpm run lint        # Run ESLint
 # Design Principle
 - Follow OCP principle, add / remove strategy will not break other strategy features
 - Decouple and compatible each strategies from DeFi protocol
-- Keep arguments are clear, reduce redundant config and over-design 
+- Keep arguments are clear, reduce redundant config and over-design
+
+# Typescript Development Principle
+- Avoid `as` infer type
+    - If must to use `as`, please validate before `as` to catch runtime error
+- Use concrete type or third party library
+    - Avoid use any or unknown, if must to use it, please give a comment for explaining
 
 ## Architecture Overview
 

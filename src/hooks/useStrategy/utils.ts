@@ -12,9 +12,7 @@ import {
   UniswapV3AddLiquidity,
   UniswapV3AddLiquidityParams,
   UniswapV3InvestParams,
-  UniswapV3RedeemParams,
 } from "@/classes/strategies/uniswap/liquidity";
-import { cbBTC } from "@/constants";
 
 export type PositionParams = {
   address: Address;
@@ -39,7 +37,14 @@ export async function getRedeemCalls(
   user: Address,
   token: Token,
   chainId: number,
-  runtimeParams?: Record<string, unknown>
+  runtimeParams?: {
+    tokenId?: bigint;
+    token0?: Address;
+    token1?: Address;
+    liquidityAmount?: bigint;
+    collectFees?: boolean;
+    burnNFT?: boolean;
+  }
 ) {
   let calls: StrategyCall[];
 
@@ -64,17 +69,30 @@ export async function getInvestCalls(
   user: Address,
   token: Token,
   chainId: number,
-  runtimeParams?: Record<string, unknown>
+  runtimeParams?: {
+    pairToken?: Token;
+    fee?: number;
+    slippage?: number;
+    swapSlippage?: number;
+    tickLower?: number;
+    tickUpper?: number;
+    deadline?: number;
+  }
 ) {
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.investCalls(amount, user, undefined, runtimeParams as any);
+    calls = await strategy.investCalls(amount, user, undefined, runtimeParams);
   } else if (strategy instanceof UniswapV3AddLiquidity) {
-    // Build UniswapV3InvestParams from runtime parameters or use defaults
+    // Build UniswapV3InvestParams from runtime parameters
+    const pairToken = runtimeParams?.pairToken as Token;
+    if (!pairToken) {
+      throw new Error("UniswapV3AddLiquidity: pairToken is required");
+    }
+    
     const investParams: UniswapV3InvestParams = {
       assetName: token.name,
-      pairToken: (runtimeParams?.pairToken as Token) || cbBTC, // Allow override, fallback to cbBTC
+      pairToken,
       fee: (runtimeParams?.fee as number) || undefined, // Use strategy default
       slippage: (runtimeParams?.slippage as number) || undefined, // Use strategy default
       swapSlippage: (runtimeParams?.swapSlippage as number) || undefined,
@@ -94,7 +112,7 @@ export async function getInvestCalls(
       amount,
       user,
       getTokenAddress(token, chainId),
-      runtimeParams as any
+      runtimeParams
     );
   }
 

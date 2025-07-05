@@ -2,7 +2,7 @@ import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { useMemo } from "react";
 import { useChainId, useClient } from "wagmi";
 import axios from "axios";
-import { formatUnits, type Address } from "viem";
+import { formatUnits, type Address, decodeEventLog, parseAbi } from "viem";
 import { waitForTransactionReceipt } from "viem/actions";
 import { useMutation } from "@tanstack/react-query";
 
@@ -28,14 +28,29 @@ type RedeemParams = {
   amount: bigint;
   token: Token;
   positionId: string;
-  liquidityParams?: Record<string, unknown>;
+  liquidityParams?: {
+    tokenId: bigint;
+    token0: Address;
+    token1: Address;
+    liquidityAmount?: bigint;
+    collectFees?: boolean;
+    burnNFT?: boolean;
+  };
 };
 
 type InvestParams = {
   strategyId: Strategy;
   amount: bigint;
   token: Token;
-  strategyParams?: Record<string, unknown>; // For strategy-specific parameters
+  strategyParams?: {
+    pairToken?: Token;
+    fee?: number;
+    slippage?: number;
+    swapSlippage?: number;
+    tickLower?: number;
+    tickUpper?: number;
+    deadline?: number;
+  };
 };
 
 type MultiInvestParams = {
@@ -96,16 +111,25 @@ export function useStrategy() {
   async function sendAndWaitTransaction(calls: StrategyCall[]): Promise<{
     txHash: string;
     transactionData?: {
-      tokenId?: bigint;
-      liquidity?: bigint;
-      token0?: string;
-      token1?: string;
-      fee?: number;
+      tokenId: bigint;
+      liquidity: bigint;
+      token0: Address;
+      token1: Address;
+      fee: number;
+      amount0: bigint;
+      amount1: bigint;
     };
   }> {
     async function waitForUserOp(userOp: `0x${string}`): Promise<{
       transactionHash: string;
-      receipt: any;
+      receipt: {
+        transactionHash: string;
+        status: string;
+        logs: Array<{
+          data: string;
+          topics: string[];
+        }>;
+      };
     }> {
       if (!publicClient) throw new Error("Public client not available");
 
@@ -142,7 +166,15 @@ export function useStrategy() {
     const { transactionHash, receipt } = await waitForUserOp(userOp);
     
     // Extract transaction data for UniswapV3 mint transactions
-    let transactionData: any = undefined;
+    let transactionData: {
+      tokenId: bigint;
+      liquidity: bigint;
+      token0: Address;
+      token1: Address;
+      fee: number;
+      amount0: bigint;
+      amount1: bigint;
+    } | undefined = undefined;
     
     // Check if this is a UniswapV3 mint by looking for the NFT manager address in calls
     const nftManagerCall = calls.find(call => 
@@ -164,35 +196,91 @@ export function useStrategy() {
   }
 
   // Helper function to extract UniswapV3 mint data from transaction receipt and calls
-  async function extractUniswapV3Data(receipt: any, calls: StrategyCall[]) {
-    // Find the mint call to extract parameters
-    const mintCall = calls.find(call => 
-      call.data && call.data.includes('0x88316456') // mint function selector
-    );
-    
-    if (!mintCall) return undefined;
+  async function extractUniswapV3Data(receipt: {
+    transactionHash: string;
+    logs: Array<{
+      data: string;
+      topics: string[];
+    }>;
+  }, calls: StrategyCall[]): Promise<{
+    tokenId: bigint;
+    liquidity: bigint;
+    token0: Address;
+    token1: Address;
+    fee: number;
+    amount0: bigint;
+    amount1: bigint;
+  } | undefined> {
+    if (!receipt.logs || receipt.logs.length === 0) return undefined;
 
     try {
-      // Generate a pseudo-random tokenId based on transaction hash and timestamp
-      // In production, this would be extracted from the actual transaction logs
-      const txHashNum = BigInt(receipt.transactionHash);
-      const timestamp = BigInt(Date.now());
-      const pseudoTokenId = (txHashNum % BigInt(1000000)) + timestamp;
+      // Define the UniswapV3 NFT Manager events we need to parse
+      const nftManagerAbi = parseAbi([
+        'event IncreaseLiquidity(uint256 indexed tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)',
+        'event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)'
+      ]);
 
-      // Extract parameters from the original strategy parameters used in the investment
-      // This requires access to the strategy params that were used
-      
-      const transactionData = {
-        tokenId: pseudoTokenId, // Pseudo-random ID for demo purposes
-        token0: undefined, // Would be extracted from call data or stored during investment
-        token1: undefined, // Would be extracted from call data or stored during investment  
-        fee: 3000, // Default fee tier - would be extracted from actual call
-        liquidity: BigInt(1000000), // Placeholder - would be extracted from logs
+      // Find the IncreaseLiquidity event
+      const increaseLiquidityEvent = receipt.logs.find((log) => {
+        try {
+          const decoded = decodeEventLog({
+            abi: nftManagerAbi,
+            data: log.data,
+            topics: log.topics
+          });
+          return decoded.eventName === 'IncreaseLiquidity';
+        } catch {
+          return false;
+        }
+      });
+
+      if (!increaseLiquidityEvent) {
+        console.warn("No IncreaseLiquidity event found in transaction logs");
+        return undefined;
+      }
+
+      // Decode the IncreaseLiquidity event
+      const decodedEvent = decodeEventLog({
+        abi: nftManagerAbi,
+        data: increaseLiquidityEvent.data,
+        topics: increaseLiquidityEvent.topics
+      });
+
+      const { tokenId, liquidity, amount0, amount1 } = decodedEvent.args as {
+        tokenId: bigint;
+        liquidity: bigint;
+        amount0: bigint;
+        amount1: bigint;
       };
-      
-      return transactionData;
+
+      // Extract token addresses and fee from the mint call data
+      const mintCall = calls.find(call => 
+        call.data && call.data.includes('0x88316456') // mint function selector
+      );
+
+      if (!mintCall || !mintCall.data) {
+        console.warn("No mint call found to extract token addresses");
+        return undefined;
+      }
+
+      // Parse the mint call data to extract token0, token1, and fee
+      // mint(address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256)
+      const mintData = mintCall.data.slice(10); // Remove function selector
+      const token0 = ('0x' + mintData.slice(24, 64)) as Address;
+      const token1 = ('0x' + mintData.slice(88, 128)) as Address;
+      const fee = parseInt(mintData.slice(128, 136), 16);
+
+      return {
+        tokenId,
+        liquidity,
+        token0,
+        token1,
+        fee,
+        amount0,
+        amount1
+      };
     } catch (error) {
-      console.error("Error extracting UniswapV3 data:", error);
+      console.error("Error extracting UniswapV3 data from transaction logs:", error);
       return undefined;
     }
   }
@@ -276,36 +364,45 @@ export function useStrategy() {
       const { txHash, transactionData } = await sendAndWaitTransaction(calls);
 
       // Build metadata for UniswapV3 strategies
-      let positionMetadata: Record<string, unknown> | undefined;
+      let positionMetadata: {
+        nftTokenId?: string;
+        token0?: string;
+        token1?: string;
+        fee?: number;
+        liquidityAmount?: string;
+        tickLower?: number;
+        tickUpper?: number;
+      } | undefined;
+      
       if (strategy.name === "UniswapV3AddLiquidity") {
         if (transactionData) {
-          // Extract additional data from strategy parameters if available
-          const pairToken = strategyParams?.pairToken as any;
-          const asset = getTokenAddress(token, chainId);
-          
+          // Use real transaction data extracted from logs
           positionMetadata = {
-            nftTokenId: transactionData.tokenId?.toString(),
-            token0: transactionData.token0 || (asset < (pairToken?.address || "") ? asset : pairToken?.address),
-            token1: transactionData.token1 || (asset > (pairToken?.address || "") ? asset : pairToken?.address),
-            fee: transactionData.fee || strategyParams?.fee || 3000,
-            liquidityAmount: transactionData.liquidity?.toString(),
+            nftTokenId: transactionData.tokenId.toString(),
+            token0: transactionData.token0,
+            token1: transactionData.token1,
+            fee: transactionData.fee,
+            liquidityAmount: transactionData.liquidity.toString(),
             tickLower: strategyParams?.tickLower || -887220,
             tickUpper: strategyParams?.tickUpper || 887220,
           };
         } else {
           // Fallback metadata when transaction data extraction fails
-          const pairToken = strategyParams?.pairToken as any;
+          const pairToken = strategyParams?.pairToken;
           const asset = getTokenAddress(token, chainId);
           
-          positionMetadata = {
-            nftTokenId: `fallback_${Date.now()}`, // Fallback ID
-            token0: asset < (pairToken?.address || "") ? asset : pairToken?.address,
-            token1: asset > (pairToken?.address || "") ? asset : pairToken?.address,
-            fee: strategyParams?.fee || 3000,
-            liquidityAmount: "0", // Unknown without transaction data
-            tickLower: strategyParams?.tickLower || -887220,
-            tickUpper: strategyParams?.tickUpper || 887220,
-          };
+          // Only create fallback if we have required data
+          if (pairToken?.address) {
+            positionMetadata = {
+              nftTokenId: `fallback_${Date.now()}`, // Fallback ID
+              token0: asset < pairToken.address ? asset : pairToken.address,
+              token1: asset > pairToken.address ? asset : pairToken.address,
+              fee: strategyParams?.fee || 3000,
+              liquidityAmount: "0", // Unknown without transaction data
+              tickLower: strategyParams?.tickLower || -887220,
+              tickUpper: strategyParams?.tickUpper || 887220,
+            };
+          }
         }
       }
 

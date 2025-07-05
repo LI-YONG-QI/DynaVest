@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useChainId } from "wagmi";
 import { formatAmount } from "@/utils";
 import { toast } from "react-toastify";
-import { parseUnits } from "viem";
+import { parseUnits, type Address } from "viem";
 
 import { getTokenByName } from "@/utils/coins";
 import { useStrategy } from "@/hooks/useStrategy";
@@ -44,7 +44,14 @@ export default function PositionTableRow({
     const token = getTokenByName(position.tokenName);
 
     // For UniswapV3 strategies, build redemption parameters from metadata
-    let liquidityParams: Record<string, unknown> | undefined;
+    let liquidityParams: {
+      tokenId: bigint;
+      token0: Address;
+      token1: Address;
+      liquidityAmount?: bigint;
+      collectFees: boolean;
+      burnNFT: boolean;
+    } | undefined;
     
     if (position.strategy === "UniswapV3AddLiquidity") {
       // Check if we have the required metadata for Uniswap V3 redemption

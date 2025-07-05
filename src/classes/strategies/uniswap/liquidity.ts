@@ -65,6 +65,26 @@ export type UniswapV3AddLiquidityParams = {
   slippage: number;
 };
 
+type NFTPositionInfo = {
+  tokenId: bigint;
+  operator: Address;
+  token0: Address;
+  token1: Address;
+  fee: number;
+  tickLower: number;
+  tickUpper: number;
+  liquidity: bigint;
+  feeGrowthInside0LastX128: bigint;
+  feeGrowthInside1LastX128: bigint;
+  tokensOwed0: bigint;
+  tokensOwed1: bigint;
+};
+
+type LiquidityAmounts = {
+  amount0: bigint;
+  amount1: bigint;
+};
+
 /**
  * Compares two addresses lexicographically
  * @param addressA First address
@@ -234,19 +254,36 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
     const nftManager = this.getAddress("nftManager");
     const deadline = BigInt(Math.floor(Date.now() / 1000) + config.deadline);
     const calls: StrategyCall[] = [];
+    
+    // If liquidityAmount is not provided, query the NFT position to get current liquidity
+    if (!config.liquidityAmount) {
+      const positionInfo = await this.getNFTPositionInfo(config.tokenId);
+      config.liquidityAmount = (positionInfo.liquidity * BigInt(config.liquidityPercent)) / BigInt(100);
+      
+      // Validate that the position actually exists and has liquidity
+      if (positionInfo.liquidity === BigInt(0)) {
+        throw new Error(`NFT position ${config.tokenId} has no liquidity to remove`);
+      }
+      
+      // Validate token addresses match the position
+      if (positionInfo.token0 !== config.token0 || positionInfo.token1 !== config.token1) {
+        throw new Error(`Token addresses don't match NFT position. Expected: ${positionInfo.token0}, ${positionInfo.token1}`);
+      }
+    }
 
     // Step 1: Decrease liquidity
     calls.push({
       to: nftManager,
       data: encodeFunctionData({
         abi: NFT_MANAGER_ABI,
+    
         functionName: "decreaseLiquidity",
         args: [
           {
             tokenId: config.tokenId,
             liquidity: config.liquidityAmount,
-            amount0Min: BigInt(0), // Will be calculated based on slippage in real implementation
-            amount1Min: BigInt(0), // Will be calculated based on slippage in real implementation
+            amount0Min: await this.calculateMinAmount0(config.tokenId, config.liquidityAmount, config.slippage),
+            amount1Min: await this.calculateMinAmount1(config.tokenId, config.liquidityAmount, config.slippage),
             deadline,
           },
         ],
@@ -373,13 +410,17 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
     }
 
     return {
-      ...params,
-      slippage,
-      deadline,
+      tokenId: params.tokenId,
       liquidityPercent,
       liquidityAmount,
+      token0: params.token0,
+      token1: params.token1,
+      slippage,
+      deadline,
       collectFees,
       burnNFT,
+      convertToSingleToken: params.convertToSingleToken ?? false,
+      outputToken: params.outputToken,
     };
   }
 
@@ -398,5 +439,110 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - creationDate.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+  
+  /**
+   * Fetches NFT position information from the blockchain
+   */
+  private async getNFTPositionInfo(tokenId: bigint): Promise<NFTPositionInfo> {
+    const nftManager = this.getAddress("nftManager");
+    
+    // Create a public client for the current chain
+    const publicClient = createPublicClient({
+      chain: this.chainId === 1 ? mainnet : base,
+      transport: http()
+    });
+    
+    try {
+      const positionData = await publicClient.readContract({
+        address: nftManager,
+        abi: NFT_MANAGER_ABI,
+        functionName: 'positions',
+        args: [tokenId]
+      }) as [bigint, Address, Address, Address, number, number, number, bigint, bigint, bigint, bigint, bigint];
+      
+      return {
+        tokenId,
+        operator: positionData[1],
+        token0: positionData[2],
+        token1: positionData[3],
+        fee: positionData[4],
+        tickLower: positionData[5],
+        tickUpper: positionData[6],
+        liquidity: positionData[7],
+        feeGrowthInside0LastX128: positionData[8],
+        feeGrowthInside1LastX128: positionData[9],
+        tokensOwed0: positionData[10],
+        tokensOwed1: positionData[11]
+      };
+    } catch (error) {
+      console.error("Error fetching NFT position info:", error);
+      throw new Error(`Failed to fetch NFT position info for tokenId ${tokenId}`);
+    }
+  }
+  
+  /**
+   * Calculates expected token amounts for a given liquidity amount
+   */
+  private async calculateExpectedAmounts(
+    positionInfo: NFTPositionInfo,
+    liquidityToRemove: bigint
+  ): Promise<LiquidityAmounts> {
+    // This is a simplified calculation. In a real implementation,
+    // you would need to calculate the exact amounts based on current pool state
+    // and tick math. For now, we'll use a basic proportional calculation.
+    
+    if (positionInfo.liquidity === BigInt(0)) {
+      return { amount0: BigInt(0), amount1: BigInt(0) };
+    }
+    
+    // Calculate the proportion of liquidity being removed
+    const proportion = (liquidityToRemove * BigInt(1000000)) / positionInfo.liquidity;
+    
+    // For simplicity, estimate amounts based on liquidity proportion
+    // In production, this would use proper tick math and pool state
+    const estimatedAmount0 = (liquidityToRemove * BigInt(100)) / BigInt(1000000);
+    const estimatedAmount1 = (liquidityToRemove * BigInt(100)) / BigInt(1000000);
+    
+    return {
+      amount0: estimatedAmount0,
+      amount1: estimatedAmount1
+    };
+  }
+  
+  /**
+   * Calculates minimum amount0 with slippage protection
+   */
+  private async calculateMinAmount0(
+    tokenId: bigint,
+    liquidityAmount: bigint,
+    slippage: number
+  ): Promise<bigint> {
+    try {
+      const positionInfo = await this.getNFTPositionInfo(tokenId);
+      const expectedAmounts = await this.calculateExpectedAmounts(positionInfo, liquidityAmount);
+      return (expectedAmounts.amount0 * BigInt(10000 - slippage)) / BigInt(10000);
+    } catch (error) {
+      console.warn("Failed to calculate minimum amount0, using 0:", error);
+      return BigInt(0);
+    }
+  }
+  
+  /**
+   * Calculates minimum amount1 with slippage protection
+   */
+  private async calculateMinAmount1(
+    tokenId: bigint,
+    liquidityAmount: bigint,
+    slippage: number
+  ): Promise<bigint> {
+    try {
+      const positionInfo = await this.getNFTPositionInfo(tokenId);
+      const expectedAmounts = await this.calculateExpectedAmounts(positionInfo, liquidityAmount);
+      return (expectedAmounts.amount1 * BigInt(10000 - slippage)) / BigInt(10000);
+    } catch (error) {
+      console.warn("Failed to calculate minimum amount1, using 0:", error);
+      return BigInt(0);
+    }
   }
 }

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatAmount } from "@/utils";
-import { cbBTC } from "@/constants";
+import { cbBTC, WETH } from "@/constants";
 
 // Props interface
 
@@ -91,6 +91,13 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
   const [feeTier, setFeeTier] = useState<number>(3000); // Default to 0.3%
   const [slippage, setSlippage] = useState<number>(50); // Default to 0.5%
   const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  // Available pair tokens for UniswapV3 (commonly traded pairs)
+  const availablePairTokens = [
+    cbBTC,
+    WETH,
+    // Add more tokens as needed based on available liquidity pools
+  ];
 
   // Check if this is a UniswapV3 strategy
   const isUniswapV3Strategy = strategy.id === "UniswapV3AddLiquidity";
@@ -298,9 +305,12 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
               <Select 
                 value={pairToken.name} 
                 onValueChange={(tokenName) => {
-                  // For now, just use cbBTC. In a full implementation, 
-                  // you'd have a list of available pair tokens
-                  setPairToken(cbBTC);
+                  const selectedToken = availablePairTokens.find(
+                    (token) => token.name === tokenName
+                  );
+                  if (selectedToken) {
+                    setPairToken(selectedToken);
+                  }
                 }}
               >
                 <SelectTrigger className="text-sm bg-gray-100 border-gray-300">
@@ -316,18 +326,20 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={cbBTC.name}>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={cbBTC.icon}
-                        alt={cbBTC.name}
-                        width={20}
-                        height={20}
-                        className="object-contain"
-                      />
-                      {cbBTC.name}
-                    </div>
-                  </SelectItem>
+                  {availablePairTokens.map((token) => (
+                    <SelectItem key={token.name} value={token.name}>
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={token.icon}
+                          alt={token.name}
+                          width={20}
+                          height={20}
+                          className="object-contain"
+                        />
+                        {token.name} ({token.symbol})
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

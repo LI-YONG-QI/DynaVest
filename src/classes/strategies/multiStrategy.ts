@@ -4,7 +4,6 @@ import { BaseStrategy, StrategyCall } from "./baseStrategy";
 import { Protocol } from "@/types";
 import {
   UniswapV3AddLiquidity,
-  type UniswapV3AddLiquidityParams,
   type UniswapV3InvestParams,
 } from "./uniswap/liquidity";
 
