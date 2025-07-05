@@ -64,7 +64,7 @@ export const wbETH = {
 export const cbBTC = {
   name: "cbBTC",
   icon: "/crypto-icons/cbBTC.svg",
-  decimals: 18,
+  decimals: 8,
   isNativeToken: false,
   chains: {
     [base.id]: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
@@ -147,6 +147,7 @@ export const TOKENS = [
   WETH,
   WBNB,
   wstETH,
+  cbBTC,
   wbETH,
   CELO,
   FLOW,

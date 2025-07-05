@@ -8,6 +8,11 @@ import { getTokenAddress } from "@/utils/coins";
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
+import {
+  UniswapV3AddLiquidity,
+  UniswapV3AddLiquidityParams,
+  UniswapV3InvestParams,
+} from "@/classes/strategies/uniswap/liquidity";
 
 export type PositionParams = {
   address: Address;
@@ -15,6 +20,7 @@ export type PositionParams = {
   token_name: string;
   chain_id: number;
   strategy: string;
+  metadata?: Record<string, unknown>; // For strategy-specific data like NFT tokenId
 };
 
 type PositionResponse = {
@@ -30,17 +36,26 @@ export async function getRedeemCalls(
   amount: bigint,
   user: Address,
   token: Token,
-  chainId: number
+  chainId: number,
+  runtimeParams?: {
+    tokenId?: bigint;
+    token0?: Address;
+    token1?: Address;
+    liquidityAmount?: bigint;
+    collectFees?: boolean;
+    burnNFT?: boolean;
+  }
 ) {
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.redeemCalls(amount, user);
+    calls = await strategy.redeemCalls(amount, user, undefined, runtimeParams);
   } else {
     calls = await strategy.redeemCalls(
       amount,
       user,
-      getTokenAddress(token, chainId)
+      getTokenAddress(token, chainId),
+      runtimeParams
     );
   }
 
@@ -53,19 +68,72 @@ export async function getInvestCalls(
   amount: bigint,
   user: Address,
   token: Token,
-  chainId: number
+  chainId: number,
+  runtimeParams?: {
+    pairToken?: Token;
+    fee?: number;
+    slippage?: number;
+    swapSlippage?: number;
+    tickLower?: number;
+    tickUpper?: number;
+    deadline?: number;
+  }
 ) {
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.investCalls(amount, user);
+    calls = await strategy.investCalls(amount, user, undefined, runtimeParams);
+  } else if (strategy instanceof UniswapV3AddLiquidity) {
+    // Build UniswapV3InvestParams from runtime parameters
+    const pairToken = runtimeParams?.pairToken as Token;
+    if (!pairToken) {
+      throw new Error("UniswapV3AddLiquidity: pairToken is required");
+    }
+    
+    const investParams: UniswapV3InvestParams = {
+      assetName: token.name,
+      pairToken,
+      fee: (runtimeParams?.fee as number) || undefined, // Use strategy default
+      slippage: (runtimeParams?.slippage as number) || undefined, // Use strategy default
+      swapSlippage: (runtimeParams?.swapSlippage as number) || undefined,
+      tickLower: (runtimeParams?.tickLower as number) || undefined,
+      tickUpper: (runtimeParams?.tickUpper as number) || undefined,
+      deadline: (runtimeParams?.deadline as number) || undefined,
+    };
+    
+    calls = await strategy.investCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId),
+      investParams
+    );
   } else {
     calls = await strategy.investCalls(
       amount,
       user,
-      getTokenAddress(token, chainId)
+      getTokenAddress(token, chainId),
+      runtimeParams
     );
   }
+
+  if (calls.length === 0) throw new Error("No calls found");
+  return calls;
+}
+
+export async function getInvestCallsWithSwap(
+  strategy: MultiStrategy,
+  amount: bigint,
+  user: Address,
+  token: Token,
+  chainId: number,
+  liquidityOptions: UniswapV3AddLiquidityParams
+) {
+  const calls = await strategy.investCalls(
+    amount,
+    user,
+    getTokenAddress(token, chainId),
+    liquidityOptions
+  );
 
   if (calls.length === 0) throw new Error("No calls found");
   return calls;

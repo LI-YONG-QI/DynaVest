@@ -133,7 +133,7 @@ export const STRATEGIES_METADATA: StrategyMetadata[] = [
     chainId: base.id,
   },
   {
-    title: "Uniswap Liquidity Narrow Range",
+    title: "Uniswap Liquidity Full Range",
     id: "UniswapV3AddLiquidity",
     apy: 32.5,
     risk: "high",

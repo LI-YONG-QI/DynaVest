@@ -23,10 +23,12 @@ import {
   UniswapV3SwapLST,
   AaveV3Supply,
   FluidSupply,
+  UniswapV3AddLiquidity,
 } from "@/classes/strategies";
 import { AAVE } from "@/constants/protocols/aave";
+import { UniswapV3Swap } from "@/classes/swap";
 
-export function isChainSupported<T extends Protocol>(
+export function isChainSupportedProtocol<T extends Protocol>(
   protocol: T,
   chainId: number
 ): chainId is GetProtocolChains<T> {
@@ -63,6 +65,7 @@ const STRATEGY_CONFIGS: Record<
     protocol: UNISWAP,
     factory: (chainId) => {
       const typedChainId = chainId as GetProtocolChains<typeof UNISWAP>;
+
       // 根據不同鏈條選擇不同的 token 組合
       if (chainId === bsc.id) {
         return new UniswapV3SwapLST(typedChainId, BNB, wbETH);
@@ -86,8 +89,10 @@ const STRATEGY_CONFIGS: Record<
   },
   UniswapV3AddLiquidity: {
     protocol: UNISWAP,
-    factory: () => {
-      throw new Error("UniswapV3AddLiquidity not implemented yet");
+    factory: (chainId) => {
+      const typedChainId = chainId as GetProtocolChains<typeof UNISWAP>;
+      const swapStrategy = new UniswapV3Swap(typedChainId);
+      return new UniswapV3AddLiquidity(typedChainId, swapStrategy);
     },
   },
   CamelotStaking: {
@@ -117,7 +122,7 @@ export function getStrategy(
   const config = STRATEGY_CONFIGS[strategy];
 
   try {
-    if (isChainSupported(config.protocol, chainId)) {
+    if (isChainSupportedProtocol(config.protocol, chainId)) {
       return config.factory(chainId);
     }
     throw new Error(`Strategy ${strategy} not found on chain ${chainId}`);

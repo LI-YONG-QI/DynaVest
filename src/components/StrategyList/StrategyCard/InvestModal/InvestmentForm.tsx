@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatAmount } from "@/utils";
+import { cbBTC, WETH } from "@/constants";
 
 // Props interface
 
@@ -85,10 +86,29 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
 
   const { invest: investStrategy } = useStrategy();
 
-  // Advanced settings state
-  // const [showAdvanced, setShowAdvanced] = useState(false);
-  // const [slippage, setSlippage] = useState<number | "auto">("auto");
-  // const [customSlippage, setCustomSlippage] = useState("");
+  // UniswapV3 specific parameters
+  const [pairToken, setPairToken] = useState<Token>(cbBTC);
+  const [feeTier, setFeeTier] = useState<number>(3000); // Default to 0.3%
+  const [slippage, setSlippage] = useState<number>(50); // Default to 0.5%
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  // Available pair tokens for UniswapV3 (commonly traded pairs)
+  const availablePairTokens = [
+    cbBTC,
+    WETH,
+    // Add more tokens as needed based on available liquidity pools
+  ];
+
+  // Check if this is a UniswapV3 strategy
+  const isUniswapV3Strategy = strategy.id === "UniswapV3AddLiquidity";
+
+  // Available fee tiers for UniswapV3
+  const feeTiers = [
+    { value: 100, label: "0.01%" },
+    { value: 500, label: "0.05%" },
+    { value: 3000, label: "0.3%" },
+    { value: 10000, label: "1%" },
+  ];
 
   const AMOUNT_LIMIT = 0.01;
 
@@ -156,11 +176,24 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
     setIsLoading(true);
 
     const parsedAmount = parseUnits(amount, currency.decimals);
+    
+    // Build strategy-specific parameters for UniswapV3
+    let strategyParams: Record<string, unknown> | undefined;
+    if (isUniswapV3Strategy) {
+      strategyParams = {
+        pairToken,
+        fee: feeTier,
+        slippage,
+        // Use defaults for other parameters (tickLower, tickUpper, deadline)
+      };
+    }
+
     investStrategy.mutate(
       {
         strategyId: strategy.id,
         amount: parsedAmount,
         token: currency,
+        strategyParams,
       },
       {
         onSuccess: (tx) => {
@@ -257,95 +290,147 @@ const InvestmentForm: FC<InvestmentFormProps> = ({
           />
         )}
 
-        {/* Advanced Settings */}
-        {/* <div className="my-4">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="w-full flex justify-end gap-x-2 items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
-          >
-            <span>Advanced Settings</span>
-            <svg
-              className={`size-4 transition-transform ${
-                showAdvanced ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {showAdvanced && (
-            <div className="mt-3 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Max Slippage</span>
-                <button
-                  type="button"
-                  onClick={() => setSlippage("auto")}
-                  className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
-                >
-                  Auto
-                </button>
-              </div>
-
-              <div className="flex items-center gap-1 bg-[#5F79F1]/10 rounded-lg p-1">
-                {["auto", "0.1", "0.5", "1.0"].map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => {
-                      setSlippage(value === "auto" ? "auto" : Number(value));
-                      if (value !== "custom") setCustomSlippage("");
-                    }}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-                      (value === "auto" && slippage === "auto") ||
-                      (value !== "auto" && slippage === Number(value))
-                        ? "bg-[#5F79F1] text-white"
-                        : "text-black hover:bg-[#5F79F1]/20"
-                    }`}
-                  >
-                    {value === "auto" ? "Auto" : `${value}%`}
-                  </button>
-                ))}
-                <div className="relative flex-1 xl:max-w-[80px]">
-                  <input
-                    type="text"
-                    value={customSlippage}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                        setCustomSlippage(val);
-                        const num = parseFloat(val);
-                        if (!isNaN(num)) {
-                          setSlippage(num);
-                        } else if (val === "") {
-                          setSlippage("auto");
-                        }
-                      }
-                    }}
-                    onFocus={() =>
-                      setSlippage(
-                        customSlippage
-                          ? parseFloat(customSlippage) || "auto"
-                          : "auto"
-                      )
-                    }
-                    placeholder="1.5%"
-                    className="w-full px-3 py-1.5 text-sm text-right bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1] focus:border-[#5F79F1]"
-                  />
-                </div>
-              </div>
+        {/* UniswapV3 Configuration */}
+        {isUniswapV3Strategy && (
+          <div className="my-4 space-y-3">
+            <div className="text-sm font-medium text-gray-700 mb-2">
+              Liquidity Pair Configuration
             </div>
-          )}
-        </div> */}
+            
+            {/* Pair Token Selection */}
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                Pair Token
+              </label>
+              <Select 
+                value={pairToken.name} 
+                onValueChange={(tokenName) => {
+                  const selectedToken = availablePairTokens.find(
+                    (token) => token.name === tokenName
+                  );
+                  if (selectedToken) {
+                    setPairToken(selectedToken);
+                  }
+                }}
+              >
+                <SelectTrigger className="text-sm bg-gray-100 border-gray-300">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={pairToken.icon}
+                      alt={pairToken.name}
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                    />
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePairTokens.map((token) => (
+                    <SelectItem key={token.name} value={token.name}>
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={token.icon}
+                          alt={token.name}
+                          width={20}
+                          height={20}
+                          className="object-contain"
+                        />
+                        {token.name} ({token.symbol})
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Fee Tier Selection */}
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                Fee Tier
+              </label>
+              <Select 
+                value={feeTier.toString()} 
+                onValueChange={(value) => setFeeTier(Number(value))}
+              >
+                <SelectTrigger className="text-sm bg-gray-100 border-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {feeTiers.map((tier) => (
+                    <SelectItem key={tier.value} value={tier.value.toString()}>
+                      {tier.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Advanced Settings Toggle */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full flex justify-between items-center text-sm text-gray-500 hover:text-gray-700 focus:outline-none py-2"
+              >
+                <span>Advanced Settings</span>
+                <svg
+                  className={`size-4 transition-transform ${
+                    showAdvanced ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {showAdvanced && (
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      Slippage Tolerance (basis points)
+                    </label>
+                    <div className="flex gap-2">
+                      {[10, 50, 100, 300].map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setSlippage(value)}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-md border ${
+                            slippage === value
+                              ? "bg-[#5F79F1] text-white border-[#5F79F1]"
+                              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          {value === 10 ? "0.1%" : value === 50 ? "0.5%" : value === 100 ? "1%" : "3%"}
+                        </button>
+                      ))}
+                      <input
+                        type="number"
+                        value={slippage}
+                        onChange={(e) => setSlippage(Number(e.target.value) || 50)}
+                        className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#5F79F1]"
+                        placeholder="Custom"
+                        min="1"
+                        max="5000"
+                      />
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Current: {(slippage / 100).toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 items-center w-full my-4">
           <CirclePlus className="text-[#5F79F1] rounded-full h-[16px] w-[16px] cursor-pointer" />

@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useChainId } from "wagmi";
 import { formatAmount } from "@/utils";
 import { toast } from "react-toastify";
-import { parseUnits } from "viem";
+import { parseUnits, type Address } from "viem";
 
 import { getTokenByName } from "@/utils/coins";
 import { useStrategy } from "@/hooks/useStrategy";
@@ -43,12 +43,51 @@ export default function PositionTableRow({
     const strategy = getStrategy(position.strategy, chainId);
     const token = getTokenByName(position.tokenName);
 
+    // For UniswapV3 strategies, build redemption parameters from metadata
+    let liquidityParams: {
+      tokenId: bigint;
+      token0: Address;
+      token1: Address;
+      liquidityAmount?: bigint;
+      collectFees: boolean;
+      burnNFT: boolean;
+    } | undefined;
+    
+    if (position.strategy === "UniswapV3AddLiquidity") {
+      // Check if we have the required metadata for Uniswap V3 redemption
+      const { nftTokenId, token0, token1, liquidityAmount } = position.metadata || {};
+      
+      if (nftTokenId && token0 && token1) {
+        try {
+          liquidityParams = {
+            tokenId: typeof nftTokenId === 'string' ? BigInt(nftTokenId) : nftTokenId,
+            token0,
+            token1,
+            liquidityAmount: liquidityAmount ? 
+              (typeof liquidityAmount === 'string' ? BigInt(liquidityAmount) : liquidityAmount) 
+              : undefined,
+            // Use sensible defaults
+            collectFees: true,
+            burnNFT: false,
+          };
+        } catch (error) {
+          console.error("Error parsing liquidity parameters:", error);
+          toast.error("Invalid liquidity parameters for UniswapV3 position.");
+          return;
+        }
+      } else {
+        toast.error("Missing NFT position data for UniswapV3 redemption. Backend metadata support required.");
+        return;
+      }
+    }
+
     redeem.mutate(
       {
         strategy,
         amount: parseUnits(position.amount.toString(), token.decimals),
         token,
         positionId: position.id,
+        liquidityParams,
       },
       {
         onSuccess: (txHash) => {
@@ -56,7 +95,7 @@ export default function PositionTableRow({
         },
         onError: (error) => {
           console.error(error);
-          toast.error(`Redeem failed`);
+          toast.error(`Redeem failed: ${error.message}`);
         },
       }
     );
