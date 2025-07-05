@@ -2,6 +2,10 @@ import { Address } from "viem";
 
 import { BaseStrategy, StrategyCall } from "./baseStrategy";
 import { Protocol } from "@/types";
+import {
+  UniswapV3AddLiquidity,
+  type UniswapV3AddLiquidityParams,
+} from "./uniswap/liquidity";
 
 /**
  * MultiStrategy allows combining multiple strategies of different types
@@ -18,16 +22,33 @@ export class MultiStrategy {
   async investCalls(
     amount: bigint,
     user: Address,
-    asset?: Address
+    asset?: Address,
+    liquidityOptions?: UniswapV3AddLiquidityParams
   ): Promise<StrategyCall[]> {
     const allCalls: StrategyCall[] = [];
 
     for (const strategy of this.strategies) {
-      const calls = await strategy.strategy.investCalls(
-        (amount * BigInt(strategy.allocation)) / BigInt(100),
-        user,
-        asset
-      );
+      let calls: StrategyCall[] = [];
+      if (strategy.strategy instanceof UniswapV3AddLiquidity) {
+        if (!asset || !liquidityOptions)
+          throw new Error(
+            "UniswapV3AddLiquidity: token0 and liquidityOptions are required"
+          );
+
+        calls = await strategy.strategy.investCalls(
+          (amount * BigInt(strategy.allocation)) / BigInt(100),
+          user,
+          asset,
+          liquidityOptions
+        );
+      } else {
+        calls = await strategy.strategy.investCalls(
+          (amount * BigInt(strategy.allocation)) / BigInt(100),
+          user,
+          asset
+        );
+      }
+
       allCalls.push(...calls);
     }
 
@@ -51,5 +72,11 @@ export class MultiStrategy {
     }
 
     return allCalls;
+  }
+
+  isExistAddLiquidity(): boolean {
+    return this.strategies.some(
+      (strategy) => strategy.strategy instanceof UniswapV3AddLiquidity
+    );
   }
 }

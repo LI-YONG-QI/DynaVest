@@ -18,10 +18,14 @@ import {
   getInvestCalls,
   updatePosition,
   type PositionParams,
+  getInvestCallsWithSwap,
 } from "./utils";
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { getTokenAddress, getTokenByName } from "@/utils/coins";
 import { getStrategy } from "@/utils/strategies";
+import { getRoute } from "../useSwap";
+import { UniswapV3AddLiquidityParams } from "@/classes/strategies/uniswap/liquidity";
+import { get } from "http";
 
 type RedeemParams = {
   strategy: BaseStrategy<Protocol>;
@@ -41,6 +45,13 @@ type MultiInvestParams = {
   amount: bigint;
   token: Token;
   positionId?: string;
+};
+
+type MultiInvestWithSwapParams = MultiInvestParams & {
+  swapOptions: {
+    tokenOut: Token;
+    slippage: string;
+  };
 };
 
 export function useStrategy() {
@@ -228,6 +239,77 @@ export function useStrategy() {
     },
   });
 
+  const multiInvestWithSwap = useMutation({
+    mutationFn: async ({
+      multiStrategy,
+      amount,
+      token,
+      swapOptions,
+    }: MultiInvestWithSwapParams) => {
+      if (!user) throw new Error("Smart wallet account not found");
+      if (!multiStrategy.isExistAddLiquidity()) {
+        throw new Error("Multi strategy doesn't have add liquidity");
+      }
+
+      const { fee, amount: amountWithoutFee } = calculateFee(amount);
+      let calls: StrategyCall[] = [];
+      const halfAmount = amount / BigInt(2);
+
+      const route = await getRoute({
+        tokenIn: token.name,
+        tokenOut: swapOptions.tokenOut.name,
+        recipient: user,
+        slippage: swapOptions.slippage,
+        amountIn: halfAmount.toString(),
+        chainId: chainId.toString(),
+      });
+
+      const { methodParameters, trade } = route;
+      const inputAmount = trade.inputAmount.toExact();
+      const outputAmount = trade.outputAmount.toExact();
+
+      const liquidityParams: UniswapV3AddLiquidityParams = {
+        swapCalldata: methodParameters?.calldata as `0x${string}`,
+        swapAsset: getTokenAddress(swapOptions.tokenOut, chainId),
+        fee: 100,
+        amount0Desired: BigInt(inputAmount),
+        amount1Desired: BigInt(outputAmount),
+        slippage: Number(swapOptions.slippage),
+      };
+
+      calls = await getInvestCallsWithSwap(
+        multiStrategy,
+        amountWithoutFee,
+        user,
+        token,
+        chainId,
+        liquidityParams
+      );
+
+      const feeCall = addFeesCall(
+        getTokenAddress(token, chainId),
+        token.isNativeToken,
+        fee
+      );
+      calls.push(feeCall);
+
+      const txHash = await sendAndWaitTransaction(calls);
+      await updatePositions(
+        txHash,
+        multiStrategy,
+        amountWithoutFee,
+        chainId,
+        user,
+        token.name
+      );
+
+      return txHash;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user] });
+    },
+  });
+
   const multiInvest = useMutation({
     mutationFn: async ({ multiStrategy, amount, token }: MultiInvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
@@ -269,6 +351,7 @@ export function useStrategy() {
   return {
     invest,
     multiInvest,
+    multiInvestWithSwap,
     redeem,
   };
 }

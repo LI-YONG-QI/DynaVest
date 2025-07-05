@@ -8,6 +8,7 @@ import { getTokenAddress } from "@/utils/coins";
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
+import { UniswapV3AddLiquidityParams } from "@/classes/strategies/uniswap/liquidity";
 
 export type PositionParams = {
   address: Address;
@@ -66,6 +67,25 @@ export async function getInvestCalls(
       getTokenAddress(token, chainId)
     );
   }
+
+  if (calls.length === 0) throw new Error("No calls found");
+  return calls;
+}
+
+export async function getInvestCallsWithSwap(
+  strategy: MultiStrategy,
+  amount: bigint,
+  user: Address,
+  token: Token,
+  chainId: number,
+  liquidityOptions: UniswapV3AddLiquidityParams
+) {
+  const calls = await strategy.investCalls(
+    amount,
+    user,
+    getTokenAddress(token, chainId),
+    liquidityOptions
+  );
 
   if (calls.length === 0) throw new Error("No calls found");
   return calls;
