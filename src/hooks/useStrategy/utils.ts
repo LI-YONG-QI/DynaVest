@@ -8,7 +8,11 @@ import { getTokenAddress } from "@/utils/coins";
 import { BaseStrategy } from "@/classes/strategies/baseStrategy";
 import { MultiStrategy } from "@/classes/strategies/multiStrategy";
 import { Token } from "@/types/blockchain";
-import { UniswapV3AddLiquidityParams } from "@/classes/strategies/uniswap/liquidity";
+import {
+  UniswapV3AddLiquidity,
+  UniswapV3AddLiquidityParams,
+} from "@/classes/strategies/uniswap/liquidity";
+import { cbBTC } from "@/constants";
 
 export type PositionParams = {
   address: Address;
@@ -60,6 +64,17 @@ export async function getInvestCalls(
 
   if (token.isNativeToken) {
     calls = await strategy.investCalls(amount, user);
+  } else if (strategy instanceof UniswapV3AddLiquidity) {
+    // TODO: add liquidity strategy not support native token
+    calls = await strategy.investCalls(
+      amount,
+      user,
+      getTokenAddress(token, chainId),
+      {
+        assetName: token.name,
+        pairToken: cbBTC, // TODO: hardcode cbBTC
+      }
+    );
   } else {
     calls = await strategy.investCalls(
       amount,

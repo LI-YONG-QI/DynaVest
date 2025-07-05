@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { Address, encodeFunctionData, Hex } from "viem";
+import { Address, encodeFunctionData, Hex, parseUnits } from "viem";
 
 import { BaseStrategy, StrategyCall } from "../baseStrategy";
 import { UNISWAP } from "@/constants/protocols/uniswap";
@@ -8,7 +8,7 @@ import { ERC20_ABI, NFT_MANAGER_ABI } from "@/constants/abis";
 import { getDeadline } from "@/utils/strategies";
 import { GetProtocolChains } from "@/types/strategies";
 import { Position } from "@/types/position";
-import { UniswapV3Swap } from "./swap";
+import { UniswapV3Swap } from "@/classes/swap";
 import { Token } from "@/types/blockchain";
 import { getTokenAddress } from "@/utils/coins";
 
@@ -70,21 +70,22 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
     user: Address,
     asset: Address,
     options: {
+      assetName: string;
       pairToken: Token;
     }
   ): Promise<StrategyCall[]> {
-    if (!this.swapStrategy) throw new Error("Swap strategy not implemented");
+    if (!this.swapStrategy)
+      throw new Error("UniswapV3AddLiquidity: Swap strategy not implemented");
 
-    const {
-      calls: swapCalls,
-      inputAmount,
-      outputAmount,
-    } = await this.swapStrategy.getSwapCalls(
-      asset,
-      options.pairToken.name,
-      amount,
-      user
-    );
+    const halfAmount = amount / BigInt(2);
+
+    const { calls: swapCalls, quoteAmount } =
+      await this.swapStrategy.getSwapCalls(
+        options.assetName,
+        options.pairToken.name,
+        halfAmount,
+        user
+      );
 
     const nftManager = this.getAddress("nftManager");
     const deadline = getDeadline();
@@ -92,13 +93,13 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
 
     const [token0, token1] = sortAddresses(asset, pairTokenAddress);
 
-    let amount0Desired = BigInt(inputAmount);
-    let amount1Desired = BigInt(outputAmount);
+    let amount0Desired = halfAmount;
+    let amount1Desired = parseUnits(quoteAmount, options.pairToken.decimals);
 
     // Exchanged
     if (token1 === asset) {
-      amount0Desired = BigInt(outputAmount);
-      amount1Desired = BigInt(inputAmount);
+      amount0Desired = parseUnits(quoteAmount, options.pairToken.decimals);
+      amount1Desired = halfAmount;
     }
 
     return [
@@ -134,7 +135,8 @@ export class UniswapV3AddLiquidity extends BaseStrategy<typeof UNISWAP> {
               amount0Desired,
               amount1Desired,
               amount0Min:
-                (amount * BigInt(10000 - UniswapV3AddLiquidity.SLIPPAGE)) /
+                (amount0Desired *
+                  BigInt(10000 - UniswapV3AddLiquidity.SLIPPAGE)) /
                 BigInt(10000),
               amount1Min:
                 (amount1Desired *

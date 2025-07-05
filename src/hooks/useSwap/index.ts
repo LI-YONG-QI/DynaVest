@@ -31,8 +31,10 @@ export const getRoute = async ({
   const response = await fetch(`/api/swap?${params}`, {
     method: "GET",
   });
+  const { route, quoteAmount } = await response.json();
 
-  return (await response.json()) as SwapRoute;
+  // TODO: unsafe type
+  return { route: route as SwapRoute, quoteAmount: quoteAmount as string };
 };
 
 const useSwap = ({

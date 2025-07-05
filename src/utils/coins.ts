@@ -48,6 +48,7 @@ export const COINGECKO_IDS: Record<TokensName, string> = {
   FLOW: "flow",
   GRAIL: "grail",
   xGRAIL: "grail",
+  cbBTC: "coinbase-wrapped-btc",
 };
 
 export const isCoingeckoId = (id: string): id is TokensName => {

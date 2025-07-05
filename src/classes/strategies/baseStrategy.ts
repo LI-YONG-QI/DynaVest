@@ -30,13 +30,16 @@ export abstract class BaseStrategy<T extends Protocol> {
   abstract investCalls(
     amount: bigint,
     user: Address,
-    asset?: Address
+    asset?: Address,
+    options?: object
   ): Promise<StrategyCall[]>;
 
+  // TODO: update with Token type
   abstract redeemCalls(
     amount: bigint,
     user: Address,
-    asset?: Address
+    asset?: Address,
+    options?: object
   ): Promise<StrategyCall[]>;
 
   abstract getProfit(user: Address, position: Position): Promise<number>;

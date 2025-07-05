@@ -1,7 +1,7 @@
 import { type Address, encodeFunctionData } from "viem";
 
 import { UNISWAP } from "@/constants/protocols/uniswap";
-import { StrategyCall } from "../baseStrategy";
+import { StrategyCall } from "./strategies/baseStrategy";
 import { GetProtocolChains } from "@/types/strategies";
 import { getRoute } from "@/hooks/useSwap";
 import { ERC20_ABI } from "@/constants/abis/erc20";
@@ -19,10 +19,9 @@ export class UniswapV3Swap {
     recipient: Address
   ): Promise<{
     calls: StrategyCall[];
-    inputAmount: string;
-    outputAmount: string;
+    quoteAmount: string;
   }> {
-    const route = await getRoute({
+    const { route, quoteAmount } = await getRoute({
       tokenIn,
       tokenOut,
       recipient,
@@ -30,10 +29,6 @@ export class UniswapV3Swap {
       amountIn: amountIn.toString(),
       chainId: this.chainId.toString(),
     });
-
-    const inputAmount = route.trade.inputAmount.toExact();
-    const outputAmount = route.trade.outputAmount.toExact();
-
     const swapRouter = UNISWAP.contracts[this.chainId].swapRouter;
     const tokenAddress = getTokenAddress(getTokenByName(tokenIn), this.chainId);
 
@@ -54,8 +49,7 @@ export class UniswapV3Swap {
           data: route.methodParameters.calldata as `0x${string}`,
         },
       ],
-      inputAmount,
-      outputAmount,
+      quoteAmount,
     };
   }
 }

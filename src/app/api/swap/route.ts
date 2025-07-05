@@ -64,5 +64,7 @@ export async function GET(request: NextRequest) {
     options
   );
 
-  return NextResponse.json({ route });
+  const quoteAmount = route!.quote.toExact();
+
+  return NextResponse.json({ route, quoteAmount });
 }
