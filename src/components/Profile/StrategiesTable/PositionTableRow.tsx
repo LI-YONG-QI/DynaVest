@@ -51,17 +51,25 @@ export default function PositionTableRow({
       const { nftTokenId, token0, token1, liquidityAmount } = position.metadata || {};
       
       if (nftTokenId && token0 && token1) {
-        liquidityParams = {
-          tokenId: BigInt(nftTokenId),
-          token0,
-          token1,
-          liquidityAmount: liquidityAmount ? BigInt(liquidityAmount) : undefined,
-          // Use sensible defaults
-          collectFees: true,
-          burnNFT: false,
-        };
+        try {
+          liquidityParams = {
+            tokenId: typeof nftTokenId === 'string' ? BigInt(nftTokenId) : nftTokenId,
+            token0,
+            token1,
+            liquidityAmount: liquidityAmount ? 
+              (typeof liquidityAmount === 'string' ? BigInt(liquidityAmount) : liquidityAmount) 
+              : undefined,
+            // Use sensible defaults
+            collectFees: true,
+            burnNFT: false,
+          };
+        } catch (error) {
+          console.error("Error parsing liquidity parameters:", error);
+          toast.error("Invalid liquidity parameters for UniswapV3 position.");
+          return;
+        }
       } else {
-        toast.error("Missing NFT position data for UniswapV3 redemption. Please contact support.");
+        toast.error("Missing NFT position data for UniswapV3 redemption. Backend metadata support required.");
         return;
       }
     }

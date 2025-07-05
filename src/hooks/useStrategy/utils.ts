@@ -22,6 +22,7 @@ export type PositionParams = {
   token_name: string;
   chain_id: number;
   strategy: string;
+  metadata?: Record<string, unknown>; // For strategy-specific data like NFT tokenId
 };
 
 type PositionResponse = {
@@ -62,18 +63,24 @@ export async function getInvestCalls(
   amount: bigint,
   user: Address,
   token: Token,
-  chainId: number
+  chainId: number,
+  runtimeParams?: Record<string, unknown>
 ) {
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.investCalls(amount, user);
+    calls = await strategy.investCalls(amount, user, undefined, runtimeParams as any);
   } else if (strategy instanceof UniswapV3AddLiquidity) {
-    // TODO: add liquidity strategy not support native token
+    // Build UniswapV3InvestParams from runtime parameters or use defaults
     const investParams: UniswapV3InvestParams = {
       assetName: token.name,
-      pairToken: cbBTC, // TODO: hardcode cbBTC
-      // Use default values for other parameters
+      pairToken: (runtimeParams?.pairToken as Token) || cbBTC, // Allow override, fallback to cbBTC
+      fee: (runtimeParams?.fee as number) || undefined, // Use strategy default
+      slippage: (runtimeParams?.slippage as number) || undefined, // Use strategy default
+      swapSlippage: (runtimeParams?.swapSlippage as number) || undefined,
+      tickLower: (runtimeParams?.tickLower as number) || undefined,
+      tickUpper: (runtimeParams?.tickUpper as number) || undefined,
+      deadline: (runtimeParams?.deadline as number) || undefined,
     };
     
     calls = await strategy.investCalls(
@@ -86,7 +93,8 @@ export async function getInvestCalls(
     calls = await strategy.investCalls(
       amount,
       user,
-      getTokenAddress(token, chainId)
+      getTokenAddress(token, chainId),
+      runtimeParams as any
     );
   }
 

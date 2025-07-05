@@ -5,6 +5,7 @@ import { Protocol } from "@/types";
 import {
   UniswapV3AddLiquidity,
   type UniswapV3AddLiquidityParams,
+  type UniswapV3InvestParams,
 } from "./uniswap/liquidity";
 
 /**
@@ -23,7 +24,7 @@ export class MultiStrategy {
     amount: bigint,
     user: Address,
     asset?: Address,
-    liquidityOptions?: UniswapV3AddLiquidityParams
+    liquidityOptions?: UniswapV3InvestParams
   ): Promise<StrategyCall[]> {
     const allCalls: StrategyCall[] = [];
 

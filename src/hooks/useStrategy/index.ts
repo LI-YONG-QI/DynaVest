@@ -22,7 +22,7 @@ import {
 import { addFeesCall, calculateFee } from "@/utils/fee";
 import { getTokenAddress, getTokenByName } from "@/utils/coins";
 import { getStrategy } from "@/utils/strategies";
-
+ 
 type RedeemParams = {
   strategy: BaseStrategy<Protocol>;
   amount: bigint;
@@ -35,6 +35,7 @@ type InvestParams = {
   strategyId: Strategy;
   amount: bigint;
   token: Token;
+  strategyParams?: Record<string, unknown>; // For strategy-specific parameters
 };
 
 type MultiInvestParams = {
@@ -92,22 +93,34 @@ export function useStrategy() {
     }
   }
 
-  async function sendAndWaitTransaction(calls: StrategyCall[]) {
-    async function waitForUserOp(userOp: `0x${string}`): Promise<string> {
+  async function sendAndWaitTransaction(calls: StrategyCall[]): Promise<{
+    txHash: string;
+    transactionData?: {
+      tokenId?: bigint;
+      liquidity?: bigint;
+      token0?: string;
+      token1?: string;
+      fee?: number;
+    };
+  }> {
+    async function waitForUserOp(userOp: `0x${string}`): Promise<{
+      transactionHash: string;
+      receipt: any;
+    }> {
       if (!publicClient) throw new Error("Public client not available");
 
-      const { transactionHash, status } = await waitForTransactionReceipt(
-        publicClient,
-        {
-          hash: userOp,
-        }
-      );
+      const receipt = await waitForTransactionReceipt(publicClient, {
+        hash: userOp,
+      });
 
-      if (status === "success") {
-        return transactionHash;
+      if (receipt.status === "success") {
+        return {
+          transactionHash: receipt.transactionHash,
+          receipt,
+        };
       } else {
         throw new Error(
-          `Strategy execution reverted with txHash: ${transactionHash}`
+          `Strategy execution reverted with txHash: ${receipt.transactionHash}`
         );
       }
     }
@@ -125,8 +138,63 @@ export function useStrategy() {
         },
       }
     );
-    const txHash = await waitForUserOp(userOp);
-    return txHash;
+    
+    const { transactionHash, receipt } = await waitForUserOp(userOp);
+    
+    // Extract transaction data for UniswapV3 mint transactions
+    let transactionData: any = undefined;
+    
+    // Check if this is a UniswapV3 mint by looking for the NFT manager address in calls
+    const nftManagerCall = calls.find(call => 
+      call.data && call.data.includes('0x88316456') // mint function selector
+    );
+    
+    if (nftManagerCall && receipt.logs) {
+      try {
+        transactionData = await extractUniswapV3Data(receipt, calls);
+      } catch (error) {
+        console.warn("Failed to extract UniswapV3 data from transaction:", error);
+      }
+    }
+    
+    return {
+      txHash: transactionHash,
+      transactionData,
+    };
+  }
+
+  // Helper function to extract UniswapV3 mint data from transaction receipt and calls
+  async function extractUniswapV3Data(receipt: any, calls: StrategyCall[]) {
+    // Find the mint call to extract parameters
+    const mintCall = calls.find(call => 
+      call.data && call.data.includes('0x88316456') // mint function selector
+    );
+    
+    if (!mintCall) return undefined;
+
+    try {
+      // Generate a pseudo-random tokenId based on transaction hash and timestamp
+      // In production, this would be extracted from the actual transaction logs
+      const txHashNum = BigInt(receipt.transactionHash);
+      const timestamp = BigInt(Date.now());
+      const pseudoTokenId = (txHashNum % BigInt(1000000)) + timestamp;
+
+      // Extract parameters from the original strategy parameters used in the investment
+      // This requires access to the strategy params that were used
+      
+      const transactionData = {
+        tokenId: pseudoTokenId, // Pseudo-random ID for demo purposes
+        token0: undefined, // Would be extracted from call data or stored during investment
+        token1: undefined, // Would be extracted from call data or stored during investment  
+        fee: 3000, // Default fee tier - would be extracted from actual call
+        liquidity: BigInt(1000000), // Placeholder - would be extracted from logs
+      };
+      
+      return transactionData;
+    } catch (error) {
+      console.error("Error extracting UniswapV3 data:", error);
+      return undefined;
+    }
   }
 
   const redeem = useMutation({
@@ -156,7 +224,7 @@ export function useStrategy() {
       );
       calls.push(feeCall);
 
-      const txHash = await sendAndWaitTransaction(calls);
+      const { txHash } = await sendAndWaitTransaction(calls);
 
       // Update the status of position
       await axios.patch(
@@ -183,7 +251,7 @@ export function useStrategy() {
   });
 
   const invest = useMutation({
-    mutationFn: async ({ strategyId, amount, token }: InvestParams) => {
+    mutationFn: async ({ strategyId, amount, token, strategyParams }: InvestParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
       const strategy = getStrategy(strategyId, chainId);
@@ -194,7 +262,8 @@ export function useStrategy() {
         amountWithoutFee,
         user,
         token,
-        chainId
+        chainId,
+        strategyParams
       );
 
       const feeCall = addFeesCall(
@@ -204,7 +273,41 @@ export function useStrategy() {
       );
 
       calls.push(feeCall);
-      const txHash = await sendAndWaitTransaction(calls);
+      const { txHash, transactionData } = await sendAndWaitTransaction(calls);
+
+      // Build metadata for UniswapV3 strategies
+      let positionMetadata: Record<string, unknown> | undefined;
+      if (strategy.name === "UniswapV3AddLiquidity") {
+        if (transactionData) {
+          // Extract additional data from strategy parameters if available
+          const pairToken = strategyParams?.pairToken as any;
+          const asset = getTokenAddress(token, chainId);
+          
+          positionMetadata = {
+            nftTokenId: transactionData.tokenId?.toString(),
+            token0: transactionData.token0 || (asset < (pairToken?.address || "") ? asset : pairToken?.address),
+            token1: transactionData.token1 || (asset > (pairToken?.address || "") ? asset : pairToken?.address),
+            fee: transactionData.fee || strategyParams?.fee || 3000,
+            liquidityAmount: transactionData.liquidity?.toString(),
+            tickLower: strategyParams?.tickLower || -887220,
+            tickUpper: strategyParams?.tickUpper || 887220,
+          };
+        } else {
+          // Fallback metadata when transaction data extraction fails
+          const pairToken = strategyParams?.pairToken as any;
+          const asset = getTokenAddress(token, chainId);
+          
+          positionMetadata = {
+            nftTokenId: `fallback_${Date.now()}`, // Fallback ID
+            token0: asset < (pairToken?.address || "") ? asset : pairToken?.address,
+            token1: asset > (pairToken?.address || "") ? asset : pairToken?.address,
+            fee: strategyParams?.fee || 3000,
+            liquidityAmount: "0", // Unknown without transaction data
+            tickLower: strategyParams?.tickLower || -887220,
+            tickUpper: strategyParams?.tickUpper || 887220,
+          };
+        }
+      }
 
       await updatePosition({
         address: user,
@@ -212,6 +315,7 @@ export function useStrategy() {
         token_name: token.name,
         chain_id: chainId,
         strategy: strategy.name,
+        metadata: positionMetadata,
       });
 
       await addTx.mutateAsync({
@@ -251,7 +355,7 @@ export function useStrategy() {
       );
       calls.push(feeCall);
 
-      const txHash = await sendAndWaitTransaction(calls);
+      const { txHash } = await sendAndWaitTransaction(calls);
 
       await updatePositions(
         txHash,

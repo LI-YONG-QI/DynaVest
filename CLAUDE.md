@@ -181,8 +181,14 @@ Below is integrated protocols documents:
 - Uniswap: https://docs.uniswap.org/
 
 ## Libraries
+
+### Web3 libraries
+Provide basic functions to help developer integrate EVM
 - Viem: https://viem.sh/
 - Wagmi: https://wagmi.sh/
+
+### Wallet as a Service
+DynaVest leverage Privy service to manage wallets
 - Privy: https://docs.privy.io/basics/get-started/about
 
 Must inspect source of protocol documents before integrate with strategy class
