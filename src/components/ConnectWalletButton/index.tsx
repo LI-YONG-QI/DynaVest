@@ -117,7 +117,7 @@ export default function ConnectWalletButton() {
                   {/* User info */}
                   <div className="flex flex-col items-start min-w-0">
                     <span className="font-bold text-[13px] text-[#3B446A] tracking-wider truncate">
-                      UserName
+                      {user?.google?.name}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="font-[var(--font-bricolage-grotesque)] text-xs text-black opacity-60 leading-none truncate">
@@ -166,7 +166,8 @@ export default function ConnectWalletButton() {
       {/* DROPDOWN */}
       {isDropdownOpen && (
         <div
-          className="absolute top-full right-0 w-full rounded-b-[12px] shadow-lg overflow-hidden z-10 transform origin-top-right transition-all duration-200 ease-out"
+          data-state={isDropdownOpen ? "open" : "closed"}
+          className="absolute top-full right-0 w-full rounded-b-[12px] shadow-lg overflow-hidden z-10 origin-top-right data-[state=closed]:pointer-events-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-2"
           style={{
             ...backgroundStyle,
             boxShadow: "0px 4px 20px 0px rgba(96, 167, 255, 0.25)",
@@ -179,7 +180,7 @@ export default function ConnectWalletButton() {
               {/* Profile */}
               <button
                 onClick={() => router.push("/profile")}
-                className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors"
+                className="cursor-pointer w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors"
               >
                 <Image
                   src="/dropdown-icons/profile-icon.svg"
@@ -195,7 +196,7 @@ export default function ConnectWalletButton() {
               {/* Disconnect */}
               <button
                 onClick={handleDisconnect}
-                className="w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors"
+                className="cursor-pointer w-full flex items-center gap-2 px-5 py-3 hover:bg-white hover:bg-opacity-10 transition-colors"
               >
                 <Image
                   src="/dropdown-icons/logout-icon.svg"

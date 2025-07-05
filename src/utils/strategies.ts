@@ -9,6 +9,7 @@ import {
 import {
   BNB,
   ETH,
+  FLUID,
   MORPHO,
   PERMIT_EXPIRY,
   STRATEGIES_METADATA,
@@ -21,6 +22,7 @@ import {
   MorphoSupply,
   UniswapV3SwapLST,
   AaveV3Supply,
+  FluidSupply,
 } from "@/classes/strategies";
 import { AAVE } from "@/constants/protocols/aave";
 
@@ -69,6 +71,11 @@ const STRATEGY_CONFIGS: Record<
       }
     },
   },
+  FluidSupply: {
+    protocol: FLUID,
+    factory: (chainId) =>
+      new FluidSupply(chainId as GetProtocolChains<typeof FLUID>),
+  },
 
   // Legacy
   StCeloStaking: {
@@ -109,11 +116,15 @@ export function getStrategy(
 ): BaseStrategy<Protocol> {
   const config = STRATEGY_CONFIGS[strategy];
 
-  if (!isChainSupported(config.protocol, chainId)) {
-    throw new Error(`Chain ${chainId} is not supported by ${strategy}`);
+  try {
+    if (isChainSupported(config.protocol, chainId)) {
+      return config.factory(chainId);
+    }
+    throw new Error(`Strategy ${strategy} not found on chain ${chainId}`);
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Strategy ${strategy} not found on chain ${chainId}`);
   }
-
-  return config.factory(chainId);
 }
 
 export function getStrategyMetadata(

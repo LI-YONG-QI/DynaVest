@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-export const createWithdrawFormSchema = (maxBalance: number = 100.0) =>
+export const createWithdrawFormSchema = (
+  price: number,
+  isPriceError: boolean,
+  maxBalance: number = 100.0
+) =>
   z.object({
     address: z
       .string()
@@ -20,9 +24,13 @@ export const createWithdrawFormSchema = (maxBalance: number = 100.0) =>
       .refine(
         (val) => {
           const amount = parseFloat(val);
-          return amount >= 0.01;
+          const value = amount * price;
+
+          if (isPriceError) return true; // Not check
+
+          return value >= 0.01;
         },
-        { message: "Minimum withdrawal amount is 0.01" }
+        { message: "Minimum withdrawal value is 0.01" }
       )
       .refine(
         (val) => {

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 
 import StrategyCard from "./StrategyCard";
 import GridIcon from "./GridIcon";
@@ -36,10 +36,6 @@ export default function StrategyList() {
   const [showApyDropdown, setShowApyDropdown] = useState(false);
   const [selectedApySort, setSelectedApySort] = useState<string | null>(null);
 
-  const protocolDropdownRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const apyDropdownRef = useRef<HTMLDivElement>(null);
-
   // Extract all distinct protocols
   const protocolOptions = useMemo(() => {
     const protocols = STRATEGIES_METADATA.map((strategy) => strategy.protocol);
@@ -47,12 +43,18 @@ export default function StrategyList() {
   }, []);
 
   // Toggle protocol selection
-  const toggleProtocolSelection = (protocol: Protocol) => {
-    setSelectedProtocols((prev) =>
-      prev.includes(protocol)
-        ? prev.filter((p) => p !== protocol)
-        : [...prev, protocol]
-    );
+  const toggleProtocolSelection = (protocol: Protocol | null) => {
+    if (protocol === null) {
+      setSelectedProtocols([]);
+      return;
+    }
+    setSelectedProtocols((prev) => {
+      const isSelected = prev.some((p) => p.name === protocol.name);
+      if (isSelected) {
+        return prev.filter((p) => p.name !== protocol.name);
+      }
+      return [...prev, protocol];
+    });
   };
   // Toggle risk selection
   const toggleRiskSelection = (risk: string) => {
@@ -142,7 +144,6 @@ export default function StrategyList() {
             toggleRiskSelection={toggleRiskSelection}
             showRiskDropdown={showRiskDropdown}
             setShowRiskDropdown={setShowRiskDropdown}
-            dropdownRef={dropdownRef}
           />
 
           <ProtocolFilter
@@ -152,7 +153,6 @@ export default function StrategyList() {
             toggleProtocolSelection={toggleProtocolSelection}
             showProtocolDropdown={showProtocolDropdown}
             setShowProtocolDropdown={setShowProtocolDropdown}
-            dropdownRef={protocolDropdownRef}
           />
 
           <APYFilter
@@ -160,7 +160,6 @@ export default function StrategyList() {
             setSelectedApySort={setSelectedApySort}
             showApyDropdown={showApyDropdown}
             setShowApyDropdown={setShowApyDropdown}
-            dropdownRef={apyDropdownRef}
           />
 
           {/* Chain Filter - Desktop */}

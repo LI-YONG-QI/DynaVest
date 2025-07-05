@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Address, formatUnits } from "viem";
+import { MoonLoader } from "react-spinners";
 
 import {
   Dialog,
@@ -44,19 +45,26 @@ type WithdrawDialogProps = {
 
 export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
   const chainId = useChainId();
-  const { withdrawAsset } = useAssets();
+  const { withdrawAsset, pricesQuery } = useAssets();
   const [showNetworkSelect, setShowNetworkSelect] = useState(false);
   const [showAssetSelect, setShowAssetSelect] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Token>(token);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const { balance = BigInt(0) } = useBalance(selectedAsset);
+  const price = pricesQuery.data?.[selectedAsset.name] || 0;
+
+  const isPriceError = pricesQuery.isError;
 
   const maxBalance = useMemo(() => {
     return Number(formatUnits(balance, selectedAsset.decimals));
   }, [balance, selectedAsset.decimals]);
 
-  const withdrawFormSchema = createWithdrawFormSchema(maxBalance);
+  const withdrawFormSchema = createWithdrawFormSchema(
+    price,
+    isPriceError,
+    maxBalance
+  );
   type WithdrawFormValues = z.infer<typeof withdrawFormSchema>;
 
   const form = useForm<WithdrawFormValues>({
@@ -226,6 +234,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                           Address
                         </FormLabel>
                       </div>
+
                       <FormControl>
                         <div className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4">
                           <div className="flex items-center justify-between w-full gap-2 py-2">
@@ -278,6 +287,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                           Withdrawal Amount
                         </FormLabel>
                       </div>
+
                       <FormControl>
                         <div className="w-full bg-[#F8F9FE] border-none rounded-xl p-2 px-4">
                           <div className="flex items-center justify-between w-full gap-2 py-2">
@@ -313,7 +323,7 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
             </div>
 
             {/* Fixed Bottom Section - Summary and Button */}
-            <div className="flex-shrink-0 p-4 pt-0">
+            <div className="flex-shrink-0 p-4 pt-0 mt-5">
               <div className="flex flex-col gap-4">
                 {/* Summary Section */}
                 <div className="w-full bg-[#FEFEFE] border border-[#E5E5E5] rounded-2xl p-2 px-4">
@@ -325,6 +335,15 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                       </p>
                       <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
                         0.5%
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between w-full gap-2 py-3">
+                      <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
+                        Value
+                      </p>
+                      <p className="font-[Manrope] font-normal text-[14px] leading-[1.43] tracking-[1.79%] text-[#404040]">
+                        ${(Number(total.toFixed(6)) * price).toFixed(6)}
                       </p>
                     </div>
 
@@ -343,10 +362,14 @@ export function WithdrawDialog({ textClassName, token }: WithdrawDialogProps) {
                 {/* Continue Button */}
                 <button
                   type="submit"
-                  className="w-full bg-[#5F79F1] text-white font-[Manrope] font-semibold text-[16px] leading-[1.5] py-3 px-4 rounded-xl hover:bg-[#4A6AE8] transition-colors"
+                  className="flex items-center justify-center w-full bg-[#5F79F1] text-white font-[Manrope] font-semibold text-[16px] leading-[1.5] py-3 px-4 rounded-xl hover:bg-[#4A6AE8] transition-colors"
                   disabled={isWithdrawing}
                 >
-                  {isWithdrawing ? "Withdrawing..." : "Continue"}
+                  {isWithdrawing ? (
+                    <MoonLoader size={20} color="#fff" />
+                  ) : (
+                    "Continue"
+                  )}
                 </button>
               </div>
             </div>
