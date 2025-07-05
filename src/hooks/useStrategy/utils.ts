@@ -11,6 +11,8 @@ import { Token } from "@/types/blockchain";
 import {
   UniswapV3AddLiquidity,
   UniswapV3AddLiquidityParams,
+  UniswapV3InvestParams,
+  UniswapV3RedeemParams,
 } from "@/classes/strategies/uniswap/liquidity";
 import { cbBTC } from "@/constants";
 
@@ -35,17 +37,19 @@ export async function getRedeemCalls(
   amount: bigint,
   user: Address,
   token: Token,
-  chainId: number
+  chainId: number,
+  runtimeParams?: Record<string, unknown>
 ) {
   let calls: StrategyCall[];
 
   if (token.isNativeToken) {
-    calls = await strategy.redeemCalls(amount, user);
+    calls = await strategy.redeemCalls(amount, user, undefined, runtimeParams);
   } else {
     calls = await strategy.redeemCalls(
       amount,
       user,
-      getTokenAddress(token, chainId)
+      getTokenAddress(token, chainId),
+      runtimeParams
     );
   }
 
@@ -66,14 +70,17 @@ export async function getInvestCalls(
     calls = await strategy.investCalls(amount, user);
   } else if (strategy instanceof UniswapV3AddLiquidity) {
     // TODO: add liquidity strategy not support native token
+    const investParams: UniswapV3InvestParams = {
+      assetName: token.name,
+      pairToken: cbBTC, // TODO: hardcode cbBTC
+      // Use default values for other parameters
+    };
+    
     calls = await strategy.investCalls(
       amount,
       user,
       getTokenAddress(token, chainId),
-      {
-        assetName: token.name,
-        pairToken: cbBTC, // TODO: hardcode cbBTC
-      }
+      investParams
     );
   } else {
     calls = await strategy.investCalls(

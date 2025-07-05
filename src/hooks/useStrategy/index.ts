@@ -28,6 +28,7 @@ type RedeemParams = {
   amount: bigint;
   token: Token;
   positionId: string;
+  liquidityParams?: Record<string, unknown>;
 };
 
 type InvestParams = {
@@ -134,6 +135,7 @@ export function useStrategy() {
       amount,
       token,
       positionId,
+      liquidityParams,
     }: RedeemParams) => {
       if (!user) throw new Error("Smart wallet account not found");
 
@@ -143,7 +145,8 @@ export function useStrategy() {
         amountWithoutFee,
         user,
         token,
-        chainId
+        chainId,
+        liquidityParams
       );
 
       const feeCall = addFeesCall(

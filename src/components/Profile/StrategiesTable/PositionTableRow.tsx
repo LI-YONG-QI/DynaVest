@@ -43,12 +43,36 @@ export default function PositionTableRow({
     const strategy = getStrategy(position.strategy, chainId);
     const token = getTokenByName(position.tokenName);
 
+    // For UniswapV3 strategies, build redemption parameters from metadata
+    let liquidityParams: Record<string, unknown> | undefined;
+    
+    if (position.strategy === "UniswapV3AddLiquidity") {
+      // Check if we have the required metadata for Uniswap V3 redemption
+      const { nftTokenId, token0, token1, liquidityAmount } = position.metadata || {};
+      
+      if (nftTokenId && token0 && token1) {
+        liquidityParams = {
+          tokenId: BigInt(nftTokenId),
+          token0,
+          token1,
+          liquidityAmount: liquidityAmount ? BigInt(liquidityAmount) : undefined,
+          // Use sensible defaults
+          collectFees: true,
+          burnNFT: false,
+        };
+      } else {
+        toast.error("Missing NFT position data for UniswapV3 redemption. Please contact support.");
+        return;
+      }
+    }
+
     redeem.mutate(
       {
         strategy,
         amount: parseUnits(position.amount.toString(), token.decimals),
         token,
         positionId: position.id,
+        liquidityParams,
       },
       {
         onSuccess: (txHash) => {
@@ -56,7 +80,7 @@ export default function PositionTableRow({
         },
         onError: (error) => {
           console.error(error);
-          toast.error(`Redeem failed`);
+          toast.error(`Redeem failed: ${error.message}`);
         },
       }
     );
