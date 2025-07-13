@@ -82,7 +82,7 @@ const Chatroom = () => {
         className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-50 bg-[#5F79F1] rounded-full p-3 shadow-lg hover:bg-[#4A64DC] cursor-pointer hover:scale-120 transition-transform"
       >
         <Image
-          src="/bot-icon-white.svg"
+          src="/bot-icon-white.png"
           alt="Chat with DynaVest Bot"
           width={24}
           height={24}
@@ -102,7 +102,7 @@ const Chatroom = () => {
         <div className="flex items-center gap-x-3">
           <div className="flex items-center justify-center mt-1">
             <Image
-              src="/bot-icon-white.svg"
+              src="/bot-icon-white.png"
               alt="Bot"
               width={48}
               height={48}

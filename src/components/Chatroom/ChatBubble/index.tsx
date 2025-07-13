@@ -26,7 +26,7 @@ export default function ChatBubble({
         {message.sender === "bot" && (
           <div className="absolute bottom-[-35px] left-0 z-10 flex-shrink-0 mr-2 order-first bg-[#4558AF] rounded-full p-[5px]">
             <Image
-              src="/bot-icon-white.svg"
+              src="/bot-icon-white.png"
               alt="Bot"
               width={20}
               height={20}
