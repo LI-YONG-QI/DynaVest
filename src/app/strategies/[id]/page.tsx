@@ -77,7 +77,7 @@ function StrategyDetailContent() {
         >
           <span>
             <Image
-              src="/bot-icon-white.svg"
+              src="/bot-icon-white.png"
               alt="Bot"
               width={20}
               height={20}

@@ -1,7 +1,6 @@
 import type { ChartConfig } from "@/components/ui/chart";
 import type { PieStrategy, RiskPortfolioStrategies } from "@/types";
 
-
 /**
  * Generates chart data from strategy information
  */
@@ -32,7 +31,7 @@ export const createPieChartStrategies = (
     color: strategy.color,
     name: strategy.title,
     apy: `APY ${strategy.apy}%`,
-    risk: `${strategy.risk} Risk`,
+    risk: strategy.risk,
     allocation: strategy.allocation,
   }));
 };

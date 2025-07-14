@@ -49,7 +49,7 @@ export type PieStrategy = {
   color: string;
   name: string;
   apy: string;
-  risk: string;
+  risk: RiskLevel;
   allocation: number;
 };
 
